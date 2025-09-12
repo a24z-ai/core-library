@@ -11,6 +11,7 @@ export type {
   StoredAnchoredNote,
   AnchoredNoteWithPath,
   MemoryPalaceConfiguration,
+  StaleAnchoredNote,
 
   // Path validation types
   ValidatedRepositoryPath,

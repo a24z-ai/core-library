@@ -319,3 +319,6 @@ export interface MemoryPalaceConfiguration {
     list_codebase_views?: boolean;
   };
 }
+
+// Re-export StaleAnchoredNote from stores
+export { StaleAnchoredNote } from '../stores/AnchoredNotesStore';
