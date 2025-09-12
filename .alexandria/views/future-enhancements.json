@@ -1,0 +1,54 @@
+{
+  "id": "future-enhancements",
+  "version": "1.0.0",
+  "name": "Future Enhancements",
+  "description": "Ideas for improving Alexandria core library and documentation system",
+  "rows": 2,
+  "cols": 2,
+  "cells": {
+    "0,0": {
+      "label": "Configuration & Rules",
+      "coordinates": [0, 0],
+      "files": [
+        ".alexandriarc.json",
+        "src/pure-core/",
+        "src/config/types.ts"
+      ]
+    },
+    "0,1": {
+      "label": "Documentation Organization",
+      "coordinates": [0, 1],
+      "files": [
+        "docs/available-rules.md",
+        "docs/codebase-view-concept.md"
+      ]
+    },
+    "1,0": {
+      "label": "CLI & Automation",
+      "coordinates": [1, 0],
+      "files": [
+        "scripts/generate-schema.js",
+        ".husky/pre-commit"
+      ]
+    },
+    "1,1": {
+      "label": "Future Implementation",
+      "coordinates": [1, 1],
+      "files": []
+    }
+  },
+  "overviewPath": "docs/future-enhancements.md",
+  "category": "planning",
+  "displayOrder": 0,
+  "timestamp": "2025-09-12T20:24:41.601Z",
+  "metadata": {
+    "generationType": "user",
+    "ui": {
+      "enabled": true,
+      "rows": 2,
+      "cols": 2,
+      "showCellLabels": true,
+      "cellLabelPosition": "top"
+    }
+  }
+}
