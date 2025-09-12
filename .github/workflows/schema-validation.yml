@@ -1,0 +1,54 @@
+name: Schema Validation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'src/config/types.ts'
+      - 'schema/**'
+      - 'scripts/generate-schema.js'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/config/types.ts'
+      - 'schema/**'
+      - 'scripts/generate-schema.js'
+
+jobs:
+  validate-schema:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      
+      - name: Install dependencies
+        run: bun install
+      
+      - name: Generate schema
+        run: bun run schema:generate
+      
+      - name: Check for uncommitted schema changes
+        run: |
+          if ! git diff --quiet schema/alexandriarc.json; then
+            echo "❌ Schema is out of date!"
+            echo "Please run 'npm run schema:generate' and commit the changes."
+            git diff schema/alexandriarc.json
+            exit 1
+          fi
+          echo "✅ Schema is up to date"
+      
+      - name: Validate schema exists and is valid JSON
+        run: |
+          if [ ! -f schema/alexandriarc.json ]; then
+            echo "❌ Schema file not found at schema/alexandriarc.json"
+            exit 1
+          fi
+          
+          # Validate it's valid JSON
+          bun -e "JSON.parse(require('fs').readFileSync('schema/alexandriarc.json', 'utf-8'))"
+          echo "✅ Schema is valid JSON"

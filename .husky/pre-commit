@@ -1,0 +1,27 @@
+# Generate schema to ensure it's up to date
+echo "Updating Alexandria schema..."
+npm run schema:generate || {
+  echo "❌ Schema generation failed"
+  exit 1
+}
+
+# Add the schema file to the commit if it was modified
+git add schema/alexandriarc.json 2>/dev/null
+
+# Alexandria validation
+echo "Running Alexandria validation..."
+alexandria validate-all --errors-only || {
+  echo "❌ Alexandria validation failed (errors found)"
+  echo "   Run 'alexandria validate-all' to see details"
+  exit 1
+}
+
+echo "Running Alexandria lint..."
+alexandria lint --errors-only 2>/dev/null || {
+  # Only fail if lint exits with non-zero code
+  if [ $? -ne 0 ]; then
+    echo "❌ Alexandria lint failed"
+    echo "   Run 'alexandria lint' to see details"
+    exit 1
+  fi
+}

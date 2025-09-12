@@ -1,8 +1,8 @@
 # Pure-Core Architecture: Platform-Agnostic Foundation
 
-This codebase view provides a detailed breakdown of the `pure-core` directory, which forms the platform-agnostic foundation of the a24z-Memory system. The pure-core layer contains all business logic that can run in any JavaScript environment without platform-specific dependencies.
+This document provides a detailed breakdown of the `pure-core` directory, which forms the platform-agnostic foundation of the Alexandria core library. The pure-core layer contains all business logic that can run in any JavaScript environment without platform-specific dependencies.
 
-## The Six Core Components
+## The Core Components
 
 ### 🟢 Abstractions (Top-Left)
 
@@ -65,23 +65,35 @@ The `config` directory provides system defaults:
 
 **Key Principle**: Sensible defaults that can be overridden per repository.
 
-### 🔘 Integration (Bottom-Right)
+### ⚪ Validation (Bottom-Right)
 
-**Cross-Component Coordination**
+**Data Validation Layer**
 
-This represents how all pure-core components work together:
+The `validation` directory provides comprehensive validation:
 
-- **Dependency Injection**: FileSystemAdapter injected into all stores
-- **Type Safety**: All components use the shared type system
-- **Configuration Management**: Centralized config shared across stores
-- **Validation Pipeline**: Consistent validation across all operations
+- **CodebaseViewValidator**: Validates view structure and file references
+- **Pattern Validation**: Validates file patterns and paths
+- **Data Integrity**: Ensures all data meets requirements
+
+**Key Principle**: All data is validated before storage or processing.
+
+### 🟡 Autofixes (Additional Component)
+
+**Automatic Error Correction**
+
+The `autofixes` directory contains automatic repair utilities:
+
+- **OverviewPathAutoFix**: Automatically fixes overview path issues in views
+- **Future Autofixes**: Extensible system for automatic repairs
+
+**Key Principle**: Common issues can be automatically resolved without manual intervention.
 
 ## Data Flow in Pure-Core
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Abstractions  │───▶│     Stores      │───▶│   Validation    │
-│ (FileSystem)    │    │ (Data Access)   │    │   Pipeline      │
+│ (FileSystem)    │    │ (Data Access)   │    │   (Integrity)   │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
          │                       │                       │
          ▼                       ▼                       ▼
@@ -89,6 +101,12 @@ This represents how all pure-core components work together:
 │     Types       │    │     Utils       │    │     Config      │
 │ (Type Safety)   │    │ (Pure Functions)│    │ (Defaults)      │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
+                                │
+                                ▼
+                       ┌─────────────────┐
+                       │    Autofixes    │
+                       │ (Auto Repair)   │
+                       └─────────────────┘
 ```
 
 ## Key Architectural Principles

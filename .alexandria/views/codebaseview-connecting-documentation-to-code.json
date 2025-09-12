@@ -1,0 +1,51 @@
+{
+  "id": "codebaseview-connecting-documentation-to-code",
+  "version": "1.0.0",
+  "name": "CodebaseView: Connecting Documentation to Code",
+  "description": "Codebase view extracted from documentation",
+  "rows": 2,
+  "cols": 3,
+  "cells": {
+    "types": {
+      "coordinates": [0, 0],
+      "files": [
+        "src/pure-core/types/index.ts",
+        "src/pure-core/types/summary.ts"
+      ]
+    },
+    "storage": {
+      "coordinates": [0, 1],
+      "files": [
+        "src/pure-core/stores/CodebaseViewsStore.ts",
+        "src/MemoryPalace.ts"
+      ]
+    },
+    "validation": {
+      "coordinates": [0, 2],
+      "files": [
+        "src/pure-core/validation/CodebaseViewValidator.ts"
+      ]
+    },
+    "rules": {
+      "coordinates": [1, 0],
+      "files": [
+        "src/rules/implementations/require-references.ts",
+        "src/rules/index.ts"
+      ]
+    }
+  },
+  "overviewPath": "docs/codebase-view-concept.md",
+  "category": "other",
+  "displayOrder": 0,
+  "timestamp": "2025-09-12T19:17:27.622Z",
+  "metadata": {
+    "generationType": "user",
+    "ui": {
+      "enabled": true,
+      "rows": 2,
+      "cols": 3,
+      "showCellLabels": true,
+      "cellLabelPosition": "top"
+    }
+  }
+}

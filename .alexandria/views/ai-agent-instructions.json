@@ -1,0 +1,23 @@
+{
+  "id": "ai-agent-instructions",
+  "version": "1.0.0",
+  "name": "AI Agent Instructions",
+  "description": "Codebase view extracted from documentation",
+  "rows": 1,
+  "cols": 1,
+  "cells": {},
+  "overviewPath": "AGENTS.md",
+  "category": "other",
+  "displayOrder": 0,
+  "timestamp": "2025-09-12T19:58:26.868Z",
+  "metadata": {
+    "generationType": "user",
+    "ui": {
+      "enabled": true,
+      "rows": 1,
+      "cols": 1,
+      "showCellLabels": true,
+      "cellLabelPosition": "top"
+    }
+  }
+}

@@ -1,0 +1,370 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "ContextRule": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "fix": {
+          "additionalProperties": false,
+          "properties": {
+            "suggestion": {
+              "type": "string"
+            },
+            "type": {
+              "$ref": "#/definitions/FixType"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "options": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/DocumentOrganizationOptions"
+            },
+            {
+              "$ref": "#/definitions/StaleReferencesOptions"
+            },
+            {
+              "$ref": "#/definitions/RequireReferencesOptions"
+            },
+            {
+              "$ref": "#/definitions/FilenameConventionOptions"
+            },
+            {
+              "$ref": "#/definitions/Record<string,string|number|boolean|string[]>"
+            }
+          ]
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/definitions/RuleSeverity"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "severity"
+      ],
+      "type": "object"
+    },
+    "DocumentOrganizationOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "checkNested": {
+          "type": "boolean"
+        },
+        "documentFolders": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "rootExceptions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "FilenameConventionOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "autoFix": {
+          "description": "Enable auto-fix by renaming files",
+          "type": "boolean"
+        },
+        "caseStyle": {
+          "description": "Additional case enforcement",
+          "enum": [
+            "lower",
+            "mixed",
+            "upper"
+          ],
+          "type": "string"
+        },
+        "documentFoldersOnly": {
+          "description": "Only check files in documentation folders",
+          "type": "boolean"
+        },
+        "exceptions": {
+          "description": "Exact filenames to allow as exceptions",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "exclude": {
+          "description": "Glob patterns to exclude from checking",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "extensions": {
+          "description": "File extensions to check",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "separator": {
+          "description": "Custom separator character (overrides style)",
+          "enum": [
+            " ",
+            "-",
+            ".",
+            "_"
+          ],
+          "type": "string"
+        },
+        "style": {
+          "description": "Naming style to enforce",
+          "enum": [
+            "PascalCase",
+            "UPPERCASE",
+            "camelCase",
+            "kebab-case",
+            "lowercase",
+            "snake_case"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "FixType": {
+      "enum": [
+        "add",
+        "remove",
+        "replace"
+      ],
+      "type": "string"
+    },
+    "PriorityLevel": {
+      "enum": [
+        "critical",
+        "high",
+        "low",
+        "medium"
+      ],
+      "type": "string"
+    },
+    "PriorityPattern": {
+      "additionalProperties": false,
+      "properties": {
+        "pattern": {
+          "type": "string"
+        },
+        "priority": {
+          "$ref": "#/definitions/PriorityLevel"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "pattern",
+        "priority"
+      ],
+      "type": "object"
+    },
+    "Record<string,string|number|boolean|string[]>": {
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "RequireReferencesOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "excludeFiles": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "RuleSeverity": {
+      "enum": [
+        "error",
+        "info",
+        "warning"
+      ],
+      "type": "string"
+    },
+    "StaleReferencesOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "maxAgeDays": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "context": {
+      "additionalProperties": false,
+      "properties": {
+        "followSymlinks": {
+          "type": "boolean"
+        },
+        "maxDepth": {
+          "type": "number"
+        },
+        "patterns": {
+          "additionalProperties": false,
+          "properties": {
+            "exclude": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "include": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "priority": {
+              "items": {
+                "$ref": "#/definitions/PriorityPattern"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "rules": {
+          "items": {
+            "$ref": "#/definitions/ContextRule"
+          },
+          "type": "array"
+        },
+        "useGitignore": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "project": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "framework": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "language": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "application",
+            "library",
+            "monorepo",
+            "service"
+          ],
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "reporting": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "enum": [
+            "html",
+            "json",
+            "text"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "enum": [
+            "both",
+            "console",
+            "file"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "verbose": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "version": {
+      "const": "1.0.0",
+      "type": "string"
+    }
+  },
+  "required": [
+    "version"
+  ],
+  "type": "object",
+  "$id": "https://raw.githubusercontent.com/a24z-ai/alexandria/main/schema/alexandriarc.json",
+  "title": "Alexandria Configuration Schema",
+  "description": "Schema for Alexandria library configuration files"
+}

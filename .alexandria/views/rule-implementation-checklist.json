@@ -1,0 +1,23 @@
+{
+  "id": "rule-implementation-checklist",
+  "version": "1.0.0",
+  "name": "Rule Implementation Checklist",
+  "description": "Codebase view extracted from documentation",
+  "rows": 1,
+  "cols": 1,
+  "cells": {},
+  "overviewPath": "docs/rule-implementation-checklist.md",
+  "category": "other",
+  "displayOrder": 0,
+  "timestamp": "2025-09-12T19:57:19.567Z",
+  "metadata": {
+    "generationType": "user",
+    "ui": {
+      "enabled": true,
+      "rows": 1,
+      "cols": 1,
+      "showCellLabels": true,
+      "cellLabelPosition": "top"
+    }
+  }
+}

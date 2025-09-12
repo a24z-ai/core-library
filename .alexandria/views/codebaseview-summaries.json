@@ -1,0 +1,35 @@
+{
+  "id": "codebaseview-summaries",
+  "version": "1.0.0",
+  "name": "CodebaseView Summaries",
+  "description": "Codebase view extracted from documentation",
+  "rows": 1,
+  "cols": 1,
+  "cells": {
+    "Implementation": {
+      "coordinates": [
+        0,
+        0
+      ],
+      "files": [
+        "src/pure-core/types/summary.ts",
+        "src/pure-core/types/index.ts"
+      ],
+      "priority": 0
+    }
+  },
+  "overviewPath": "docs/codebase-view-summaries.md",
+  "category": "other",
+  "displayOrder": 0,
+  "timestamp": "2025-09-12T19:22:43.066Z",
+  "metadata": {
+    "generationType": "user",
+    "ui": {
+      "enabled": true,
+      "rows": 1,
+      "cols": 1,
+      "showCellLabels": true,
+      "cellLabelPosition": "top"
+    }
+  }
+}

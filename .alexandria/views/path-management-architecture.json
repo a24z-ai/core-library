@@ -1,0 +1,55 @@
+{
+  "id": "path-management-architecture",
+  "version": "1.0.0",
+  "name": "Path Management Architecture",
+  "description": "Centralized path management with branded types and FileSystemAdapter abstraction",
+  "rows": 2,
+  "cols": 2,
+  "cells": {
+    "0,0": {
+      "label": "Core Path Management",
+      "coordinates": [0, 0],
+      "files": [
+        "src/MemoryPalace.ts",
+        "src/utils/alexandria-paths.ts"
+      ]
+    },
+    "0,1": {
+      "label": "FileSystem Abstraction",
+      "coordinates": [0, 1],
+      "files": [
+        "src/pure-core/abstractions/filesystem.ts",
+        "src/node-adapters/NodeFileSystemAdapter.ts"
+      ]
+    },
+    "1,0": {
+      "label": "Path Types & Constants",
+      "coordinates": [1, 0],
+      "files": [
+        "src/constants/paths.ts"
+      ]
+    },
+    "1,1": {
+      "label": "Testing Support",
+      "coordinates": [1, 1],
+      "files": [
+        "src/node-adapters/InMemoryFileSystemAdapter.ts",
+        "tests/path-validation.test.ts"
+      ]
+    }
+  },
+  "overviewPath": "docs/architecture/path-management.md",
+  "category": "architecture",
+  "displayOrder": 0,
+  "timestamp": "2025-09-12T20:15:23.817Z",
+  "metadata": {
+    "generationType": "user",
+    "ui": {
+      "enabled": true,
+      "rows": 2,
+      "cols": 2,
+      "showCellLabels": true,
+      "cellLabelPosition": "top"
+    }
+  }
+}

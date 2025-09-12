@@ -2,7 +2,7 @@
 
 ## Overview
 
-The a24z-Memory system uses a centralized path management architecture that ensures type safety, reduces redundancy, and provides a clear migration path from legacy storage locations. This document explains the key architectural decisions made during the refactoring of path management across the codebase.
+The Alexandria core library uses a centralized path management architecture that ensures type safety, reduces redundancy, and provides consistent path handling across the codebase. This document explains the key architectural decisions behind the path management system.
 
 ## Key Design Principles
 
@@ -42,7 +42,7 @@ All file system operations go through the `FileSystemAdapter` abstraction, which
 The central API that manages all memory operations. Key responsibilities:
 
 - **Path Validation**: Validates repository paths once at construction time
-- **Alexandria Directory Resolution**: Determines whether to use `.alexandria` or legacy `.a24z`
+- **Alexandria Directory Resolution**: Manages `.alexandria` directory paths
 - **Store Creation**: Creates and manages store instances with pre-validated paths
 - **Public API**: Provides a clean interface for tools and CLI commands
 
@@ -83,41 +83,19 @@ const palace = new MemoryPalace(parsed.directoryPath, this.fs);
 const saved = palace.saveNote({...});
 ```
 
-## Migration Strategy
+## Path Resolution
 
-### Supporting Both .alexandria and .a24z
-
-The system supports a gradual migration from the legacy `.a24z` directory to the new `.alexandria` standard:
-
-1. **Check for existing directories** in order of preference:
-   - If `.a24z` exists, continue using it (backward compatibility)
-   - If `.alexandria` exists, use it
-   - If neither exists, create `.alexandria` (new standard)
-
-2. **Future migration path**:
-   - Eventually add migration logic to move from `.a24z` to `.alexandria`
-   - Maintain backward compatibility during transition period
-   - Remove legacy support in a major version update
-
-### Path Resolution Logic
+The system uses the `.alexandria` directory for storing all repository-specific data:
 
 ```typescript
 static getAlexandriaPath(repositoryPath: ValidatedRepositoryPath, fs: FileSystemAdapter): ValidatedAlexandriaPath {
   const alexandriaPath = fs.join(repositoryPath, '.alexandria');
-  const legacyPath = fs.join(repositoryPath, '.a24z');
   
-  // Prefer legacy if it exists (backward compatibility)
-  if (fs.exists(legacyPath)) {
-    return legacyPath as ValidatedAlexandriaPath;
+  // Create alexandria directory if it doesn't exist
+  if (!fs.exists(alexandriaPath)) {
+    fs.createDir(alexandriaPath);
   }
   
-  // Use new standard if it exists
-  if (fs.exists(alexandriaPath)) {
-    return alexandriaPath as ValidatedAlexandriaPath;
-  }
-  
-  // Create new standard for fresh installations
-  fs.createDir(alexandriaPath);
   return alexandriaPath as ValidatedAlexandriaPath;
 }
 ```
@@ -161,7 +139,7 @@ const store = new AnchoredNotesStore(fs, validPath);
 ### For New Features
 
 1. Always use MemoryPalace for path operations
-2. Never hardcode `.a24z` or `.alexandria` paths
+2. Never hardcode `.alexandria` paths
 3. Trust branded types - don't re-validate
 4. Use dependency injection for FileSystemAdapter
 
@@ -183,20 +161,18 @@ const store = new AnchoredNotesStore(fs, validPath);
 
 ### Potential Enhancements
 
-1. **Automatic Migration**: Add user-prompted migration from `.a24z` to `.alexandria`
-2. **Path Caching**: Cache validated paths for frequently accessed repositories
-3. **Multi-Repository Support**: Extend to handle operations across multiple repositories
-4. **Remote Repository Support**: Add support for remote repository operations
+1. **Path Caching**: Cache validated paths for frequently accessed repositories
+2. **Multi-Repository Support**: Extend to handle operations across multiple repositories
+3. **Remote Repository Support**: Add support for remote repository operations
 
 ### Breaking Changes to Avoid
 
 1. Never change the branded type definitions
-2. Maintain backward compatibility for `.a24z` during transition
-3. Keep FileSystemAdapter interface stable
-4. Preserve MemoryPalace public API
+2. Keep FileSystemAdapter interface stable
+3. Preserve MemoryPalace public API
 
 ## Conclusion
 
-This centralized path management architecture provides a robust foundation for the a24z-Memory system. By validating paths once and using branded types throughout, we achieve both type safety and performance while maintaining flexibility for future enhancements.
+This centralized path management architecture provides a robust foundation for the Alexandria core library. By validating paths once and using branded types throughout, we achieve both type safety and performance while maintaining flexibility for future enhancements.
 
-The architecture supports gradual migration from legacy storage locations and provides clear patterns for extending the system with new features. Most importantly, it reduces complexity by consolidating path-related logic in a single, well-tested location.
+The architecture provides clear patterns for extending the system with new features. Most importantly, it reduces complexity by consolidating path-related logic in a single, well-tested location.

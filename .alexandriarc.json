@@ -1,0 +1,88 @@
+{
+  "$schema": "./schema/alexandriarc.json",
+  "version": "1.0.0",
+  "project": {
+    "name": "@a24z/core-library",
+    "description": "Core library for a24z ecosystem - Alexandria library implementation",
+    "version": "0.1.0",
+    "type": "library",
+    "language": ["typescript", "javascript"],
+    "framework": ["node", "bun"]
+  },
+  "context": {
+    "useGitignore": true,
+    "maxDepth": 10,
+    "followSymlinks": false,
+    "patterns": {
+      "exclude": [
+        ".alexandria/**"
+      ],
+      "priority": [
+        {
+          "pattern": "**/src/**/*.ts",
+          "priority": "critical",
+          "reason": "Core library source code"
+        },
+        {
+          "pattern": "**/tests/**/*.test.ts",
+          "priority": "high",
+          "reason": "Test files ensure quality"
+        },
+        {
+          "pattern": "**/docs/**/*.md",
+          "priority": "high",
+          "reason": "Documentation for developers"
+        }
+      ]
+    },
+    "rules": [
+      {
+        "id": "require-references",
+        "name": "Require CodebaseView References",
+        "severity": "error",
+        "enabled": true,
+        "options": {
+          "excludeFiles": ["CHANGELOG.md", "README.md"]
+        }
+      },
+      {
+        "id": "document-organization",
+        "name": "Document Organization",
+        "severity": "error",
+        "enabled": true,
+        "options": {
+          "documentFolders": ["docs"],
+          "rootExceptions": ["README.md", "CHANGELOG.md", "LICENSE", "AGENTS.md"],
+          "checkNested": true
+        }
+      },
+      {
+        "id": "filename-convention",
+        "name": "Filename Convention",
+        "severity": "error",
+        "enabled": true,
+        "options": {
+          "style": "kebab-case",
+          "extensions": [".md"],
+          "exceptions": ["README.md", "CHANGELOG.md", "LICENSE", "AGENTS.md"],
+          "documentFoldersOnly": false,
+          "autoFix": true
+        }
+      },
+      {
+        "id": "stale-references",
+        "name": "Stale References Check",
+        "severity": "error",
+        "enabled": true,
+        "options": {
+          "maxAgeDays": 30
+        }
+      }
+    ]
+  },
+  "reporting": {
+    "output": "console",
+    "format": "text",
+    "verbose": true
+  }
+}
