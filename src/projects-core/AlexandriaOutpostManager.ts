@@ -62,6 +62,10 @@ export class AlexandriaOutpostManager {
     return this.projectRegistry.listProjects().length;
   }
 
+  getAllEntries(): AlexandriaEntry[] {
+    return this.projectRegistry.listProjects();
+  }
+
   private async transformToRepository(entry: AlexandriaEntry): Promise<AlexandriaRepository> {
     // Load views if not already loaded
     let views: CodebaseViewSummary[] = entry.views || [];

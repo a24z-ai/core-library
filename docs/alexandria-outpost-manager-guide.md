@@ -47,12 +47,18 @@ if (repo) {
   console.log(`${repo.name} at ${repo.path}`);
   console.log(`Has ${repo.viewCount} views`);
   console.log(`Last updated: ${repo.lastUpdated}`);
-  
+
   // Access view summaries
   repo.views.forEach(view => {
     console.log(`- ${view.name}: ${view.cellCount} cells`);
   });
 }
+
+// Get all entries with full AlexandriaEntry data (includes local paths)
+const entries = manager.getAllEntries();
+entries.forEach(entry => {
+  console.log(`${entry.name} at ${entry.path}`);
+});
 ```
 
 ### Serving Repository Data
