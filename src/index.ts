@@ -80,3 +80,33 @@ export { CONFIG_FILENAME } from './config/schema';
 // Project utilities
 export { getGitRemoteUrl } from './projects-core/utils';
 export { hasAlexandriaWorkflow, hasMemoryNotes } from './projects-core/workflow-utils';
+
+// ============================================================================
+// Storage and Bookmarking System
+// ============================================================================
+
+// Storage manager and adapters
+export { ReadingRecordManager } from './storage/ReadingRecordManager';
+export { MemoryReadingRecordAdapter } from './storage/adapters/memory';
+export { LocalStorageReadingRecordAdapter } from './storage/adapters/localStorage';
+
+// Storage types
+export type {
+  ReadingRecordAdapter,
+  StorageCapabilities,
+  StorageConfig,
+  StorageStats,
+  StorageResult,
+  StorageEvents,
+  VisitQuery,
+  BookmarkQuery,
+} from './storage/types';
+
+// Alexandria bookmark and state types
+export type {
+  AlexandriaVisit,
+  AlexandriaBookmark,
+  AlexandriaLibraryCard,
+  AlexandriaDocumentVersion,
+  AlexandriaBookmarkedDocument,
+} from './types/alexandria-state';
