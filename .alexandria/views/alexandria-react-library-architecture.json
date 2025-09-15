@@ -1,0 +1,23 @@
+{
+  "id": "alexandria-react-library-architecture",
+  "version": "1.0.0",
+  "name": "Alexandria React Library Architecture",
+  "description": "Codebase view extracted from documentation",
+  "rows": 1,
+  "cols": 1,
+  "cells": {},
+  "overviewPath": "docs/alexandria-library-architecture.md",
+  "category": "other",
+  "displayOrder": 0,
+  "timestamp": "2025-09-15T03:02:19.902Z",
+  "metadata": {
+    "generationType": "user",
+    "ui": {
+      "enabled": true,
+      "rows": 1,
+      "cols": 1,
+      "showCellLabels": true,
+      "cellLabelPosition": "top"
+    }
+  }
+}
