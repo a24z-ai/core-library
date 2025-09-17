@@ -58,6 +58,12 @@ export type { FileSystemAdapter } from './pure-core/abstractions/filesystem';
 export { NodeFileSystemAdapter } from './node-adapters/NodeFileSystemAdapter';
 export { InMemoryFileSystemAdapter } from './node-adapters/InMemoryFileSystemAdapter';
 
+// Glob adapter for pattern matching
+export type { GlobAdapter, GlobOptions } from './pure-core/abstractions/glob';
+export { BasicGlobAdapter } from './node-adapters/BasicGlobAdapter';
+// NodeGlobAdapter requires globby to be installed separately
+// export { NodeGlobAdapter } from './node-adapters/NodeGlobAdapter';
+
 // Primary API classes
 export { MemoryPalace } from './MemoryPalace';
 

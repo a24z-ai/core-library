@@ -3,10 +3,6 @@
   "workspaces": {
     "": {
       "name": "a24z-memory",
-      "dependencies": {
-        "globby": "^14.1.0",
-        "ignore": "^7.0.5",
-      },
       "devDependencies": {
         "@eslint/js": "^9.15.0",
         "@semantic-release/changelog": "^6.0.3",
@@ -19,6 +15,7 @@
         "eslint": "^9.34.0",
         "eslint-config-prettier": "^10.1.8",
         "fast-glob": "^3.3.3",
+        "globby": "^14.1.0",
         "husky": "^9.1.7",
         "lint-staged": "^16.1.5",
         "prettier": "^3.6.2",

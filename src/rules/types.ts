@@ -1,5 +1,6 @@
 import { ValidatedRepositoryPath, CodebaseView, AnchoredNoteWithPath } from '../pure-core/types';
 import { AlexandriaConfig, RuleOptions } from '../config/types';
+import { GlobAdapter } from '../pure-core/abstractions/glob';
 
 export type LibraryRuleSeverity = 'error' | 'warning' | 'info';
 export type LibraryRuleCategory = 'critical' | 'quality' | 'performance' | 'structure';
@@ -39,6 +40,7 @@ export interface LibraryRuleContext {
   gitHistory?: Map<string, GitFileHistory>;
   gitignorePatterns?: string[];
   config?: AlexandriaConfig;
+  globAdapter?: GlobAdapter;
 }
 
 export interface LibraryRule {

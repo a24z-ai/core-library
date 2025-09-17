@@ -1,7 +1,7 @@
 import { LibraryRule, LibraryRuleViolation, LibraryRuleContext } from '../types';
 import { DocumentOrganizationOptions } from '../../config/types';
 import * as path from 'path';
-import { globby } from 'globby';
+import { BasicGlobAdapter } from '../../node-adapters/BasicGlobAdapter';
 
 // Default allowed root-level documentation files
 const DEFAULT_ROOT_EXCEPTIONS = [
@@ -67,8 +67,11 @@ export const documentOrganization: LibraryRule = {
     };
 
     try {
+      // Use provided glob adapter or fall back to BasicGlobAdapter
+      const globAdapter = context.globAdapter || new BasicGlobAdapter();
+
       // Find all markdown files in the repository
-      const markdownFiles = await globby(['**/*.md', '**/*.mdx'], {
+      const markdownFiles = await globAdapter.findFiles(['**/*.md', '**/*.mdx'], {
         cwd: projectRoot,
         ignore: [
           '**/node_modules/**',

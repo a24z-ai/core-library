@@ -18,16 +18,20 @@ import { ConfigLoader } from '../config/loader';
 import { ValidatedRepositoryPath } from '../pure-core/types';
 import { MemoryPalace } from '../MemoryPalace';
 import { NodeFileSystemAdapter } from '../node-adapters/NodeFileSystemAdapter';
+import { BasicGlobAdapter } from '../node-adapters/BasicGlobAdapter';
+import { GlobAdapter } from '../pure-core/abstractions/glob';
 
 export class LibraryRulesEngine {
   private rules: Map<string, LibraryRule> = new Map();
   private configLoader: ConfigLoader;
   private fsAdapter: NodeFileSystemAdapter;
+  private globAdapter: GlobAdapter;
 
-  constructor() {
+  constructor(globAdapter?: GlobAdapter) {
     // Create file system adapter
     this.fsAdapter = new NodeFileSystemAdapter();
     this.configLoader = new ConfigLoader(this.fsAdapter);
+    this.globAdapter = globAdapter || new BasicGlobAdapter();
 
     // Register built-in rules
     this.registerRule(requireReferences);
@@ -133,6 +137,7 @@ export class LibraryRulesEngine {
       markdownFiles,
       gitignorePatterns,
       config: config || undefined,
+      globAdapter: this.globAdapter,
     };
 
     // Build a map of rule configuration overrides from config
