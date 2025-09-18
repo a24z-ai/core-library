@@ -84,7 +84,6 @@ export { ALEXANDRIA_DIRS } from './constants/paths';
 export { CONFIG_FILENAME } from './config/schema';
 
 // Project utilities
-export { getGitRemoteUrl } from './projects-core/utils';
 export { hasAlexandriaWorkflow, hasMemoryNotes } from './projects-core/workflow-utils';
 
 // ============================================================================

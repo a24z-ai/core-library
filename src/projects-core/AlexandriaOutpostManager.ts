@@ -5,6 +5,7 @@ import type { CodebaseViewSummary } from '../pure-core/types/summary.js';
 import { extractCodebaseViewSummary } from '../pure-core/types/summary.js';
 import type { ValidatedRepositoryPath } from '../pure-core/types/index.js';
 import { homedir } from 'os';
+import { ConfigLoader } from '../config/loader.js';
 
 import { FileSystemAdapter } from '../pure-core/abstractions/filesystem.js';
 
@@ -37,10 +38,10 @@ export class AlexandriaOutpostManager {
     return this.transformToRepository(entry);
   }
 
-  async registerRepository(name: string, path: string): Promise<AlexandriaRepository> {
+  async registerRepository(name: string, path: string, remoteUrl?: string): Promise<AlexandriaRepository> {
     // Use existing registry's register method
-    this.projectRegistry.registerProject(name, path as ValidatedRepositoryPath);
-    
+    this.projectRegistry.registerProject(name, path as ValidatedRepositoryPath, remoteUrl);
+
     // Return the transformed repository
     const entry = this.projectRegistry.getProject(name);
     if (!entry) {
@@ -64,6 +65,51 @@ export class AlexandriaOutpostManager {
 
   getAllEntries(): AlexandriaEntry[] {
     return this.projectRegistry.listProjects();
+  }
+
+  /**
+   * Get all overview file paths for views in a given repository entry
+   * @param entry - The AlexandriaEntry for the local repository
+   * @returns Array of overview file paths relative to repository root
+   */
+  async getAlexandriaEntryDocs(entry: AlexandriaEntry): Promise<string[]> {
+    try {
+      // Create a MemoryPalace instance for this repository
+      const memoryPalace = new MemoryPalace(entry.path, this.fsAdapter);
+
+      // Get all views and extract their overview paths
+      const views = memoryPalace.listViews();
+      return views.map(v => v.overviewPath).filter(path => path && path.length > 0);
+    } catch (error) {
+      console.debug(`Could not load views for ${entry.name}:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Get excluded document files from Alexandria require-references rule configuration
+   * These are markdown files that are excluded from the requirement to be associated with CodebaseViews
+   * @param entry - The AlexandriaEntry for the local repository
+   * @returns Array of file paths excluded from tracking, or empty array if no config
+   */
+  getAlexandriaEntryExcludedDocs(entry: AlexandriaEntry): string[] {
+    try {
+      // Create a ConfigLoader to load the Alexandria configuration
+      const configLoader = new ConfigLoader(this.fsAdapter);
+
+      // Load config from the repository path
+      const config = configLoader.loadConfig(entry.path);
+
+      // Find the require-references rule configuration
+      const requireReferencesRule = config?.context?.rules?.find(rule => rule.id === 'require-references');
+
+      // Return the excludeFiles list if it exists
+      const excludeFiles = (requireReferencesRule?.options as any)?.excludeFiles;
+      return Array.isArray(excludeFiles) ? excludeFiles : [];
+    } catch (error) {
+      console.debug(`Could not load Alexandria config for ${entry.name}:`, error);
+      return [];
+    }
   }
 
   private async transformToRepository(entry: AlexandriaEntry): Promise<AlexandriaRepository> {
