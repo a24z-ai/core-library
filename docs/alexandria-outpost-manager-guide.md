@@ -26,6 +26,13 @@ Register and manage multiple repositories in your global registry:
 // Register a new repository
 const repo = await manager.registerRepository('my-project', '/path/to/my-project');
 
+// Register with a remote URL (for GitHub integration)
+const repoWithRemote = await manager.registerRepository(
+  'my-project',
+  '/path/to/my-project',
+  'https://github.com/user/my-project.git'
+);
+
 // Get all registered repositories
 const repositories = await manager.getAllRepositories();
 
@@ -59,6 +66,25 @@ const entries = manager.getAllEntries();
 entries.forEach(entry => {
   console.log(`${entry.name} at ${entry.path}`);
 });
+```
+
+### Documentation Tracking
+
+Track and access documentation files for repositories:
+
+```typescript
+// Get all overview documentation file paths for a repository
+const entry = manager.getAllEntries().find(e => e.name === 'my-project');
+if (entry) {
+  const docPaths = await manager.getAlexandriaEntryDocs(entry);
+  console.log('Documentation files:');
+  docPaths.forEach(path => console.log(`- ${path}`));
+
+  // Get excluded documentation files (untracked by Alexandria rules)
+  const excludedDocs = manager.getAlexandriaEntryExcludedDocs(entry);
+  console.log('Excluded documentation:');
+  excludedDocs.forEach(path => console.log(`- ${path}`));
+}
 ```
 
 ### Serving Repository Data

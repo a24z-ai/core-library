@@ -7,17 +7,21 @@ The Alexandria core library includes a `LibraryRulesEngine` that validates docum
 ## Basic Usage
 
 ```typescript
-import { LibraryRulesEngine, NodeFileSystemAdapter } from '@a24z/core-library';
+import { LibraryRulesEngine } from '@a24z/core-library';
 
-// Initialize the rules engine
-const fsAdapter = new NodeFileSystemAdapter();
-const rulesEngine = new LibraryRulesEngine(fsAdapter, '/path/to/repo');
+// Initialize the rules engine (uses built-in BasicGlobAdapter by default)
+const rulesEngine = new LibraryRulesEngine();
 
-// Run all enabled rules
-const results = await rulesEngine.runRules();
+// Or with a custom glob adapter
+import { NodeGlobAdapter } from '@a24z/core-library';
+const globAdapter = new NodeGlobAdapter();
+const customRulesEngine = new LibraryRulesEngine(globAdapter);
+
+// Run all enabled rules on a repository
+const results = await rulesEngine.runRules('/path/to/repo');
 
 // Run a specific rule
-const docOrgResults = await rulesEngine.runRule('document-organization');
+const docOrgResults = await rulesEngine.runRule('document-organization', '/path/to/repo');
 
 // Check results
 results.forEach(result => {

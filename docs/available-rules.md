@@ -348,10 +348,10 @@ To completely disable a rule:
 When using the API, you can run specific rules:
 
 ```typescript
-const rulesEngine = new LibraryRulesEngine(fsAdapter, repoPath);
+const rulesEngine = new LibraryRulesEngine();
 
 // Run only document-organization
-const results = await rulesEngine.runRule('document-organization');
+const results = await rulesEngine.runRule('document-organization', repoPath);
 
 // Run multiple specific rules
 const rules = ['require-references', 'stale-references'];
