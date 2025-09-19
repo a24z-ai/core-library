@@ -160,13 +160,12 @@ Snake case for documentation folders only:
 ## require-references
 
 ### Purpose
-Ensures that markdown documentation files have associated CodebaseViews in Alexandria. This creates explicit connections between documentation and code, enabling AI agents to understand the context and relationships.
+Ensures that every markdown documentation file is used as an overview in at least one CodebaseView. This creates explicit connections between documentation and code, enabling AI agents to understand the context and relationships.
 
 ### How It Works
-1. Scans for all markdown files in the repository
-2. Checks for corresponding CodebaseView files in `.alexandria/views/`
-3. Validates that views properly reference the documentation
-4. Reports documentation files lacking CodebaseView associations
+1. Scans for all markdown files in the repository (respecting gitignore)
+2. Checks if each markdown file is used as an `overviewPath` in any CodebaseView
+3. Reports documentation files that are not used as view overviews
 
 ### Default Severity
 `error`
@@ -179,15 +178,15 @@ Ensures that markdown documentation files have associated CodebaseViews in Alexa
 
 ### What Makes a Valid Reference
 A markdown file is considered properly referenced when:
-- A CodebaseView exists with the markdown file as its `overviewPath`
-- The view file is valid JSON
-- The view contains proper structure with cells and file references
+- It is used as the `overviewPath` in at least one CodebaseView
+- The path is not in the configured `excludeFiles` list
+- The path is not in the `.alexandria/` directory
 
 ### Example Violations
 
 ```
 docs/authentication.md
-    ✖ Markdown file "docs/authentication.md" is not associated with any CodebaseView
+    ✖ Markdown file "docs/authentication.md" is not used as an overview in any CodebaseView
       rule: require-references
       impact: AI agents lack structured context for understanding this documentation
 

@@ -7,23 +7,23 @@ export const requireReferences: LibraryRule = {
   name: 'Require References',
   severity: 'error',
   category: 'critical',
-  description: 'Every markdown file must be associated with at least one CodebaseView',
+  description: 'Every markdown file must be used as an overview in at least one CodebaseView',
   impact: 'AI agents lack structured context for understanding this documentation',
   fixable: false,
   enabled: true,
 
   async check(context: LibraryRuleContext): Promise<LibraryRuleViolation[]> {
     const violations: LibraryRuleViolation[] = [];
-    const { markdownFiles, views, notes, config } = context;
+    const { markdownFiles, views, config } = context;
 
     // Get options from config
     const ruleConfig = config?.context?.rules?.find((r) => r.id === 'require-references');
     const configOptions = ruleConfig?.options as RequireReferencesOptions | undefined;
 
-    // Build a set of all markdown files that are associated with views or notes
+    // Build a set of all markdown files that are associated with views (as overviews only)
     const associatedFiles = new Set<string>();
 
-    // Check files directly referenced in view cells and overviews
+    // Check files used as view overviews
     for (const view of views) {
       // Check overview path
       if (
@@ -32,30 +32,6 @@ export const requireReferences: LibraryRule = {
         view.overviewPath.endsWith('.md')
       ) {
         associatedFiles.add(view.overviewPath);
-      }
-
-      // Check files in cells
-      if (view.cells) {
-        for (const cellName in view.cells) {
-          const cell = view.cells[cellName];
-          // Check if it's a file cell (has 'files' property)
-          if ('files' in cell && Array.isArray(cell.files)) {
-            for (const file of cell.files) {
-              if (file.endsWith('.md')) {
-                associatedFiles.add(file);
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Check files referenced in notes
-    for (const noteWithPath of notes) {
-      for (const anchorPath of noteWithPath.note.anchors) {
-        if (anchorPath.endsWith('.md')) {
-          associatedFiles.add(anchorPath);
-        }
       }
     }
 
@@ -78,7 +54,7 @@ export const requireReferences: LibraryRule = {
           ruleId: this.id,
           severity: this.severity,
           file: relativePath,
-          message: `Markdown file "${relativePath}" is not associated with any CodebaseView`,
+          message: `Markdown file "${relativePath}" is not used as an overview in any CodebaseView`,
           impact: this.impact,
           fixable: this.fixable,
         });

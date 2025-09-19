@@ -11,27 +11,24 @@ import { orphanedReferences } from './implementations/orphaned-references';
 import { staleReferences } from './implementations/stale-references';
 import { documentOrganization } from './implementations/document-organization';
 import { filenameConvention } from './implementations/filename-convention';
-import { statSync, readdirSync } from 'fs';
-import { join, relative } from 'path';
 import { AlexandriaConfig, RuleSeverity } from '../config/types';
 import { ConfigLoader } from '../config/loader';
 import { ValidatedRepositoryPath } from '../pure-core/types';
 import { MemoryPalace } from '../MemoryPalace';
-import { NodeFileSystemAdapter } from '../node-adapters/NodeFileSystemAdapter';
-import { BasicGlobAdapter } from '../node-adapters/BasicGlobAdapter';
 import { GlobAdapter } from '../pure-core/abstractions/glob';
+import { FileSystemAdapter } from '../pure-core/abstractions/filesystem';
 
 export class LibraryRulesEngine {
   private rules: Map<string, LibraryRule> = new Map();
   private configLoader: ConfigLoader;
-  private fsAdapter: NodeFileSystemAdapter;
+  private fsAdapter: FileSystemAdapter;
   private globAdapter: GlobAdapter;
 
-  constructor(globAdapter?: GlobAdapter) {
-    // Create file system adapter
-    this.fsAdapter = new NodeFileSystemAdapter();
+  constructor(fsAdapter: FileSystemAdapter, globAdapter: GlobAdapter) {
+    // Require both adapters - no defaults
+    this.fsAdapter = fsAdapter;
     this.configLoader = new ConfigLoader(this.fsAdapter);
-    this.globAdapter = globAdapter || new BasicGlobAdapter();
+    this.globAdapter = globAdapter;
 
     // Register built-in rules
     this.registerRule(requireReferences);
@@ -51,50 +48,57 @@ export class LibraryRulesEngine {
 
   private async scanFiles(
     projectRoot: ValidatedRepositoryPath,
-    _gitignorePatterns?: string[]
+    useGitignore: boolean = true
   ): Promise<{ files: FileInfo[]; markdownFiles: FileInfo[] }> {
     const files: FileInfo[] = [];
     const markdownFiles: FileInfo[] = [];
 
-    const scan = (dir: string) => {
-      try {
-        const entries = readdirSync(dir);
-        for (const entry of entries) {
-          const fullPath = join(dir, entry);
-          const relativePath = relative(projectRoot, fullPath);
+    try {
+      // Get all files using glob adapter (respecting gitignore if enabled)
+      const allFilePaths = await this.globAdapter.findFiles(['**/*'], {
+        cwd: projectRoot,
+        gitignore: useGitignore,
+        dot: false,
+        onlyFiles: true,
+      });
 
-          // Skip hidden directories and common ignore patterns
-          if (entry.startsWith('.') || entry === 'node_modules') {
-            continue;
-          }
+      // Get markdown files specifically
+      const markdownFilePaths = await this.globAdapter.findFiles(['**/*.md', '**/*.mdx'], {
+        cwd: projectRoot,
+        gitignore: useGitignore,
+        dot: false,
+        onlyFiles: true,
+      });
 
-          // TODO: Apply gitignore patterns if provided
+      // Create a set of markdown paths for quick lookup
+      const markdownPathSet = new Set(markdownFilePaths);
 
-          const stats = statSync(fullPath);
-          if (stats.isDirectory()) {
-            scan(fullPath);
-          } else if (stats.isFile()) {
-            const fileInfo: FileInfo = {
-              path: fullPath,
-              relativePath,
-              exists: true,
-              lastModified: stats.mtime,
-              size: stats.size,
-              isMarkdown: entry.endsWith('.md'),
-            };
-
-            files.push(fileInfo);
-            if (fileInfo.isMarkdown) {
-              markdownFiles.push(fileInfo);
-            }
-          }
-        }
-      } catch (error) {
-        console.warn(`Error scanning directory ${dir}:`, error);
+      // Convert all file paths to FileInfo objects
+      for (const relativePath of allFilePaths) {
+        const fileInfo: FileInfo = {
+          path: `${projectRoot}/${relativePath}`, // Simple concatenation, no path.join needed
+          relativePath,
+          exists: true,
+          isMarkdown: markdownPathSet.has(relativePath),
+        };
+        files.push(fileInfo);
       }
-    };
 
-    scan(projectRoot);
+      // Create FileInfo objects for markdown files
+      for (const relativePath of markdownFilePaths) {
+        const fileInfo: FileInfo = {
+          path: `${projectRoot}/${relativePath}`,
+          relativePath,
+          exists: true,
+          isMarkdown: true,
+        };
+        markdownFiles.push(fileInfo);
+      }
+    } catch (error) {
+      console.error(`Error scanning files in ${projectRoot}:`, error);
+      // Return empty arrays if scanning fails
+    }
+
     return { files, markdownFiles };
   }
 
@@ -107,22 +111,18 @@ export class LibraryRulesEngine {
       fix?: boolean;
     } = {}
   ): Promise<LibraryLintResult> {
-    // Create MemoryPalace instance
-    const fs = new NodeFileSystemAdapter();
-    const validatedPath = MemoryPalace.validateRepositoryPath(fs, projectRoot || process.cwd());
-    const memoryPalace = new MemoryPalace(validatedPath, fs);
+    // Use the injected filesystem adapter
+    const validatedPath = MemoryPalace.validateRepositoryPath(this.fsAdapter, projectRoot || process.cwd());
+    const memoryPalace = new MemoryPalace(validatedPath, this.fsAdapter);
 
     // Load configuration
     const config = options.config || this.configLoader.loadConfig();
 
-    // Prepare gitignore patterns if enabled
-    let gitignorePatterns: string[] | undefined;
-    if (config?.context?.useGitignore) {
-      // TODO: Load and parse .gitignore file
-    }
+    // Determine if we should use gitignore (default to true)
+    const useGitignore = config?.context?.useGitignore !== false;
 
     // Scan files
-    const { files, markdownFiles } = await this.scanFiles(validatedPath, gitignorePatterns);
+    const { files, markdownFiles } = await this.scanFiles(validatedPath, useGitignore);
 
     // Load views and notes using MemoryPalace public API
     const views = memoryPalace.listViews();
@@ -135,7 +135,6 @@ export class LibraryRulesEngine {
       notes,
       files,
       markdownFiles,
-      gitignorePatterns,
       config: config || undefined,
       globAdapter: this.globAdapter,
     };

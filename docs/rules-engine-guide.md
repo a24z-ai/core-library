@@ -8,27 +8,35 @@ The Alexandria core library includes a `LibraryRulesEngine` that validates docum
 
 ```typescript
 import { LibraryRulesEngine } from '@a24z/core-library';
+import { NodeFileSystemAdapter } from '@a24z/core-library';
+import { BasicGlobAdapter } from '@a24z/core-library';
 
-// Initialize the rules engine (uses built-in BasicGlobAdapter by default)
-const rulesEngine = new LibraryRulesEngine();
+// Initialize the rules engine - both adapters are required
+const fsAdapter = new NodeFileSystemAdapter();
+const globAdapter = new BasicGlobAdapter();
+const rulesEngine = new LibraryRulesEngine(fsAdapter, globAdapter);
 
-// Or with a custom glob adapter
-import { NodeGlobAdapter } from '@a24z/core-library';
-const globAdapter = new NodeGlobAdapter();
-const customRulesEngine = new LibraryRulesEngine(globAdapter);
+// Or with a custom glob adapter (e.g., NodeGlobAdapter for full glob support)
+// Note: NodeGlobAdapter requires 'globby' to be installed
+// import { NodeGlobAdapter } from '@a24z/core-library';
+// const globAdapter = new NodeGlobAdapter();
+// const rulesEngine = new LibraryRulesEngine(fsAdapter, globAdapter);
 
-// Run all enabled rules on a repository
-const results = await rulesEngine.runRules('/path/to/repo');
+// Run lint with all enabled rules
+const results = await rulesEngine.lint('/path/to/repo');
 
-// Run a specific rule
-const docOrgResults = await rulesEngine.runRule('document-organization', '/path/to/repo');
+// Run lint with specific rules
+const docOrgResults = await rulesEngine.lint('/path/to/repo', {
+  enabledRules: ['document-organization']
+});
 
 // Check results
-results.forEach(result => {
-  if (!result.valid) {
-    console.log(`${result.ruleId}: ${result.violations.length} issues found`);
-  }
-});
+if (results.violations.length > 0) {
+  console.log(`Found ${results.errorCount} errors, ${results.warningCount} warnings`);
+  results.violations.forEach(v => {
+    console.log(`[${v.severity}] ${v.file}: ${v.message}`);
+  });
+}
 ```
 
 ## How It Works
@@ -84,12 +92,16 @@ See [Available Rules](available-rules.md) for detailed documentation of each rul
 ### With MemoryPalace
 
 ```typescript
-const palace = new MemoryPalace(fsAdapter, repoPath);
-const rulesEngine = new LibraryRulesEngine(fsAdapter, repoPath);
+const fsAdapter = new NodeFileSystemAdapter();
+const globAdapter = new BasicGlobAdapter();
+const palace = new MemoryPalace(repoPath, fsAdapter);
+const rulesEngine = new LibraryRulesEngine(fsAdapter, globAdapter);
 
 // Validate before saving views
-const results = await rulesEngine.runRule('require-references');
-if (results.some(r => !r.valid)) {
+const results = await rulesEngine.lint(repoPath, {
+  enabledRules: ['require-references']
+});
+if (results.violations.length > 0) {
   console.warn('Documentation missing CodebaseView references');
 }
 ```
@@ -97,11 +109,13 @@ if (results.some(r => !r.valid)) {
 ### In CI/CD
 
 ```typescript
+const fsAdapter = new NodeFileSystemAdapter();
+const globAdapter = new BasicGlobAdapter();
+const rulesEngine = new LibraryRulesEngine(fsAdapter, globAdapter);
+
 // Fail build on rule violations
-const results = await rulesEngine.runRules();
-const hasErrors = results.some(r => 
-  r.violations.some(v => v.severity === 'error')
-);
+const results = await rulesEngine.lint();
+const hasErrors = results.errorCount > 0;
 
 if (hasErrors) {
   process.exit(1);

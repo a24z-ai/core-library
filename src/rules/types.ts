@@ -38,7 +38,6 @@ export interface LibraryRuleContext {
   files: FileInfo[];
   markdownFiles: FileInfo[];
   gitHistory?: Map<string, GitFileHistory>;
-  gitignorePatterns?: string[];
   config?: AlexandriaConfig;
   globAdapter?: GlobAdapter;
 }

@@ -1,7 +1,6 @@
 import { LibraryRule, LibraryRuleViolation, LibraryRuleContext } from '../types';
 import { DocumentOrganizationOptions } from '../../config/types';
 import * as path from 'path';
-import { BasicGlobAdapter } from '../../node-adapters/BasicGlobAdapter';
 
 // Default allowed root-level documentation files
 const DEFAULT_ROOT_EXCEPTIONS = [
@@ -48,7 +47,7 @@ export const documentOrganization: LibraryRule = {
 
   async check(context: LibraryRuleContext): Promise<LibraryRuleViolation[]> {
     const violations: LibraryRuleViolation[] = [];
-    const { projectRoot, config } = context;
+    const { config } = context;
 
     // Get options from config or use defaults
     const ruleConfig = config?.context?.rules?.find((r) => r.id === 'document-organization');
@@ -67,26 +66,11 @@ export const documentOrganization: LibraryRule = {
     };
 
     try {
-      // Use provided glob adapter or fall back to BasicGlobAdapter
-      const globAdapter = context.globAdapter || new BasicGlobAdapter();
+      // Use markdown files from context instead of re-scanning
+      const markdownFiles = context.markdownFiles;
 
-      // Find all markdown files in the repository
-      const markdownFiles = await globAdapter.findFiles(['**/*.md', '**/*.mdx'], {
-        cwd: projectRoot,
-        ignore: [
-          '**/node_modules/**',
-          '**/.git/**',
-          '**/dist/**',
-          '**/build/**',
-          '**/.alexandria/**',
-          '**/coverage/**',
-        ],
-        gitignore: true,
-        dot: false,
-        onlyFiles: true,
-      });
-
-      for (const file of markdownFiles) {
+      for (const fileInfo of markdownFiles) {
+        const file = fileInfo.relativePath;
         const fileName = path.basename(file);
         const dirName = path.dirname(file);
         const pathParts = dirName.split(path.sep).filter(Boolean);
