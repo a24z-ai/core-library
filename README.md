@@ -67,8 +67,16 @@ registry.registerProject('my-project', '/path/to/project');
 const projects = registry.listProjects();
 
 // Manage Alexandria repositories
-const outpost = new AlexandriaOutpostManager(fsAdapter);
+import { BasicGlobAdapter } from '@a24z/core-library';
+
+const globAdapter = new BasicGlobAdapter();
+const outpost = new AlexandriaOutpostManager(fsAdapter, globAdapter);
 const repos = await outpost.getAllRepositories();
+
+// Get documentation information
+const entry = repos[0];
+const allDocs = await outpost.getAllDocs(entry);
+const untrackedDocs = await outpost.getUntrackedDocs(entry);
 ```
 
 ### Testing with InMemoryFileSystemAdapter

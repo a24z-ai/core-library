@@ -7,13 +7,23 @@ AlexandriaOutpostManager is the high-level class for managing multiple repositor
 ## Basic Usage
 
 ```typescript
-import { AlexandriaOutpostManager, NodeFileSystemAdapter } from '@a24z/core-library';
+import {
+  AlexandriaOutpostManager,
+  NodeFileSystemAdapter,
+  BasicGlobAdapter
+} from '@a24z/core-library';
 
-// Create filesystem adapter
+// Create adapters
 const fsAdapter = new NodeFileSystemAdapter();
+const globAdapter = new BasicGlobAdapter();
 
 // Initialize the manager (automatically uses user's home directory)
-const manager = new AlexandriaOutpostManager(fsAdapter);
+const manager = new AlexandriaOutpostManager(fsAdapter, globAdapter);
+
+// Note: For advanced glob patterns, you can use NodeGlobAdapter if you have globby installed:
+// import { globby } from 'globby';
+// import { NodeGlobAdapter } from '@a24z/core-library/src/node-adapters/NodeGlobAdapter';
+// const globAdapter = new NodeGlobAdapter();
 ```
 
 ## Core Functionality
@@ -76,14 +86,24 @@ Track and access documentation files for repositories:
 // Get all overview documentation file paths for a repository
 const entry = manager.getAllEntries().find(e => e.name === 'my-project');
 if (entry) {
-  const docPaths = await manager.getAlexandriaEntryDocs(entry);
-  console.log('Documentation files:');
-  docPaths.forEach(path => console.log(`- ${path}`));
+  // Get all markdown files in the repository
+  const allDocs = await manager.getAllDocs(entry);
+  console.log(`Total markdown files: ${allDocs.length}`);
 
-  // Get excluded documentation files (untracked by Alexandria rules)
+  // Get documentation files tracked as view overviews
+  const trackedDocs = await manager.getAlexandriaEntryDocs(entry);
+  console.log('Tracked documentation files:');
+  trackedDocs.forEach(path => console.log(`- ${path}`));
+
+  // Get excluded documentation files (configured in .alexandriarc.json)
   const excludedDocs = manager.getAlexandriaEntryExcludedDocs(entry);
   console.log('Excluded documentation:');
   excludedDocs.forEach(path => console.log(`- ${path}`));
+
+  // Get untracked documentation (not in views and not excluded)
+  const untrackedDocs = await manager.getUntrackedDocs(entry);
+  console.log('Untracked documentation needing attention:');
+  untrackedDocs.forEach(path => console.log(`- ${path}`));
 }
 ```
 

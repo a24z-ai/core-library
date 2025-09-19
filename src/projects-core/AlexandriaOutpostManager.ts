@@ -8,12 +8,14 @@ import { homedir } from 'os';
 import { ConfigLoader } from '../config/loader.js';
 
 import { FileSystemAdapter } from '../pure-core/abstractions/filesystem.js';
+import { GlobAdapter } from '../pure-core/abstractions/glob.js';
 
 export class AlexandriaOutpostManager {
   private readonly projectRegistry: ProjectRegistryStore;
 
   constructor(
-    private readonly fsAdapter: FileSystemAdapter
+    private readonly fsAdapter: FileSystemAdapter,
+    private readonly globAdapter: GlobAdapter
   ) {
     // Create the ProjectRegistryStore internally with the user's home directory
     this.projectRegistry = new ProjectRegistryStore(fsAdapter, homedir());
@@ -74,8 +76,8 @@ export class AlexandriaOutpostManager {
    */
   async getAlexandriaEntryDocs(entry: AlexandriaEntry): Promise<string[]> {
     try {
-      // Create a MemoryPalace instance for this repository
-      const memoryPalace = new MemoryPalace(entry.path, this.fsAdapter);
+      // Use protected method to create MemoryPalace (allows mocking in tests)
+      const memoryPalace = this.createMemoryPalace(entry.path);
 
       // Get all views and extract their overview paths
       const views = memoryPalace.listViews();
@@ -84,6 +86,14 @@ export class AlexandriaOutpostManager {
       console.debug(`Could not load views for ${entry.name}:`, error);
       return [];
     }
+  }
+
+  /**
+   * Protected method to create a MemoryPalace instance
+   * Can be overridden in tests for mocking
+   */
+  protected createMemoryPalace(path: ValidatedRepositoryPath): MemoryPalace {
+    return new MemoryPalace(path, this.fsAdapter);
   }
 
   /**
@@ -97,19 +107,80 @@ export class AlexandriaOutpostManager {
       // Create a ConfigLoader to load the Alexandria configuration
       const configLoader = new ConfigLoader(this.fsAdapter);
 
-      // Load config from the repository path
-      const config = configLoader.loadConfig(entry.path);
+      // Find and load config from the repository directory
+      const configPath = configLoader.findConfigFile(entry.path);
+      const config = configPath ? configLoader.loadConfig(configPath) : null;
 
       // Find the require-references rule configuration
       const requireReferencesRule = config?.context?.rules?.find(rule => rule.id === 'require-references');
 
       // Return the excludeFiles list if it exists
-      const excludeFiles = (requireReferencesRule?.options as any)?.excludeFiles;
+      const excludeFiles = (requireReferencesRule?.options as Record<string, unknown>)?.excludeFiles;
       return Array.isArray(excludeFiles) ? excludeFiles : [];
     } catch (error) {
       console.debug(`Could not load Alexandria config for ${entry.name}:`, error);
       return [];
     }
+  }
+
+  /**
+   * Get all markdown documentation files in a repository
+   * @param entry - The AlexandriaEntry for the local repository
+   * @param useGitignore - Whether to respect .gitignore files (default: true)
+   * @returns Array of all markdown file paths relative to repository root
+   */
+  async getAllDocs(entry: AlexandriaEntry, useGitignore: boolean = true): Promise<string[]> {
+    try {
+      // Find all markdown files in the repository
+      const markdownFiles = await this.globAdapter.findFiles(['**/*.md', '**/*.mdx'], {
+        cwd: entry.path,
+        gitignore: useGitignore,
+        dot: false,
+        onlyFiles: true,
+      });
+
+      return markdownFiles;
+    } catch (error) {
+      console.debug(`Could not scan markdown files for ${entry.name}:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Get untracked markdown documentation files in a repository
+   * These are markdown files that are not used as overviews in any CodebaseView
+   * and are not in the excluded files list
+   * @param entry - The AlexandriaEntry for the local repository
+   * @param useGitignore - Whether to respect .gitignore files (default: true)
+   * @returns Array of untracked markdown file paths relative to repository root
+   */
+  async getUntrackedDocs(entry: AlexandriaEntry, useGitignore: boolean = true): Promise<string[]> {
+    // Get all markdown files
+    const allDocs = await this.getAllDocs(entry, useGitignore);
+
+    // Get tracked docs (used as view overviews)
+    const trackedDocs = await this.getAlexandriaEntryDocs(entry);
+
+    // Get excluded docs from config
+    const excludedDocs = this.getAlexandriaEntryExcludedDocs(entry);
+
+    // Create sets for efficient lookup
+    const trackedSet = new Set(trackedDocs);
+    const excludedSet = new Set(excludedDocs);
+
+    // Filter out tracked and excluded docs, and Alexandria's own files
+    return allDocs.filter(doc => {
+      // Skip if tracked
+      if (trackedSet.has(doc)) return false;
+
+      // Skip if excluded
+      if (excludedSet.has(doc)) return false;
+
+      // Skip Alexandria's own files
+      if (doc.startsWith('.alexandria/')) return false;
+
+      return true;
+    });
   }
 
   private async transformToRepository(entry: AlexandriaEntry): Promise<AlexandriaRepository> {
@@ -118,9 +189,9 @@ export class AlexandriaOutpostManager {
     
     if (views.length === 0) {
       try {
-        // Create a new MemoryPalace instance for this repository
-        const memoryPalace = new MemoryPalace(entry.path, this.fsAdapter);
-        
+        // Use protected method to create MemoryPalace
+        const memoryPalace = this.createMemoryPalace(entry.path);
+
         // Get views from the memory palace
         views = memoryPalace.listViews().map(v => extractCodebaseViewSummary(v));
       } catch (error) {
