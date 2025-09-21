@@ -67,7 +67,7 @@ if (repo) {
 
   // Access view summaries
   repo.views.forEach(view => {
-    console.log(`- ${view.name}: ${view.cellCount} cells`);
+    console.log(`- ${view.name}: ${view.referenceGroupCount} reference groups`);
   });
 }
 

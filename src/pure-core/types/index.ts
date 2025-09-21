@@ -30,8 +30,8 @@ export type ValidatedRelativePath = string & { readonly __brand: 'ValidatedRelat
 export type CodebaseViewLinks = Record<string, string>;
 
 /**
- * Base type for all codebase view cells.
- * Contains common properties shared by all cell types.
+ * Base type for all codebase view reference groups.
+ * Contains common properties shared by all reference group types.
  */
 export interface CodebaseViewCell {
   /**
@@ -41,7 +41,7 @@ export interface CodebaseViewCell {
   coordinates: [number, number];
 
   /**
-   * Priority for resolving conflicts when files match multiple cells.
+   * Priority for resolving conflicts when files match multiple reference groups.
    * Higher values take precedence. Default: 0
    */
   priority?: number;
@@ -134,23 +134,23 @@ export interface CodebaseView {
 
   /**
    * Number of rows in the grid.
-   * If not specified, computed from maximum row coordinate in cells.
+   * If not specified, computed from maximum row coordinate in referenceGroups.
    * Recommended: 1-6 for optimal visualization.
    */
   rows?: number;
 
   /**
    * Number of columns in the grid.
-   * If not specified, computed from maximum column coordinate in cells.
+   * If not specified, computed from maximum column coordinate in referenceGroups.
    * Recommended: 1-6 for optimal visualization.
    */
   cols?: number;
 
   /**
-   * Cell configurations mapped by cell name/identifier.
-   * Each entry defines what files belong in that cell.
+   * Reference group configurations mapped by group name/identifier.
+   * Each entry defines what files belong in that reference group.
    */
-  cells: Record<string, CodebaseViewFileCell>;
+  referenceGroups: Record<string, CodebaseViewFileCell>;
 
   /**
    * Links to other views from this view.
@@ -202,11 +202,11 @@ export interface CodebaseView {
       rows?: number;
       /** Number of columns in the grid */
       cols?: number;
-      /** Padding between cells in pixels */
+      /** Padding between reference groups in pixels */
       cellPadding?: number;
-      /** Whether to show labels for grid cells */
+      /** Whether to show labels for grid reference groups */
       showCellLabels?: boolean;
-      /** Position of cell labels relative to the cell */
+      /** Position of reference group labels relative to the reference group */
       cellLabelPosition?: 'none' | 'top' | 'bottom';
       /** Height of cell labels as percentage of cell height (0-1) */
       cellLabelHeightPercent?: number;
@@ -241,7 +241,7 @@ export interface PatternValidationResult {
   conflicts?: Array<{
     path: string;
     patterns: string[];
-    cells: string[];
+    referenceGroups: string[];
   }>;
 }
 
@@ -254,7 +254,7 @@ export interface FileListValidationResult {
   missingFiles: string[];
   conflicts?: Array<{
     path: string;
-    cells: string[];
+    referenceGroups: string[];
   }>;
 }
 

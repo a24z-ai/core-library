@@ -37,7 +37,7 @@ describe('OverviewPathAutoFix', () => {
       overviewPath: 'missing-doc.md',
       category: 'test',
       displayOrder: 0,
-      cells: {},
+      referenceGroups: {},
     };
 
     // Save the view to the palace
@@ -60,7 +60,7 @@ describe('OverviewPathAutoFix', () => {
       overviewPath: 'existing-doc.md',
       category: 'test',
       displayOrder: 0,
-      cells: {},
+      referenceGroups: {},
     };
 
     // Create the overview file
@@ -83,7 +83,7 @@ describe('OverviewPathAutoFix', () => {
       overviewPath: 'docs/test-view.md',
       category: 'test',
       displayOrder: 0,
-      cells: {
+      referenceGroups: {
         'main': {
           coordinates: [0, 0],
           files: ['src/main.ts'],
@@ -121,7 +121,7 @@ describe('OverviewPathAutoFix', () => {
       overviewPath: 'README.md',
       category: 'test',
       displayOrder: 0,
-      cells: {},
+      referenceGroups: {},
     };
 
     // Create the existing file
@@ -145,7 +145,7 @@ describe('OverviewPathAutoFix', () => {
       overviewPath: 'docs/test-view.md',
       category: 'test',
       displayOrder: 0,
-      cells: {
+      referenceGroups: {
         'main': {
           coordinates: [0, 0],
           files: ['src/main.ts', 'src/utils.ts'],
@@ -184,7 +184,7 @@ describe('OverviewPathAutoFix', () => {
       overviewPath: 'missing-1.md',
       category: 'test',
       displayOrder: 0,
-      cells: {},
+      referenceGroups: {},
     };
 
     const view2: CodebaseView = {
@@ -195,7 +195,7 @@ describe('OverviewPathAutoFix', () => {
       overviewPath: 'missing-2.md',
       category: 'test',
       displayOrder: 1,
-      cells: {},
+      referenceGroups: {},
     };
 
     palace.saveView(view1);

@@ -42,7 +42,7 @@ export function createTestView(repositoryPath: string, viewId: string = 'test-vi
     description: 'Default view for testing',
     rows: 2,
     cols: 2,
-    cells: {
+    referenceGroups: {
       main: {
         files: ['src/index.ts', 'README.md'],
         coordinates: [0, 0] as [number, number],

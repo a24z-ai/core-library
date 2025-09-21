@@ -318,18 +318,18 @@ ${this.generateLinksDescription(view)}
   }
 
   private generateCellsDescription(view: CodebaseView): string {
-    if (!view.cells || Object.keys(view.cells).length === 0) {
-      return 'No cells defined in this view.';
+    if (!view.referenceGroups || Object.keys(view.referenceGroups).length === 0) {
+      return 'No reference groups defined in this view.';
     }
 
-    const cellDescriptions = Object.entries(view.cells)
-      .map(([name, cell]) => {
-        const fileCount = cell.files?.length || 0;
-        return `- **${name}** (${fileCount} files): Located at [${cell.coordinates.join(', ')}]`;
+    const referenceGroupDescriptions = Object.entries(view.referenceGroups)
+      .map(([name, referenceGroup]) => {
+        const fileCount = referenceGroup.files?.length || 0;
+        return `- **${name}** (${fileCount} files): Located at [${referenceGroup.coordinates.join(', ')}]`;
       })
       .join('\n');
 
-    return cellDescriptions;
+    return referenceGroupDescriptions;
   }
 
   private generateLinksDescription(view: CodebaseView): string {

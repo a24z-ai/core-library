@@ -10,18 +10,18 @@ import { CodebaseView, ValidatedRepositoryPath, CodebaseViewCell } from '../type
 import { ValidatedAlexandriaPath } from '../types/repository';
 
 /**
- * Compute grid dimensions from cell coordinates.
- * Returns the minimum grid size needed to contain all cells.
+ * Compute grid dimensions from reference group coordinates.
+ * Returns the minimum grid size needed to contain all reference groups.
  */
-export function computeGridDimensions(cells: Record<string, CodebaseViewCell>): {
+export function computeGridDimensions(referenceGroups: Record<string, CodebaseViewCell>): {
   rows: number;
   cols: number;
 } {
   let maxRow = 0;
   let maxCol = 0;
 
-  for (const cell of Object.values(cells)) {
-    const [row, col] = cell.coordinates;
+  for (const referenceGroup of Object.values(referenceGroups)) {
+    const [row, col] = referenceGroup.coordinates;
     maxRow = Math.max(maxRow, row);
     maxCol = Math.max(maxCol, col);
   }

@@ -20,8 +20,8 @@ export interface CodebaseViewSummary {
   /** Brief description of what the view represents */
   description: string;
 
-  /** Number of cells in the view */
-  cellCount: number;
+  /** Number of reference groups in the view */
+  referenceGroupCount: number;
 
   /** Dimensions of the grid as [rows, columns] */
   gridSize: [number, number];
@@ -43,12 +43,12 @@ export interface CodebaseViewSummary {
 export function extractCodebaseViewSummary(view: CodebaseView): CodebaseViewSummary {
   let maxRow = 0;
   let maxCol = 0;
-  const cellCount = Object.keys(view.cells).length;
+  const referenceGroupCount = Object.keys(view.referenceGroups).length;
 
-  // Calculate grid dimensions from cell coordinates
-  for (const cell of Object.values(view.cells)) {
-    if (cell.coordinates && Array.isArray(cell.coordinates)) {
-      const [row, col] = cell.coordinates;
+  // Calculate grid dimensions from reference group coordinates
+  for (const referenceGroup of Object.values(view.referenceGroups)) {
+    if (referenceGroup.coordinates && Array.isArray(referenceGroup.coordinates)) {
+      const [row, col] = referenceGroup.coordinates;
       maxRow = Math.max(maxRow, row);
       maxCol = Math.max(maxCol, col);
     }
@@ -58,7 +58,7 @@ export function extractCodebaseViewSummary(view: CodebaseView): CodebaseViewSumm
     id: view.id,
     name: view.name,
     description: view.description || '',
-    cellCount,
+    referenceGroupCount,
     gridSize: [maxRow + 1, maxCol + 1], // +1 because coordinates are 0-indexed
     overviewPath: view.overviewPath || '',
     category: view.category || 'other', // Default to 'other' for backward compatibility

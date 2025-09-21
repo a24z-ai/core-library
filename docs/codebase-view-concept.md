@@ -32,7 +32,7 @@ CodebaseView stores which specific files are referenced:
 {
   "name": "Authentication System",
   "overviewPath": "docs/authentication.md",
-  "cells": {
+  "referenceGroups": {
     "jwt": {
       "coordinates": [0, 0],
       "files": [
@@ -102,15 +102,15 @@ interface CodebaseView {
   overviewPath: string;          // Path to main documentation file
   category: string;              // Grouping (e.g., 'guide', 'reference')
   displayOrder: number;          // Sort order within category
-  cells: Record<string, CodebaseViewFileCell>; // Named groups of files
+  referenceGroups: Record<string, CodebaseViewFileCell>; // Named groups of files
   rows?: number;                 // Grid rows (optional)
   cols?: number;                 // Grid columns (optional)
 }
 ```
 
-### File Cells
+### File Reference Groups
 
-Each cell contains an explicit list of related files:
+Each reference group contains an explicit list of related files:
 
 ```typescript
 interface CodebaseViewFileCell {
@@ -163,7 +163,7 @@ The CodebaseView would be:
   "displayOrder": 1,
   "rows": 2,
   "cols": 3,
-  "cells": {
+  "referenceGroups": {
     "routes": {
       "coordinates": [0, 0],
       "files": [
@@ -225,7 +225,7 @@ alexandria validate user-api
 ### What Gets Validated
 
 - ✅ All file paths exist
-- ✅ No duplicate files across cells
+- ✅ No duplicate files across reference groups
 - ✅ Grid coordinates are valid
 - ✅ Documentation file exists
 - ✅ Required fields are present
@@ -262,7 +262,7 @@ Alexandria looks for file references in your markdown:
 You can also create views manually by:
 1. Creating a JSON file in `.alexandria/views/`
 2. Specifying exact file paths
-3. Organizing them into logical cells
+3. Organizing them into logical reference groups
 4. Setting grid coordinates
 
 ## Visualization: The Grid Layout
@@ -289,16 +289,16 @@ While the primary purpose is documentation-to-code linking, CodebaseViews organi
 ## Best Practices
 
 1. **Be Explicit**: List exact files, don't rely on patterns
-2. **Group Logically**: Each cell should represent a cohesive unit
+2. **Group Logically**: Each reference group should represent a cohesive unit
 3. **Keep It Simple**: 2x3 or 3x3 grids work well
 4. **Validate Often**: Run validation in CI/CD
 5. **Update Promptly**: Fix broken references immediately
-6. **Document Purpose**: Use clear cell names and descriptions
+6. **Document Purpose**: Use clear reference group names and descriptions
 
 ## Limitations
 
-### No Glob Patterns in Cells
-Cells require explicit file lists. You cannot use patterns like `src/**/*.ts`. This ensures:
+### No Glob Patterns in Reference Groups
+Reference groups require explicit file lists. You cannot use patterns like `src/**/*.ts`. This ensures:
 - Predictable behavior
 - Clear validation
 - No ambiguity about which files are included
@@ -306,8 +306,8 @@ Cells require explicit file lists. You cannot use patterns like `src/**/*.ts`. T
 ### Manual Updates Required
 When files are renamed or moved, you must manually update the view. This is intentional to ensure documentation authors are aware of structural changes.
 
-### One File Per Cell
-Each file should only appear in one cell within a view to avoid confusion about its primary purpose.
+### One File Per Reference Group
+Each file should only appear in one reference group within a view to avoid confusion about its primary purpose.
 
 ## Integration Points
 

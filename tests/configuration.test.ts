@@ -37,7 +37,7 @@ describe('Configuration System', () => {
       name: 'Test View',
       description: 'Test view for testing',
       overviewPath: 'README.md',
-      cells: {},
+      referenceGroups: {},
       timestamp: new Date().toISOString(),
     };
     codebaseViewsStore.saveView(validatedRepoPath, testView);

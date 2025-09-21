@@ -18,14 +18,14 @@ export const orphanedReferences: LibraryRule = {
     const violations: LibraryRuleViolation[] = [];
     const { views, notes, projectRoot } = context;
 
-    // Check files referenced in view cells
+    // Check files referenced in view reference groups
     for (const view of views) {
-      if (view.cells) {
-        for (const cellName in view.cells) {
-          const cell = view.cells[cellName];
-          // Check if it's a file cell (has 'files' property)
-          if ('files' in cell && Array.isArray(cell.files)) {
-            for (const file of cell.files) {
+      if (view.referenceGroups) {
+        for (const groupName in view.referenceGroups) {
+          const referenceGroup = view.referenceGroups[groupName];
+          // Check if it's a file reference group (has 'files' property)
+          if ('files' in referenceGroup && Array.isArray(referenceGroup.files)) {
+            for (const file of referenceGroup.files) {
               const fullPath = join(projectRoot, file);
               if (!existsSync(fullPath)) {
                 const viewFilePath = join(getViewsDir(projectRoot), `${view.name}.json`);
@@ -35,7 +35,7 @@ export const orphanedReferences: LibraryRule = {
                   severity: this.severity,
                   file: `views/${view.name}.json`,
                   line: lineNumber,
-                  message: `View "${view.name}" cell "${cellName}" references non-existent file: ${file}`,
+                  message: `View "${view.name}" reference group "${groupName}" references non-existent file: ${file}`,
                   impact: this.impact,
                   fixable: this.fixable,
                 });

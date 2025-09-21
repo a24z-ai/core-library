@@ -43,7 +43,7 @@ describe('Pure CodebaseViewsStore', () => {
     name: 'Test View',
     description: 'A test view for unit testing',
     overviewPath: 'README.md',
-    cells: {
+    referenceGroups: {
       file1: {
         files: ['src/index.ts'],
         coordinates: [0, 0],

@@ -184,42 +184,42 @@ export class CodebaseViewValidator {
       });
     }
 
-    // Cells is required and must be an object
-    if (!view.cells || typeof view.cells !== 'object') {
+    // ReferenceGroups is required and must be an object
+    if (!view.referenceGroups || typeof view.referenceGroups !== 'object') {
       issues.push({
         severity: 'error',
         type: 'missing_required_field',
-        message: 'View must have cells object',
-        location: 'view.cells',
+        message: 'View must have referenceGroups object',
+        location: 'view.referenceGroups',
       });
-      return; // Can't continue validating cells
+      return; // Can't continue validating referenceGroups
     }
 
-    // Validate basic cell structure
-    Object.entries(view.cells).forEach(([cellName, cell]) => {
-      const location = `view.cells.${cellName}`;
+    // Validate basic reference group structure
+    Object.entries(view.referenceGroups).forEach(([groupName, referenceGroup]) => {
+      const location = `view.referenceGroups.${groupName}`;
 
-      // Cell must have coordinates
-      if (!cell.coordinates || !Array.isArray(cell.coordinates) || cell.coordinates.length !== 2) {
+      // Reference group must have coordinates
+      if (!referenceGroup.coordinates || !Array.isArray(referenceGroup.coordinates) || referenceGroup.coordinates.length !== 2) {
         issues.push({
           severity: 'error',
-          type: 'invalid_cell_coordinates',
-          message: 'Cell must have coordinates array with [row, col]',
+          type: 'invalid_reference_group_coordinates',
+          message: 'Reference group must have coordinates array with [row, col]',
           location: `${location}.coordinates`,
         });
       }
 
-      // Cell must have files array
-      if (!cell.files || !Array.isArray(cell.files)) {
+      // Reference group must have files array
+      if (!referenceGroup.files || !Array.isArray(referenceGroup.files)) {
         issues.push({
           severity: 'error',
-          type: 'missing_cell_files',
-          message: 'Cell must have files array',
+          type: 'missing_reference_group_files',
+          message: 'Reference group must have files array',
           location: `${location}.files`,
         });
       } else {
         // Validate file paths are strings and relative
-        cell.files.forEach((filePath, index) => {
+        referenceGroup.files.forEach((filePath, index) => {
           if (typeof filePath !== 'string') {
             issues.push({
               severity: 'error',
@@ -276,19 +276,19 @@ export class CodebaseViewValidator {
       }
     }
 
-    // Check files in cells exist
-    if (view.cells && typeof view.cells === 'object') {
-      Object.entries(view.cells).forEach(([cellName, cell]) => {
-        if (cell.files && Array.isArray(cell.files)) {
-          cell.files.forEach((filePath, index) => {
+    // Check files in reference groups exist
+    if (view.referenceGroups && typeof view.referenceGroups === 'object') {
+      Object.entries(view.referenceGroups).forEach(([groupName, referenceGroup]) => {
+        if (referenceGroup.files && Array.isArray(referenceGroup.files)) {
+          referenceGroup.files.forEach((filePath, index) => {
             if (typeof filePath === 'string' && !filePath.startsWith('/')) {
               const fullPath = this.fs.join(repositoryPath, filePath);
               if (!this.fs.exists(fullPath)) {
                 issues.push({
                   severity: 'warning',
-                  type: 'missing_cell_file',
+                  type: 'missing_reference_group_file',
                   message: `File not found: ${filePath}`,
-                  location: `view.cells.${cellName}.files[${index}]`,
+                  location: `view.referenceGroups.${groupName}.files[${index}]`,
                   context: 'Missing files will not appear in the visualization',
                 });
               }
@@ -300,7 +300,7 @@ export class CodebaseViewValidator {
   }
 
   /**
-   * Validate scope against cell contents and remove if violations found
+   * Validate scope against reference group contents and remove if violations found
    */
   private validateAndCleanScope(
     repositoryPath: ValidatedRepositoryPath,
@@ -322,7 +322,7 @@ export class CodebaseViewValidator {
         type: 'scope_removed_missing_path',
         message: `Scope removed: base path not found: ${scopeBasePath}`,
         location: 'view.scope',
-        context: 'Scope will be regenerated based on cell contents',
+        context: 'Scope will be regenerated based on reference group contents',
       });
 
       // Remove scope
@@ -331,15 +331,15 @@ export class CodebaseViewValidator {
       return viewWithoutScope;
     }
 
-    // Check if any cell files violate the scope
-    if (view.cells && typeof view.cells === 'object') {
-      Object.entries(view.cells).forEach(([cellName, cell]) => {
-        if (cell.files && Array.isArray(cell.files)) {
-          cell.files.forEach((filePath) => {
+    // Check if any reference group files violate the scope
+    if (view.referenceGroups && typeof view.referenceGroups === 'object') {
+      Object.entries(view.referenceGroups).forEach(([groupName, referenceGroup]) => {
+        if (referenceGroup.files && Array.isArray(referenceGroup.files)) {
+          referenceGroup.files.forEach((filePath) => {
             if (typeof filePath === 'string' && !filePath.startsWith('/')) {
               // Check if file is within scope
               if (!filePath.startsWith(scopeBasePath + '/') && filePath !== scopeBasePath) {
-                violatingFiles.push(`${cellName}: ${filePath}`);
+                violatingFiles.push(`${groupName}: ${filePath}`);
               }
             }
           });
@@ -353,7 +353,7 @@ export class CodebaseViewValidator {
         type: 'scope_removed_violations',
         message: `Scope removed: ${violatingFiles.length} files outside scope "${scopeBasePath}"`,
         location: 'view.scope',
-        context: `Violating files: ${violatingFiles.join(', ')}. Scope will be regenerated based on cell contents.`,
+        context: `Violating files: ${violatingFiles.join(', ')}. Scope will be regenerated based on reference group contents.`,
       });
 
       // Remove scope

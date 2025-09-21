@@ -60,12 +60,12 @@ export const staleReferences: LibraryRule = {
         let newestFileModification: Date | null = null;
         let newestFile: string | null = null;
 
-        if (view.cells) {
-          for (const cellName in view.cells) {
-            const cell = view.cells[cellName];
-            // Check if it's a file cell (has 'files' property)
-            if ('files' in cell && Array.isArray(cell.files)) {
-              for (const file of cell.files) {
+        if (view.referenceGroups) {
+          for (const groupName in view.referenceGroups) {
+            const referenceGroup = view.referenceGroups[groupName];
+            // Check if it's a file reference group (has 'files' property)
+            if ('files' in referenceGroup && Array.isArray(referenceGroup.files)) {
+              for (const file of referenceGroup.files) {
                 const filePath = join(projectRoot, file);
                 const fileModified = getLastModified(filePath);
                 if (

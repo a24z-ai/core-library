@@ -60,9 +60,7 @@ export { InMemoryFileSystemAdapter } from './node-adapters/InMemoryFileSystemAda
 
 // Glob adapter for pattern matching
 export type { GlobAdapter, GlobOptions } from './pure-core/abstractions/glob';
-export { BasicGlobAdapter } from './node-adapters/BasicGlobAdapter';
-// NodeGlobAdapter requires globby to be installed separately
-// export { NodeGlobAdapter } from './node-adapters/NodeGlobAdapter';
+export { NodeGlobAdapter } from './node-adapters/NodeGlobAdapter';
 
 // Primary API classes
 export { MemoryPalace } from './MemoryPalace';

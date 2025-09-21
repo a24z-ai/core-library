@@ -112,7 +112,7 @@ describe('AlexandriaOutpostManager', () => {
         {
           id: 'test-view',
           overviewPath: 'docs/overview.md',
-          cells: {}
+          referenceGroups: {}
         } as CodebaseView
       ]);
 
@@ -183,7 +183,7 @@ describe('AlexandriaOutpostManager', () => {
         {
           id: 'test-view',
           overviewPath: 'docs/tracked.md',
-          cells: {}
+          referenceGroups: {}
         } as CodebaseView
       ]);
 
@@ -241,7 +241,7 @@ describe('AlexandriaOutpostManager', () => {
         {
           id: 'test-view',
           overviewPath: 'docs/tracked.md',
-          cells: {}
+          referenceGroups: {}
         } as CodebaseView
       ]);
 

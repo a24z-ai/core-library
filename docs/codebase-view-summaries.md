@@ -11,7 +11,7 @@ export interface CodebaseViewSummary {
   id: string;                    // Unique identifier
   name: string;                  // Display name
   description: string;           // Brief description
-  cellCount: number;             // Number of cells
+  referenceGroupCount: number;   // Number of reference groups
   gridSize: [number, number];    // [rows, columns]
   overviewPath: string;          // Path to documentation
   category: string;              // UI grouping category
@@ -42,7 +42,7 @@ const summaries = extractCodebaseViewSummaries(views);
 ## How It Works
 
 The extraction process:
-1. **Counts cells** - Total number of cells in the view
+1. **Counts reference groups** - Total number of reference groups in the view
 2. **Calculates grid dimensions** - Finds maximum row and column coordinates
 3. **Maps metadata** - Copies essential fields with sensible defaults
 4. **Omits file lists** - Excludes the heavy file reference data
@@ -53,7 +53,7 @@ The extraction process:
 Display all available views without loading full file references:
 ```typescript
 const summaries = views.map(extractCodebaseViewSummary);
-// Show in UI with just name, description, and cell count
+// Show in UI with just name, description, and reference group count
 ```
 
 ### API Responses
