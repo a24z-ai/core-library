@@ -1,0 +1,51 @@
+{
+  "id": "excalidraw-drawing-support",
+  "version": "1.0.0",
+  "name": "Excalidraw Drawing Support",
+  "description": "Architecture for supporting Excalidraw drawings and binary files in the memory palace",
+  "rows": 2,
+  "cols": 2,
+  "referenceGroups": {
+    "Core Drawing Storage": {
+      "coordinates": [0, 0],
+      "files": [
+        "src/pure-core/stores/DrawingStore.ts",
+        "src/MemoryPalace.ts"
+      ]
+    },
+    "Binary File Support": {
+      "coordinates": [0, 1],
+      "files": [
+        "src/pure-core/abstractions/filesystem.ts",
+        "src/node-adapters/NodeFileSystemAdapter.ts",
+        "src/test-adapters/InMemoryFileSystemAdapter.ts"
+      ]
+    },
+    "Tests": {
+      "coordinates": [1, 0],
+      "files": [
+        "tests/pure-core/stores/DrawingStore.test.ts"
+      ]
+    },
+    "Documentation": {
+      "coordinates": [1, 1],
+      "files": [
+        "docs/excalidraw-support-design.md"
+      ]
+    }
+  },
+  "overviewPath": "docs/excalidraw-support-design.md",
+  "category": "features",
+  "displayOrder": 0,
+  "timestamp": "2025-09-21T00:00:00.000Z",
+  "metadata": {
+    "generationType": "user",
+    "ui": {
+      "enabled": true,
+      "rows": 2,
+      "cols": 2,
+      "showCellLabels": true,
+      "cellLabelPosition": "top"
+    }
+  }
+}

@@ -18,6 +18,10 @@ export interface FileSystemAdapter {
   writeFile(path: string, content: string): void;
   deleteFile(path: string): void;
 
+  // Binary file operations (NEW)
+  readBinaryFile(path: string): Uint8Array;
+  writeBinaryFile(path: string, content: Uint8Array): void;
+
   // Directory operations
   createDir(path: string): void;
   readDir(path: string): string[];
@@ -73,6 +77,7 @@ Production adapter for Node.js environments using native `fs` and `path` modules
 - Recursive directory creation
 - Synchronous operations for simplicity
 - Git repository detection
+- Binary file support for images and other non-text formats
 
 **Usage:**
 ```typescript
@@ -84,10 +89,11 @@ const palace = new MemoryPalace(fsAdapter, '/path/to/repo');
 
 ### InMemoryFileSystemAdapter
 
-Testing adapter that simulates a filesystem in memory.
+Testing adapter that simulates a filesystem in memory. Now located in `src/test-adapters/` for better organization.
 
 **Features:**
 - No disk I/O
+- Binary file support for testing image/document operations
 - Predictable behavior
 - Easy state inspection
 - Perfect for unit tests
@@ -279,4 +285,4 @@ const palace = new MemoryPalace(fsAdapter, '/');
 
 - [FileSystemAdapter Interface](src/pure-core/abstractions/filesystem.ts)
 - [NodeFileSystemAdapter Implementation](src/node-adapters/NodeFileSystemAdapter.ts)
-- [InMemoryFileSystemAdapter Implementation](src/node-adapters/InMemoryFileSystemAdapter.ts)
+- [InMemoryFileSystemAdapter Implementation](src/test-adapters/InMemoryFileSystemAdapter.ts)

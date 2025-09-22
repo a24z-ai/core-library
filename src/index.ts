@@ -56,7 +56,7 @@ export type { ValidationResult as ConfigValidationResult } from './config/types'
 // Filesystem adapter for dependency injection
 export type { FileSystemAdapter } from './pure-core/abstractions/filesystem';
 export { NodeFileSystemAdapter } from './node-adapters/NodeFileSystemAdapter';
-export { InMemoryFileSystemAdapter } from './node-adapters/InMemoryFileSystemAdapter';
+export { InMemoryFileSystemAdapter } from './test-adapters/InMemoryFileSystemAdapter';
 
 // Glob adapter for pattern matching
 export type { GlobAdapter, GlobOptions } from './pure-core/abstractions/glob';
@@ -71,6 +71,8 @@ export { AlexandriaOutpostManager } from './projects-core/AlexandriaOutpostManag
 
 // Store exports for direct access if needed
 export { CodebaseViewsStore, generateViewIdFromName } from './pure-core/stores/CodebaseViewsStore';
+export { DrawingStore } from './pure-core/stores/DrawingStore';
+export type { DrawingMetadata } from './pure-core/stores/DrawingStore';
 
 // Utilities and rules
 export { LibraryRulesEngine } from './rules';

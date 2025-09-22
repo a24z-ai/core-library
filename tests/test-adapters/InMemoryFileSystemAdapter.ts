@@ -8,9 +8,10 @@ import { FileSystemAdapter } from '../../src/pure-core/abstractions/filesystem';
 
 export class InMemoryFileSystemAdapter implements FileSystemAdapter {
   private files = new Map<string, string>();
+  private binaryFiles = new Map<string, Uint8Array>();
 
   exists(path: string): boolean {
-    return this.files.has(path) || this.isDirectory(path);
+    return this.files.has(path) || this.binaryFiles.has(path) || this.isDirectory(path);
   }
 
   readFile(path: string): string {
@@ -31,6 +32,23 @@ export class InMemoryFileSystemAdapter implements FileSystemAdapter {
 
   deleteFile(path: string): void {
     this.files.delete(path);
+    this.binaryFiles.delete(path);
+  }
+
+  readBinaryFile(path: string): Uint8Array {
+    if (!this.binaryFiles.has(path)) {
+      throw new Error(`Binary file not found: ${path}`);
+    }
+    return this.binaryFiles.get(path)!;
+  }
+
+  writeBinaryFile(path: string, content: Uint8Array): void {
+    // Ensure parent directory exists in our tracking
+    const dir = this.dirname(path);
+    if (dir && dir !== '/' && dir !== path) {
+      this.createDir(dir);
+    }
+    this.binaryFiles.set(path, content);
   }
 
   createDir(path: string): void {
@@ -44,7 +62,7 @@ export class InMemoryFileSystemAdapter implements FileSystemAdapter {
 
   readDir(path: string): string[] {
     // Check if this path is actually a file (not a directory)
-    if (this.files.has(path) && !path.endsWith('/.dir')) {
+    if ((this.files.has(path) || this.binaryFiles.has(path)) && !path.endsWith('/.dir')) {
       throw new Error(`ENOTDIR: not a directory, scandir '${path}'`);
     }
 
@@ -84,6 +102,19 @@ export class InMemoryFileSystemAdapter implements FileSystemAdapter {
       }
     }
 
+    // Also check binary files
+    for (const filePath of this.binaryFiles.keys()) {
+      if (filePath.startsWith(prefix)) {
+        const relativePath = filePath.slice(prefix.length);
+        if (relativePath) {
+          const parts = relativePath.split('/');
+          if (parts[0]) {
+            items.add(parts[0]);
+          }
+        }
+      }
+    }
+
     return Array.from(items);
   }
 
@@ -93,6 +124,11 @@ export class InMemoryFileSystemAdapter implements FileSystemAdapter {
     for (const filePath of this.files.keys()) {
       if (filePath.startsWith(prefix) || filePath === path + '/.dir') {
         this.files.delete(filePath);
+      }
+    }
+    for (const filePath of this.binaryFiles.keys()) {
+      if (filePath.startsWith(prefix)) {
+        this.binaryFiles.delete(filePath);
       }
     }
   }
@@ -131,6 +167,11 @@ export class InMemoryFileSystemAdapter implements FileSystemAdapter {
         return true;
       }
     }
+    for (const filePath of this.binaryFiles.keys()) {
+      if (filePath.startsWith(prefix)) {
+        return true;
+      }
+    }
     return false;
   }
 
@@ -161,6 +202,7 @@ export class InMemoryFileSystemAdapter implements FileSystemAdapter {
   // Test utilities
   clear(): void {
     this.files.clear();
+    this.binaryFiles.clear();
   }
 
   getFiles(): Map<string, string> {

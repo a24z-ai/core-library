@@ -1,4 +1,4 @@
-export {
+export type {
   LibraryRule,
   LibraryRuleSeverity,
   LibraryRuleCategory,
@@ -11,7 +11,7 @@ export {
 } from './types';
 
 // Re-export types from pure-core that are used in rules
-export { CodebaseView, AnchoredNoteWithPath } from '../pure-core/types';
+export type { CodebaseView, AnchoredNoteWithPath } from '../pure-core/types';
 
 export { LibraryRulesEngine } from './engine';
 export { requireReferences } from './implementations/require-references';

@@ -321,4 +321,4 @@ export interface MemoryPalaceConfiguration {
 }
 
 // Re-export StaleAnchoredNote from stores
-export { StaleAnchoredNote } from '../stores/AnchoredNotesStore';
+export type { StaleAnchoredNote } from '../stores/AnchoredNotesStore';

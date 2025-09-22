@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach } from 'bun:test';
 import { MemoryPalace } from '../../../src/MemoryPalace';
 import { OverviewPathAutoFix } from '../../../src/pure-core/autofixes/OverviewPathAutoFix';
-import { InMemoryFileSystemAdapter } from '../../test-adapters/InMemoryFileSystemAdapter';
+import { InMemoryFileSystemAdapter } from '../../../src/test-adapters/InMemoryFileSystemAdapter';
 import { CodebaseView } from '../../../src/pure-core/types';
 
 describe('OverviewPathAutoFix', () => {

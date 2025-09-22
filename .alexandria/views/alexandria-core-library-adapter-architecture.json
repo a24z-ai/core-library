@@ -5,7 +5,7 @@
   "description": "Codebase view extracted from documentation",
   "rows": 1,
   "cols": 1,
-  "cells": {
+  "referenceGroups": {
     "See Also": {
       "coordinates": [
         0,
@@ -14,7 +14,7 @@
       "files": [
         "src/pure-core/abstractions/filesystem.ts",
         "src/node-adapters/NodeFileSystemAdapter.ts",
-        "src/node-adapters/InMemoryFileSystemAdapter.ts"
+        "src/test-adapters/InMemoryFileSystemAdapter.ts"
       ],
       "priority": 0
     }

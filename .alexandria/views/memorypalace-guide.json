@@ -5,7 +5,7 @@
   "description": "Codebase view extracted from documentation",
   "rows": 1,
   "cols": 1,
-  "cells": {
+  "referenceGroups": {
     "Full API": {
       "coordinates": [
         0,

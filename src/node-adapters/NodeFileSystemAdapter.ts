@@ -42,6 +42,24 @@ export class NodeFileSystemAdapter implements FileSystemAdapter {
     }
   }
 
+  readBinaryFile(path: string): Uint8Array {
+    const buffer = fs.readFileSync(path);
+    return new Uint8Array(buffer);
+  }
+
+  writeBinaryFile(path: string, content: Uint8Array): void {
+    // Ensure parent directory exists
+    const dir = this.dirname(path);
+    if (!this.exists(dir)) {
+      this.createDir(dir);
+    }
+
+    // Write to temp file first, then rename (atomic write)
+    const tmp = `${path}.tmp`;
+    fs.writeFileSync(tmp, Buffer.from(content));
+    fs.renameSync(tmp, path);
+  }
+
   createDir(path: string): void {
     if (!this.exists(path)) {
       fs.mkdirSync(path, { recursive: true });

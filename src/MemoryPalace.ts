@@ -9,6 +9,7 @@ import { FileSystemAdapter } from './pure-core/abstractions/filesystem';
 import { AnchoredNotesStore, StaleAnchoredNote } from './pure-core/stores/AnchoredNotesStore';
 import { CodebaseViewsStore } from './pure-core/stores/CodebaseViewsStore';
 import { A24zConfigurationStore } from './pure-core/stores/A24zConfigurationStore';
+import { DrawingStore, DrawingMetadata } from './pure-core/stores/DrawingStore';
 import { generateFullGuidanceContent, GuidanceContent } from './pure-core/utils/guidanceGenerator';
 import {
   CodebaseViewValidator,
@@ -46,6 +47,7 @@ export class MemoryPalace {
   private notesStore: AnchoredNotesStore;
   private viewsStore: CodebaseViewsStore;
   private configStore: A24zConfigurationStore;
+  private drawingStore: DrawingStore;
   private validator: CodebaseViewValidator;
   private repositoryRoot: ValidatedRepositoryPath;
   private fs: FileSystemAdapter;
@@ -59,6 +61,7 @@ export class MemoryPalace {
     this.notesStore = new AnchoredNotesStore(fileSystem, alexandriaPath);
     this.viewsStore = new CodebaseViewsStore(fileSystem, alexandriaPath);
     this.configStore = new A24zConfigurationStore(fileSystem, alexandriaPath);
+    this.drawingStore = new DrawingStore(fileSystem, alexandriaPath);
     this.validator = new CodebaseViewValidator(fileSystem);
   }
 
@@ -422,5 +425,72 @@ export class MemoryPalace {
    */
   deleteFile(path: string): void {
     return this.fs.deleteFile(path);
+  }
+
+  // ============================================================================
+  // Drawing Management
+  // ============================================================================
+
+  /**
+   * Save a drawing (Excalidraw JSON format)
+   */
+  saveDrawing(name: string, content: string): void {
+    return this.drawingStore.saveDrawing(name, content);
+  }
+
+  /**
+   * Save a binary drawing (PNG, etc)
+   */
+  saveBinaryDrawing(name: string, content: Uint8Array): void {
+    return this.drawingStore.saveBinaryDrawing(name, content);
+  }
+
+  /**
+   * Load a drawing
+   */
+  loadDrawing(name: string): string | null {
+    return this.drawingStore.loadDrawing(name);
+  }
+
+  /**
+   * Load a binary drawing
+   */
+  loadBinaryDrawing(name: string): Uint8Array | null {
+    return this.drawingStore.loadBinaryDrawing(name);
+  }
+
+  /**
+   * List all drawings
+   */
+  listDrawings(): string[] {
+    return this.drawingStore.listDrawings();
+  }
+
+  /**
+   * List drawings with metadata
+   */
+  listDrawingsWithMetadata(): DrawingMetadata[] {
+    return this.drawingStore.listDrawingsWithMetadata();
+  }
+
+  /**
+   * Delete a drawing
+   */
+  deleteDrawing(name: string): boolean {
+    return this.drawingStore.deleteDrawing(name);
+  }
+
+  /**
+   * Rename a drawing
+   */
+  renameDrawing(oldName: string, newName: string): boolean {
+    return this.drawingStore.renameDrawing(oldName, newName);
+  }
+
+  /**
+   * Check if a drawing exists
+   */
+  drawingExists(name: string): boolean {
+    return this.drawingStore.drawingExists(name);
   }
 }

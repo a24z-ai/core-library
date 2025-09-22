@@ -13,6 +13,10 @@ export interface FileSystemAdapter {
   writeFile(path: string, content: string): void;
   deleteFile(path: string): void;
 
+  // Binary file operations
+  readBinaryFile(path: string): Uint8Array;
+  writeBinaryFile(path: string, content: Uint8Array): void;
+
   // Directory operations
   createDir(path: string): void;
   readDir(path: string): string[];

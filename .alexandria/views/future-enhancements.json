@@ -5,7 +5,7 @@
   "description": "Ideas for improving Alexandria core library and documentation system",
   "rows": 2,
   "cols": 2,
-  "cells": {
+  "referenceGroups": {
     "0,0": {
       "label": "Configuration & Rules",
       "coordinates": [0, 0],

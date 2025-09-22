@@ -57,4 +57,4 @@ export interface MergeAnchoredNotesResult {
 // ============================================================================
 
 export { StoredAnchoredNote, AnchoredNoteWithPath } from './index';
-export { StaleAnchoredNote } from '../stores/AnchoredNotesStore';
+export type { StaleAnchoredNote } from '../stores/AnchoredNotesStore';

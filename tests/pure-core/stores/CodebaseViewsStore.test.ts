@@ -8,7 +8,7 @@ import {
   CodebaseViewsStore,
   generateViewIdFromName,
 } from '../../../src/pure-core/stores/CodebaseViewsStore';
-import { InMemoryFileSystemAdapter } from '../../test-adapters/InMemoryFileSystemAdapter';
+import { InMemoryFileSystemAdapter } from '../../../src/test-adapters/InMemoryFileSystemAdapter';
 import {
   CodebaseView,
   ValidatedRepositoryPath,

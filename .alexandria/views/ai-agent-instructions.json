@@ -5,7 +5,7 @@
   "description": "Codebase view extracted from documentation",
   "rows": 1,
   "cols": 1,
-  "cells": {},
+  "referenceGroups": {},
   "overviewPath": "AGENTS.md",
   "category": "other",
   "displayOrder": 0,
