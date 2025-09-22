@@ -121,8 +121,6 @@ export class DrawingStore {
     const metadata: DrawingMetadata[] = [];
 
     for (const fileName of drawings) {
-      const filePath = this.fs.join(this.drawingsDir, fileName);
-
       // Extract format from extension
       const format = fileName.endsWith('.excalidraw') ? 'excalidraw' :
                      fileName.endsWith('.svg') ? 'svg' :

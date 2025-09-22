@@ -79,6 +79,40 @@ export { LibraryRulesEngine } from './rules';
 export { OverviewPathAutoFix } from './pure-core/autofixes/OverviewPathAutoFix';
 export { ConfigValidator } from './config/validator';
 
+// Rule types for CLI and external consumers
+export type {
+  LibraryRule,
+  LibraryRuleSeverity,
+  LibraryRuleCategory,
+  LibraryRuleViolation,
+  LibraryRuleContext,
+  LibraryRuleSet,
+  LibraryLintResult,
+  FileInfo,
+  GitFileHistory,
+} from './rules/types';
+
+// Configuration types
+export type {
+  AlexandriaConfig,
+  ContextRule,
+  DocumentOrganizationOptions,
+  FilenameConventionOptions,
+  StaleReferencesOptions,
+  RequireReferencesOptions,
+  RuleOptions,
+  ProjectType,
+  RuleSeverity,
+  ReportingOutput,
+  ReportingFormat,
+  PriorityLevel,
+  FixType,
+  PriorityPattern,
+  FilenameStyle,
+  FilenameSeparator,
+  FilenameCaseStyle,
+} from './config/types';
+
 // Constants
 export { ALEXANDRIA_DIRS } from './constants/paths';
 export { CONFIG_FILENAME } from './config/schema';

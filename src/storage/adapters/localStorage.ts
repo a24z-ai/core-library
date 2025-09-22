@@ -3,6 +3,8 @@
  * Simple implementation using browser localStorage with JSON serialization
  */
 
+/* global localStorage */
+
 import type { 
   AlexandriaVisit, 
   AlexandriaBookmark, 
