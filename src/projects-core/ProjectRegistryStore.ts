@@ -130,20 +130,23 @@ export class ProjectRegistryStore {
   }
 
   /**
-   * Update a project's path or remote URL
+   * Update a project's metadata
    */
   public updateProject(
     name: string,
     updates: Partial<Omit<AlexandriaEntry, 'name' | 'registeredAt'>>
   ): void {
     const registry = this.loadRegistry();
-    const project = registry.projects.find((p) => p.name === name);
+    const projectIndex = registry.projects.findIndex((p) => p.name === name);
 
-    if (!project) {
+    if (projectIndex === -1) {
       throw new Error(`Project '${name}' not found`);
     }
 
-    if (updates.path) {
+    const project = registry.projects[projectIndex];
+
+    // Special handling for path changes
+    if (updates.path && updates.path !== project.path) {
       // Check if new path is already registered
       const existingWithPath = registry.projects.find(
         (p) => p.path === updates.path && p.name !== name
@@ -151,16 +154,16 @@ export class ProjectRegistryStore {
       if (existingWithPath) {
         throw new Error(`Path already registered as '${existingWithPath.name}'`);
       }
-      project.path = updates.path;
     }
 
-    if ('remoteUrl' in updates) {
-      if (updates.remoteUrl === undefined) {
-        delete project.remoteUrl;
-      } else {
-        project.remoteUrl = updates.remoteUrl;
-      }
-    }
+    // Apply all updates
+    registry.projects[projectIndex] = {
+      ...project,
+      ...updates,
+      // Preserve immutable fields
+      name: project.name,
+      registeredAt: project.registeredAt
+    };
 
     this.saveRegistry(registry);
   }

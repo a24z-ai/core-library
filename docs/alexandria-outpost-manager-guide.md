@@ -136,6 +136,47 @@ These terms are often used interchangeably.
 ### View Summaries
 The manager works with lightweight view summaries rather than full CodebaseViews, making it efficient for listing and browsing multiple repositories.
 
+### Updating Repository Metadata
+
+Update repository metadata after registration to keep information current:
+
+```typescript
+// Update general repository metadata
+const updated = await manager.updateRepository('my-project', {
+  bookColor: '#3498db',  // Visual color for UI
+  remoteUrl: 'https://github.com/user/my-project.git'
+});
+
+// Update GitHub metadata specifically
+const githubUpdated = await manager.updateGitHubMetadata('my-project', {
+  owner: 'myorg',
+  description: 'Project description',
+  stars: 42,
+  topics: ['typescript', 'documentation'],
+  primaryLanguage: 'TypeScript',
+  isPublic: true
+});
+
+// Fetch fresh GitHub metadata from API (requires remoteUrl)
+try {
+  const refreshed = await manager.refreshGitHubMetadata('my-project');
+  console.log(`Updated ${refreshed.name}: ${refreshed.github?.stars} stars`);
+} catch (error) {
+  // Handle API errors (rate limits, private repos, network issues)
+  console.error('GitHub refresh failed:', error);
+}
+
+// Refresh CodebaseView information
+const viewsRefreshed = await manager.refreshViews('my-project');
+console.log(`Found ${viewsRefreshed.viewCount} views`);
+
+// Bulk refresh all repositories
+const allRefreshed = await manager.refreshAllRepositories({
+  github: true,  // Fetch from GitHub API
+  views: true    // Rescan view directories
+});
+```
+
 ## Common Patterns
 
 ### Discovery Workflow

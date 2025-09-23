@@ -1,6 +1,6 @@
 import { ProjectRegistryStore } from './ProjectRegistryStore.js';
 import { MemoryPalace } from '../MemoryPalace.js';
-import type { AlexandriaRepository, AlexandriaEntry } from '../pure-core/types/repository.js';
+import type { AlexandriaRepository, AlexandriaEntry, GithubRepository } from '../pure-core/types/repository.js';
 import type { CodebaseViewSummary } from '../pure-core/types/summary.js';
 import { extractCodebaseViewSummary } from '../pure-core/types/summary.js';
 import type { ValidatedRepositoryPath } from '../pure-core/types/index.js';
@@ -181,6 +181,226 @@ export class AlexandriaOutpostManager {
 
       return true;
     });
+  }
+
+  /**
+   * Update an existing repository entry's metadata
+   * @param name - The repository name
+   * @param updates - Partial updates to apply to the repository entry
+   * @returns The updated AlexandriaEntry
+   * @throws Error if repository not found
+   */
+  async updateRepository(
+    name: string,
+    updates: Partial<Omit<AlexandriaEntry, 'name' | 'registeredAt'>>
+  ): Promise<AlexandriaEntry> {
+    const entry = this.projectRegistry.getProject(name);
+    if (!entry) {
+      throw new Error(`Repository '${name}' not found`);
+    }
+
+    // Update the project in registry
+    this.projectRegistry.updateProject(name, updates);
+
+    // Return the updated entry
+    const updatedEntry = this.projectRegistry.getProject(name);
+    if (!updatedEntry) {
+      throw new Error(`Failed to retrieve updated repository '${name}'`);
+    }
+
+    return updatedEntry;
+  }
+
+  /**
+   * Update GitHub metadata for a repository
+   * @param name - The repository name
+   * @param github - GitHub metadata to update
+   * @returns The updated AlexandriaEntry with GitHub metadata
+   * @throws Error if repository not found
+   */
+  async updateGitHubMetadata(
+    name: string,
+    github: Partial<GithubRepository>
+  ): Promise<AlexandriaEntry> {
+    const entry = this.projectRegistry.getProject(name);
+    if (!entry) {
+      throw new Error(`Repository '${name}' not found`);
+    }
+
+    // Merge with existing GitHub data if present
+    const updatedGithub: GithubRepository = {
+      ...(entry.github || {
+        id: `${github.owner || 'unknown'}/${github.name || name}`,
+        owner: github.owner || 'unknown',
+        name: github.name || name,
+        stars: 0,
+        lastUpdated: new Date().toISOString()
+      }),
+      ...github,
+      // Always update the lastUpdated timestamp
+      lastUpdated: new Date().toISOString()
+    };
+
+    // Update the repository with new GitHub data and lastChecked timestamp
+    return this.updateRepository(name, {
+      github: updatedGithub,
+      lastChecked: new Date().toISOString()
+    });
+  }
+
+  /**
+   * Refresh GitHub metadata by fetching from GitHub API
+   * @param name - The repository name
+   * @returns The updated AlexandriaEntry with fresh GitHub metadata
+   * @throws Error if repository not found or has no remote URL
+   */
+  async refreshGitHubMetadata(name: string): Promise<AlexandriaEntry> {
+    const entry = this.projectRegistry.getProject(name);
+    if (!entry) {
+      throw new Error(`Repository '${name}' not found`);
+    }
+
+    if (!entry.remoteUrl) {
+      throw new Error(`Repository '${name}' has no remote URL configured`);
+    }
+
+    // Extract owner and repo name from remote URL
+    const match = entry.remoteUrl.match(/github\.com[:/]([^/]+)\/([^/.]+)(\.git)?$/);
+    if (!match) {
+      throw new Error(`Could not parse GitHub URL from remote: ${entry.remoteUrl}`);
+    }
+
+    const [, owner, repoName] = match;
+
+    try {
+      // Fetch repository data from GitHub API
+      const response = await fetch(`https://api.github.com/repos/${owner}/${repoName}`, {
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'Alexandria-Library'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`GitHub API returned ${response.status}: ${response.statusText}`);
+      }
+
+      const githubData = await response.json();
+
+      // Map GitHub API response to our GithubRepository type
+      const githubMetadata: GithubRepository = {
+        id: githubData.full_name,
+        owner: githubData.owner.login,
+        name: githubData.name,
+        description: githubData.description || undefined,
+        stars: githubData.stargazers_count || 0,
+        primaryLanguage: githubData.language || undefined,
+        topics: githubData.topics || [],
+        license: githubData.license?.spdx_id || undefined,
+        defaultBranch: githubData.default_branch || 'main',
+        isPublic: !githubData.private,
+        lastCommit: githubData.pushed_at || githubData.updated_at,
+        lastUpdated: new Date().toISOString()
+      };
+
+      // Update the repository with fresh GitHub data
+      return this.updateGitHubMetadata(name, githubMetadata);
+    } catch {
+      // If GitHub API fails, at least update with basic info from remote URL
+      const basicGithub: Partial<GithubRepository> = {
+        id: `${owner}/${repoName}`,
+        owner,
+        name: repoName
+      };
+
+      return this.updateGitHubMetadata(name, basicGithub);
+    }
+  }
+
+  /**
+   * Refresh view information by rescanning the .alexandria/views directory
+   * @param name - The repository name
+   * @returns The updated AlexandriaEntry with fresh view data
+   * @throws Error if repository not found
+   */
+  async refreshViews(name: string): Promise<AlexandriaEntry> {
+    const entry = this.projectRegistry.getProject(name);
+    if (!entry) {
+      throw new Error(`Repository '${name}' not found`);
+    }
+
+    try {
+      // Create MemoryPalace instance to scan views
+      const memoryPalace = this.createMemoryPalace(entry.path);
+
+      // Get fresh view data
+      const views = memoryPalace.listViews();
+      const viewSummaries = views.map(v => extractCodebaseViewSummary(v));
+
+      // Update the repository with fresh view data
+      return this.updateRepository(name, {
+        hasViews: viewSummaries.length > 0,
+        viewCount: viewSummaries.length,
+        views: viewSummaries,
+        lastChecked: new Date().toISOString()
+      });
+    } catch (error) {
+      console.debug(`Failed to refresh views for ${name}:`, error);
+
+      // Even if view scanning fails, update the lastChecked timestamp
+      return this.updateRepository(name, {
+        hasViews: false,
+        viewCount: 0,
+        views: [],
+        lastChecked: new Date().toISOString()
+      });
+    }
+  }
+
+  /**
+   * Refresh all repository metadata (GitHub and views) for all registered repositories
+   * @param options - Control what to refresh
+   * @returns Array of updated AlexandriaRepository entries
+   */
+  async refreshAllRepositories(options?: {
+    github?: boolean;
+    views?: boolean;
+  }): Promise<AlexandriaRepository[]> {
+    const { github = true, views = true } = options || {};
+
+    const entries = this.projectRegistry.listProjects();
+    const results: AlexandriaRepository[] = [];
+
+    for (const entry of entries) {
+      try {
+        let updatedEntry = entry;
+
+        // Refresh views if requested
+        if (views) {
+          updatedEntry = await this.refreshViews(entry.name);
+        }
+
+        // Refresh GitHub metadata if requested and remote URL exists
+        if (github && entry.remoteUrl) {
+          try {
+            updatedEntry = await this.refreshGitHubMetadata(entry.name);
+          } catch (error) {
+            console.debug(`Failed to refresh GitHub metadata for ${entry.name}:`, error);
+          }
+        }
+
+        // Transform to AlexandriaRepository format
+        const repository = await this.transformToRepository(updatedEntry);
+        results.push(repository);
+      } catch (error) {
+        console.error(`Failed to refresh repository ${entry.name}:`, error);
+        // Include the original entry even if refresh failed
+        const repository = await this.transformToRepository(entry);
+        results.push(repository);
+      }
+    }
+
+    return results;
   }
 
   private async transformToRepository(entry: AlexandriaEntry): Promise<AlexandriaRepository> {
