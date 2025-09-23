@@ -4,6 +4,7 @@ import { LibraryRuleContext, FileInfo } from '../../src/rules/types';
 import { FilenameConventionOptions } from '../../src/config/types';
 import { ValidatedRepositoryPath } from '../../src/pure-core/types';
 import * as path from 'path';
+import { GlobAdapter, GlobOptions } from '../../src/pure-core/abstractions/glob';
 
 describe('filename-convention rule', () => {
   let mockContext: LibraryRuleContext;
@@ -26,6 +27,39 @@ describe('filename-convention rule', () => {
     size: 100,
     isMarkdown: relativePath.endsWith('.md') || relativePath.endsWith('.mdx'),
   });
+
+  const createStubGlobAdapter = (): GlobAdapter => {
+    return {
+      async findFiles(_patterns: string[], _options?: GlobOptions) {
+        return [];
+      },
+      matchesPath(patterns, candidate) {
+        if (!patterns || patterns.length === 0) {
+          return false;
+        }
+
+        return patterns.some((pattern) => globToRegex(pattern).test(candidate));
+      },
+    };
+  };
+
+  const globToRegex = (pattern: string): RegExp => {
+    let regex = pattern
+      .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+      .replace(/\*\*/g, '___DOUBLE_STAR___')
+      .replace(/\*/g, '[^/]*')
+      .replace(/\?/g, '[^/]')
+      .replace(/___DOUBLE_STAR___\//g, '(.*\\/)?')
+      .replace(/\/___DOUBLE_STAR___/g, '(\\/.*)?')
+      .replace(/___DOUBLE_STAR___/g, '.*');
+
+    regex = regex.replace(/\{([^}]+)\}/g, (_match, group) => {
+      const options = group.split(',');
+      return '(' + options.join('|') + ')';
+    });
+
+    return new RegExp('^' + regex + '$');
+  };
 
   describe('kebab-case style (default)', () => {
     it('should not report violations for correctly formatted files', async () => {
@@ -73,6 +107,30 @@ describe('filename-convention rule', () => {
       const violations = await filenameConvention.check(mockContext);
       expect(violations).toHaveLength(1);
       expect(violations[0].file).toBe('docs/API_GUIDE.md');
+    });
+
+    it('should honor exclude glob patterns when provided', async () => {
+      mockContext.markdownFiles = [
+        createFileInfo('tests/fixtures/markdown/bad_file.md'),
+      ];
+
+      mockContext.globAdapter = createStubGlobAdapter();
+      mockContext.config = {
+        version: '1.0.0',
+        context: {
+          rules: [
+            {
+              id: 'filename-convention',
+              options: {
+                exclude: ['tests/fixtures/markdown/**'],
+              } as FilenameConventionOptions,
+            },
+          ],
+        },
+      };
+
+      const violations = await filenameConvention.check(mockContext);
+      expect(violations).toHaveLength(0);
     });
   });
 
@@ -309,6 +367,7 @@ describe('filename-convention rule', () => {
         createFileInfo('vendor/external_doc.md'),
       ];
 
+      mockContext.globAdapter = createStubGlobAdapter();
       mockContext.config = {
         version: '1.0.0',
         context: {
@@ -319,7 +378,7 @@ describe('filename-convention rule', () => {
               severity: 'warning',
               options: {
                 style: 'kebab-case',
-                exclude: ['legacy', 'vendor'],
+                exclude: ['legacy/**', 'vendor/**'],
               } as FilenameConventionOptions,
             },
           ],

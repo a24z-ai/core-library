@@ -1,6 +1,7 @@
 import { LibraryRule, LibraryRuleViolation, LibraryRuleContext } from '../types';
 import { DocumentOrganizationOptions } from '../../config/types';
 import * as path from 'path';
+import { matchesPatterns } from '../utils/patterns';
 
 // Default allowed root-level documentation files
 const DEFAULT_ROOT_EXCEPTIONS = [
@@ -47,7 +48,7 @@ export const documentOrganization: LibraryRule = {
 
   async check(context: LibraryRuleContext): Promise<LibraryRuleViolation[]> {
     const violations: LibraryRuleViolation[] = [];
-    const { config } = context;
+    const { config, globAdapter } = context;
 
     // Get options from config or use defaults
     const ruleConfig = config?.context?.rules?.find((r) => r.id === 'document-organization');
@@ -68,12 +69,17 @@ export const documentOrganization: LibraryRule = {
     try {
       // Use markdown files from context instead of re-scanning
       const markdownFiles = context.markdownFiles;
+      const globalExcludePatterns = config?.context?.patterns?.exclude ?? [];
 
       for (const fileInfo of markdownFiles) {
         const file = fileInfo.relativePath;
         const fileName = path.basename(file);
         const dirName = path.dirname(file);
         const pathParts = dirName.split(path.sep).filter(Boolean);
+
+        if (matchesPatterns(globAdapter, globalExcludePatterns, file)) {
+          continue;
+        }
 
         // Check if file is in root directory
         if (dirName === '.' || dirName === '') {

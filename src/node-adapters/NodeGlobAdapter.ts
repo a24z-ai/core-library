@@ -36,4 +36,30 @@ export class NodeGlobAdapter implements GlobAdapter {
     // Ensure we get strings, not Entry objects
     return globbySync(patterns, globbyOptions) as string[];
   }
+
+  matchesPath(patterns: string[] | undefined, candidate: string): boolean {
+    if (!patterns || patterns.length === 0) {
+      return false;
+    }
+
+    return patterns.some((pattern) => globToRegex(pattern).test(candidate));
+  }
+}
+
+function globToRegex(pattern: string): RegExp {
+  let regex = pattern
+    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*\*/g, '___DOUBLE_STAR___')
+    .replace(/\*/g, '[^/]*')
+    .replace(/\?/g, '[^/]')
+    .replace(/___DOUBLE_STAR___\//g, '(.*\\/)?')
+    .replace(/\/___DOUBLE_STAR___/g, '(\\/.*)?')
+    .replace(/___DOUBLE_STAR___/g, '.*');
+
+  regex = regex.replace(/\{([^}]+)\}/g, (_match, group) => {
+    const options = group.split(',');
+    return '(' + options.join('|') + ')';
+  });
+
+  return new RegExp('^' + regex + '$');
 }

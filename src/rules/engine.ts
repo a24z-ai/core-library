@@ -48,7 +48,8 @@ export class LibraryRulesEngine {
 
   private async scanFiles(
     projectRoot: ValidatedRepositoryPath,
-    useGitignore: boolean = true
+    useGitignore: boolean = true,
+    excludePatterns: string[] = []
   ): Promise<{ files: FileInfo[]; markdownFiles: FileInfo[] }> {
     const files: FileInfo[] = [];
     const markdownFiles: FileInfo[] = [];
@@ -60,6 +61,7 @@ export class LibraryRulesEngine {
         gitignore: useGitignore,
         dot: false,
         onlyFiles: true,
+        ignore: excludePatterns,
       });
 
       // Get markdown files specifically
@@ -68,6 +70,7 @@ export class LibraryRulesEngine {
         gitignore: useGitignore,
         dot: false,
         onlyFiles: true,
+        ignore: excludePatterns,
       });
 
       // Create a set of markdown paths for quick lookup
@@ -122,7 +125,13 @@ export class LibraryRulesEngine {
     const useGitignore = config?.context?.useGitignore !== false;
 
     // Scan files
-    const { files, markdownFiles } = await this.scanFiles(validatedPath, useGitignore);
+    const excludePatterns = config?.context?.patterns?.exclude ?? [];
+
+    const { files, markdownFiles } = await this.scanFiles(
+      validatedPath,
+      useGitignore,
+      excludePatterns
+    );
 
     // Load views and notes using MemoryPalace public API
     const views = memoryPalace.listViews();

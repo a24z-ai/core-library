@@ -286,3 +286,6 @@ const palace = new MemoryPalace(fsAdapter, '/');
 - [FileSystemAdapter Interface](src/pure-core/abstractions/filesystem.ts)
 - [NodeFileSystemAdapter Implementation](src/node-adapters/NodeFileSystemAdapter.ts)
 - [InMemoryFileSystemAdapter Implementation](src/test-adapters/InMemoryFileSystemAdapter.ts)
+
+---
+*Last reviewed: 2025-09-23 - Document confirmed to be up-to-date with current implementation.*

@@ -268,3 +268,6 @@ For complete method signatures and advanced usage, see:
 
 - [MemoryPalace Guide](memory-palace-guide.md) - Working with individual repositories
 - [CodebaseView Summaries](codebase-view-summaries.md) - Understanding view summaries
+
+---
+*Last reviewed: 2025-09-23 - Document confirmed to be up-to-date with current implementation.*

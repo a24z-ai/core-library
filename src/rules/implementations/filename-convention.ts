@@ -2,6 +2,7 @@ import { LibraryRule, LibraryRuleViolation, LibraryRuleContext } from '../types'
 import { FilenameConventionOptions, FilenameStyle } from '../../config/types';
 import * as path from 'path';
 import * as fs from 'fs/promises';
+import { matchesPatterns } from '../utils/patterns';
 
 // Default exceptions for common files
 const DEFAULT_EXCEPTIONS = [
@@ -41,7 +42,7 @@ export const filenameConvention: LibraryRule = {
 
   async check(context: LibraryRuleContext): Promise<LibraryRuleViolation[]> {
     const violations: LibraryRuleViolation[] = [];
-    const { files, markdownFiles, config } = context;
+    const { files, markdownFiles, config, globAdapter } = context;
 
     // Get options from config or use defaults
     const ruleConfig = config?.context?.rules?.find((r) => r.id === 'filename-convention');
@@ -69,13 +70,19 @@ export const filenameConvention: LibraryRule = {
       ? markdownFiles
       : files.filter(f => extensions.some(ext => f.relativePath.endsWith(ext)));
 
+    const globalExcludePatterns = config?.context?.patterns?.exclude ?? [];
+
     for (const fileInfo of filesToCheck) {
       const fileName = path.basename(fileInfo.relativePath);
       const fileNameWithoutExt = path.basename(fileInfo.relativePath, path.extname(fileInfo.relativePath));
       const dirName = path.dirname(fileInfo.relativePath);
 
+      if (matchesPatterns(globAdapter, globalExcludePatterns, fileInfo.relativePath)) {
+        continue;
+      }
+
       // Check if file matches any exclude pattern
-      if (options.exclude?.some(pattern => fileInfo.relativePath.includes(pattern))) {
+      if (matchesPatterns(globAdapter, options.exclude, fileInfo.relativePath)) {
         continue;
       }
 

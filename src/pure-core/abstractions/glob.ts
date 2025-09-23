@@ -49,4 +49,12 @@ export interface GlobAdapter {
    * @returns Array of matching file paths
    */
   findFilesSync?(patterns: string[], options?: GlobOptions): string[];
+
+  /**
+   * Check whether a candidate path matches any of the provided patterns.
+   * Implementations may delegate to their underlying glob engines.
+   * @param patterns - Glob patterns to evaluate
+   * @param candidate - Path to test against the patterns
+   */
+  matchesPath?(patterns: string[] | undefined, candidate: string): boolean;
 }

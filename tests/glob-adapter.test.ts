@@ -73,6 +73,12 @@ describe('GlobAdapter Implementations', () => {
       expect(files).toContain('docs/guide.md');
       expect(files).not.toContain('docs/api.md');
     });
+
+    it('should match paths using glob patterns', () => {
+      expect(globAdapter.matchesPath?.(['docs/**'], 'docs/guide.md')).toBe(true);
+      expect(globAdapter.matchesPath?.(['docs/**'], 'src/index.ts')).toBe(false);
+      expect(globAdapter.matchesPath?.(['**/*.md'], 'docs/api.md')).toBe(true);
+    });
   });
 
   describe('NodeGlobAdapter', () => {
@@ -113,6 +119,12 @@ describe('GlobAdapter Implementations', () => {
 
       expect(files).toContain('README.md');
       expect(files).toContain('docs/guide.md');
+    });
+
+    it('should match paths using glob patterns', () => {
+      expect(globAdapter.matchesPath?.(['docs/**'], 'docs/guide.md')).toBe(true);
+      expect(globAdapter.matchesPath?.(['docs/**'], 'src/index.ts')).toBe(false);
+      expect(globAdapter.matchesPath?.(['**/*.md'], 'docs/guide.md')).toBe(true);
     });
 
     // Clean up

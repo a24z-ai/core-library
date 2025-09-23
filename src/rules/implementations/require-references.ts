@@ -1,6 +1,7 @@
 import { LibraryRule, LibraryRuleViolation, LibraryRuleContext } from '../types';
 import { RequireReferencesOptions } from '../../config/types';
 import { ALEXANDRIA_DIRS } from '../../constants/paths';
+import { matchesPatterns } from '../utils/patterns';
 
 export const requireReferences: LibraryRule = {
   id: 'require-references',
@@ -14,7 +15,7 @@ export const requireReferences: LibraryRule = {
 
   async check(context: LibraryRuleContext): Promise<LibraryRuleViolation[]> {
     const violations: LibraryRuleViolation[] = [];
-    const { markdownFiles, views, config } = context;
+    const { markdownFiles, views, config, globAdapter } = context;
 
     // Get options from config
     const ruleConfig = config?.context?.rules?.find((r) => r.id === 'require-references');
@@ -35,6 +36,8 @@ export const requireReferences: LibraryRule = {
       }
     }
 
+    const globalExcludePatterns = config?.context?.patterns?.exclude ?? [];
+
     // Find markdown files that are not associated
     for (const mdFile of markdownFiles) {
       const relativePath = mdFile.relativePath;
@@ -44,8 +47,12 @@ export const requireReferences: LibraryRule = {
         continue;
       }
 
+      if (matchesPatterns(globAdapter, globalExcludePatterns, relativePath)) {
+        continue;
+      }
+
       // Skip files explicitly excluded in config
-      if (configOptions?.excludeFiles?.includes(relativePath)) {
+      if (matchesPatterns(globAdapter, configOptions?.excludeFiles, relativePath)) {
         continue;
       }
 

@@ -92,7 +92,7 @@ Enforces consistent filename conventions for documentation files. Consistent nam
 | `separator` | `'_' \| '-' \| ' ' \| '.'` | Based on style | Custom separator character (overrides style) |
 | `caseStyle` | `'lower' \| 'upper' \| 'mixed'` | Based on style | Additional case enforcement |
 | `extensions` | `string[]` | `['.md', '.mdx']` | File extensions to check |
-| `exclude` | `string[]` | `[]` | Glob patterns to exclude from checking |
+| `exclude` | `string[]` | `[]` | Glob patterns or specific paths to exclude from checking |
 | `exceptions` | `string[]` | `['README.md', 'LICENSE.md', 'CONTRIBUTING.md', 'CHANGELOG.md', 'CODE_OF_CONDUCT.md']` | Exact filenames to allow as exceptions |
 | `documentFoldersOnly` | `boolean` | `false` | Only check files in documentation folders |
 | `autoFix` | `boolean` | `false` | Enable auto-fix by renaming files |
@@ -174,7 +174,9 @@ Ensures that every markdown documentation file is used as an overview in at leas
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `excludeFiles` | `string[]` | `[]` | List of files to exclude from the requirement |
+| `excludeFiles` | `string[]` | `[]` | Glob patterns or specific paths to exclude from the requirement |
+
+> **Note**: Glob patterns follow standard shell-style matching (e.g., `docs/archive/**`). Negated patterns (those starting with `!`) are not supported for rule options or `context.patterns.exclude`.
 
 ### What Makes a Valid Reference
 A markdown file is considered properly referenced when:

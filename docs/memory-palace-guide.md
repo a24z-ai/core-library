@@ -160,3 +160,6 @@ For complete method signatures and advanced usage, see:
 
 - [CodebaseView Concept](codebase-view-concept.md) - Understanding spatial code organization
 - [Adapter Architecture](adapter-architecture.md) - Using different file system adapters
+
+---
+*Last reviewed: 2025-09-23 - Document confirmed to be up-to-date with current implementation.*

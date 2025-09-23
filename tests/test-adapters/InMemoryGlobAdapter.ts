@@ -55,6 +55,14 @@ export class InMemoryGlobAdapter implements GlobAdapter {
     return matchedPaths.map((path) => this.fs.relative(cwd, path));
   }
 
+  matchesPath(patterns: string[] | undefined, candidate: string): boolean {
+    if (!patterns || patterns.length === 0) {
+      return false;
+    }
+
+    return patterns.some((pattern) => this.globToRegex(pattern).test(candidate));
+  }
+
   private getAllPaths(dir: string): string[] {
     const paths: string[] = [];
 

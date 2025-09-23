@@ -124,6 +124,38 @@ describe('LibraryRulesEngine', () => {
       expect(secondCall?.options?.gitignore).toBe(false);
     });
 
+    it('should pass global exclusion patterns to the glob adapter', async () => {
+      const excludePattern = 'tests/fixtures/markdown/**';
+
+      let findFilesCalls: { patterns: string[]; options?: unknown }[] = [];
+      const originalFindFiles = globAdapter.findFiles.bind(globAdapter);
+
+      globAdapter.findFiles = async (patterns, options) => {
+        findFilesCalls.push({ patterns, options });
+        return originalFindFiles(patterns, options);
+      };
+
+      const config: AlexandriaConfig = {
+        context: {
+          patterns: {
+            exclude: [excludePattern],
+          },
+          rules: [],
+        },
+      };
+
+      await engine.lint(testDir, {
+        config,
+        enabledRules: [],
+      });
+
+      const callWithIgnore = findFilesCalls.find(c =>
+        Array.isArray((c.options as { ignore?: string[] })?.ignore)
+      ) as { options?: { ignore?: string[] } } | undefined;
+
+      expect(callWithIgnore?.options?.ignore).toContain(excludePattern);
+    });
+
     it('should not use Node.js dependencies for file operations', async () => {
       // This test verifies we're not using Node.js fs.statSync or path.join
       // The test passes if the engine works with our in-memory adapters
@@ -179,6 +211,71 @@ describe('LibraryRulesEngine', () => {
       // Should be exactly 1 call for markdown files (from engine)
       // not 2 (which would indicate the rule re-scanned)
       expect(markdownPatternCalls.length).toBe(1);
+    });
+  });
+
+  describe('exclusion handling', () => {
+    it('should suppress violations for files matched by global exclusions', async () => {
+      fs.createDir(`${testDir}/tests`);
+      fs.createDir(`${testDir}/tests/fixtures`);
+      fs.createDir(`${testDir}/tests/fixtures/markdown`);
+      fs.writeFile(`${testDir}/tests/fixtures/markdown/fixture.md`, '# Fixture');
+
+      const config: AlexandriaConfig = {
+        context: {
+          patterns: {
+            exclude: ['tests/fixtures/markdown/**'],
+          },
+          rules: [
+            {
+              id: 'require-references',
+              enabled: true,
+            },
+            {
+              id: 'document-organization',
+              enabled: true,
+            },
+          ],
+        },
+      };
+
+      const result = await engine.lint(testDir, {
+        config,
+        enabledRules: ['require-references', 'document-organization'],
+      });
+
+      const hasFixtureViolation = result.violations.some(v =>
+        v.file === 'tests/fixtures/markdown/fixture.md'
+      );
+
+      expect(hasFixtureViolation).toBe(false);
+    });
+
+    it('should honor require-references excludeFiles glob patterns', async () => {
+      fs.writeFile(`${testDir}/docs/overview.md`, '# Overview');
+      fs.writeFile(`${testDir}/docs/orphan.md`, '# Orphan');
+
+      const config: AlexandriaConfig = {
+        context: {
+          rules: [
+            {
+              id: 'require-references',
+              enabled: true,
+              options: {
+                excludeFiles: ['docs/**'],
+              },
+            },
+          ],
+        },
+      };
+
+      const result = await engine.lint(testDir, {
+        config,
+        enabledRules: ['require-references'],
+      });
+
+      const violations = result.violations.filter(v => v.ruleId === 'require-references');
+      expect(violations).toHaveLength(0);
     });
   });
 
