@@ -75,7 +75,7 @@ export { DrawingStore } from './pure-core/stores/DrawingStore';
 export type { DrawingMetadata } from './pure-core/stores/DrawingStore';
 
 // Utilities and rules
-export { LibraryRulesEngine } from './rules';
+export { LibraryRulesEngine } from './rules/index';
 export { OverviewPathAutoFix } from './pure-core/autofixes/OverviewPathAutoFix';
 export { ConfigValidator } from './config/validator';
 
