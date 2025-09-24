@@ -134,4 +134,4 @@ if (hasErrors) {
 - [Configuration](adapter-architecture.md) - Configuration options
 
 ---
-*Last reviewed: 2025-09-23 - Document confirmed to be up-to-date with current implementation.*
+*Last reviewed: 2025-09-24 - Document confirmed to be up-to-date with current implementation.*

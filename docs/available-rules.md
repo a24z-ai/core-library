@@ -374,3 +374,6 @@ Each rule extends the base `Rule` interface and implements:
 - `run()` - Main validation logic
 - `getDefaultSeverity()` - Default severity level
 - `getDescription()` - Human-readable description
+
+---
+*Last reviewed: 2025-09-24 - Document confirmed to be up-to-date with current implementation.*
