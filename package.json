@@ -1,6 +1,6 @@
 {
   "name": "@a24z/core-library",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "private": false,
   "description": "Core library for a24z ecosystem",
   "main": "dist/index.js",
@@ -42,13 +42,13 @@
   "engines": {
     "node": ">=18"
   },
-  "dependencies": {},
   "devDependencies": {
     "@eslint/js": "^9.15.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@types/bun": "^1.1.20",
     "@types/node": "^22.15.26",
+    "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8.41.0",
     "@typescript-eslint/parser": "^8.41.0",
     "esbuild": "^0.25.9",

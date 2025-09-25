@@ -149,3 +149,9 @@ export type {
   AlexandriaDocumentVersion,
   AlexandriaBookmarkedDocument,
 } from './types/alexandria-state';
+
+// ============================================================================
+// Control Tower Core - WebSocket Collaboration with Authentication
+// ============================================================================
+
+export * from './control-tower/index';
