@@ -10,7 +10,9 @@ import { AnchoredNotesStore, StaleAnchoredNote } from './pure-core/stores/Anchor
 import { CodebaseViewsStore } from './pure-core/stores/CodebaseViewsStore';
 import { A24zConfigurationStore } from './pure-core/stores/A24zConfigurationStore';
 import { DrawingStore, DrawingMetadata } from './pure-core/stores/DrawingStore';
+import { PalaceRoomStore } from './pure-core/stores/PalaceRoomStore';
 import { generateFullGuidanceContent, GuidanceContent } from './pure-core/utils/guidanceGenerator';
+import { buildLocalPalaceUri } from './pure-core/utils/palaceUri';
 import {
   CodebaseViewValidator,
   ValidationResult,
@@ -25,6 +27,17 @@ import type {
   ValidatedRelativePath,
 } from './pure-core/types';
 import type { ValidatedAlexandriaPath } from './pure-core/types/repository';
+import type {
+  PalaceRoom,
+  CreatePalaceRoomOptions,
+  UpdatePalaceRoomOptions,
+  PalaceRoomOperationResult,
+} from './pure-core/types/palace-room';
+import type {
+  PalacePortal,
+  CreatePortalOptions,
+  PortalContent,
+} from './pure-core/types/palace-portal';
 
 export interface SaveNoteOptions {
   note: string;
@@ -48,6 +61,7 @@ export class MemoryPalace {
   private viewsStore: CodebaseViewsStore;
   private configStore: A24zConfigurationStore;
   private drawingStore: DrawingStore;
+  private palaceRoomStore: PalaceRoomStore;
   private validator: CodebaseViewValidator;
   private repositoryRoot: ValidatedRepositoryPath;
   private fs: FileSystemAdapter;
@@ -62,6 +76,7 @@ export class MemoryPalace {
     this.viewsStore = new CodebaseViewsStore(fileSystem, alexandriaPath);
     this.configStore = new A24zConfigurationStore(fileSystem, alexandriaPath);
     this.drawingStore = new DrawingStore(fileSystem, alexandriaPath);
+    this.palaceRoomStore = new PalaceRoomStore(fileSystem, alexandriaPath);
     this.validator = new CodebaseViewValidator(fileSystem);
   }
 
@@ -492,5 +507,214 @@ export class MemoryPalace {
    */
   drawingExists(name: string): boolean {
     return this.drawingStore.drawingExists(name);
+  }
+
+  // ============================================================================
+  // Palace Room Management
+  // ============================================================================
+
+  /**
+   * List all palace rooms
+   */
+  listPalaceRooms(): PalaceRoom[] {
+    return this.palaceRoomStore.listRooms();
+  }
+
+  /**
+   * Get a specific palace room by ID
+   */
+  getPalaceRoom(roomId: string): PalaceRoom | null {
+    return this.palaceRoomStore.getRoom(roomId);
+  }
+
+  /**
+   * Create a new palace room
+   */
+  createPalaceRoom(options: CreatePalaceRoomOptions): PalaceRoomOperationResult {
+    return this.palaceRoomStore.createRoom(options);
+  }
+
+  /**
+   * Update a palace room
+   */
+  updatePalaceRoom(roomId: string, options: UpdatePalaceRoomOptions): PalaceRoomOperationResult {
+    return this.palaceRoomStore.updateRoom(roomId, options);
+  }
+
+  /**
+   * Delete a palace room
+   */
+  deletePalaceRoom(roomId: string): boolean {
+    return this.palaceRoomStore.deleteRoom(roomId);
+  }
+
+  /**
+   * Get the default palace room
+   */
+  getDefaultPalaceRoom(): PalaceRoom {
+    return this.palaceRoomStore.getDefaultRoom();
+  }
+
+  /**
+   * Add a drawing to a palace room
+   */
+  addDrawingToPalaceRoom(roomId: string, drawingName: string): boolean {
+    // Verify drawing exists
+    if (!this.drawingExists(drawingName)) {
+      return false;
+    }
+    return this.palaceRoomStore.addDrawingToRoom(roomId, drawingName);
+  }
+
+  /**
+   * Remove a drawing from a palace room
+   */
+  removeDrawingFromPalaceRoom(roomId: string, drawingName: string): boolean {
+    return this.palaceRoomStore.removeDrawingFromRoom(roomId, drawingName);
+  }
+
+  /**
+   * Add a codebase view to a palace room
+   */
+  addCodebaseViewToPalaceRoom(roomId: string, viewId: string): boolean {
+    // Verify view exists
+    const view = this.getView(viewId);
+    if (!view) {
+      return false;
+    }
+    return this.palaceRoomStore.addCodebaseViewToRoom(roomId, viewId);
+  }
+
+  /**
+   * Remove a codebase view from a palace room
+   */
+  removeCodebaseViewFromPalaceRoom(roomId: string, viewId: string): boolean {
+    return this.palaceRoomStore.removeCodebaseViewFromRoom(roomId, viewId);
+  }
+
+  /**
+   * Add a note to a palace room
+   */
+  addNoteToPalaceRoom(roomId: string, noteId: string): boolean {
+    // Verify note exists
+    const note = this.getNoteById(noteId);
+    if (!note) {
+      return false;
+    }
+    return this.palaceRoomStore.addNoteToRoom(roomId, noteId);
+  }
+
+  /**
+   * Remove a note from a palace room
+   */
+  removeNoteFromPalaceRoom(roomId: string, noteId: string): boolean {
+    return this.palaceRoomStore.removeNoteFromRoom(roomId, noteId);
+  }
+
+  /**
+   * Find which palace room contains a specific drawing
+   */
+  findPalaceRoomByDrawing(drawingName: string): PalaceRoom | null {
+    return this.palaceRoomStore.findRoomByDrawing(drawingName);
+  }
+
+  /**
+   * Find which palace room contains a specific codebase view
+   */
+  findPalaceRoomByCodebaseView(viewId: string): PalaceRoom | null {
+    return this.palaceRoomStore.findRoomByCodebaseView(viewId);
+  }
+
+  /**
+   * Find which palace room contains a specific note
+   */
+  findPalaceRoomByNote(noteId: string): PalaceRoom | null {
+    return this.palaceRoomStore.findRoomByNote(noteId);
+  }
+
+  // ============================================================================
+  // Palace Portal Management
+  // ============================================================================
+
+  /**
+   * Add a portal to a palace room
+   */
+  addPortalToRoom(roomId: string, portalOptions: CreatePortalOptions): PalacePortal | null {
+    return this.palaceRoomStore.addPortalToRoom(roomId, portalOptions);
+  }
+
+  /**
+   * Remove a portal from a palace room
+   */
+  removePortalFromRoom(roomId: string, portalId: string): boolean {
+    return this.palaceRoomStore.removePortalFromRoom(roomId, portalId);
+  }
+
+  /**
+   * Update a portal in a palace room
+   */
+  updatePortalInRoom(roomId: string, portalId: string, updates: Partial<PalacePortal>): PalacePortal | null {
+    return this.palaceRoomStore.updatePortalInRoom(roomId, portalId, updates);
+  }
+
+  /**
+   * Get a specific portal from a room
+   */
+  getPortalFromRoom(roomId: string, portalId: string): PalacePortal | null {
+    return this.palaceRoomStore.getPortalFromRoom(roomId, portalId);
+  }
+
+  /**
+   * List all portals in a room
+   */
+  listPortalsInRoom(roomId: string): PalacePortal[] {
+    return this.palaceRoomStore.listPortalsInRoom(roomId);
+  }
+
+  /**
+   * Find rooms that have portals to a specific target
+   */
+  findRoomsByPortalTarget(targetPath: string): PalaceRoom[] {
+    return this.palaceRoomStore.findRoomsByPortalTarget(targetPath);
+  }
+
+  /**
+   * Resolve a portal to fetch content from the target palace
+   * This is a placeholder - actual implementation would depend on the target type
+   */
+  async resolvePortal(roomId: string, portalId: string): Promise<PortalContent> {
+    const portal = this.getPortalFromRoom(roomId, portalId);
+
+    if (!portal) {
+      return {
+        portalId,
+        success: false,
+        error: 'Portal not found',
+      };
+    }
+
+    // For now, just return a pending status
+    // Actual implementation would:
+    // 1. Check portal.target.type
+    // 2. Fetch content based on type (local fs, git clone, HTTP request)
+    // 3. Parse and validate the content
+    // 4. Apply filters based on portal.references
+    // 5. Return the filtered content
+
+    return {
+      portalId: portal.id,
+      success: false,
+      error: 'Portal resolution not yet implemented',
+      targetMetadata: {
+        repositoryPath: portal.target.path || portal.target.gitUrl || portal.target.url,
+      },
+    };
+  }
+
+  /**
+   * Create a Palace URI for a resource in this palace
+   */
+  createPalaceUri(resourceType: 'room' | 'view' | 'note' | 'drawing', resourceId: string): string {
+    return buildLocalPalaceUri(this.repositoryRoot, resourceType, resourceId);
   }
 }

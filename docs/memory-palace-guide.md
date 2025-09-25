@@ -125,6 +125,87 @@ palace.saveNote({
 });
 ```
 
+## Palace Rooms
+
+Organize your memory palace content into rooms/workspaces for better management:
+
+### Managing Palace Rooms
+
+```typescript
+// List all palace rooms
+const rooms = palace.listPalaceRooms();
+
+// Get the default room (always exists, cannot be deleted)
+const defaultRoom = palace.getDefaultPalaceRoom();
+
+// Create a new palace room
+const result = palace.createPalaceRoom({
+  name: 'Feature Development',
+  description: 'Room for new feature designs and documentation',
+  color: '#3498db',
+  icon: '🚀'
+});
+
+// Update a room
+palace.updatePalaceRoom(roomId, {
+  description: 'Updated description'
+});
+
+// Delete a room (only if empty)
+const deleted = palace.deletePalaceRoom(roomId);
+```
+
+### Adding Content to Rooms
+
+```typescript
+// Add a drawing to a room
+palace.addDrawingToPalaceRoom(roomId, 'architecture-diagram');
+
+// Add a codebase view to a room
+palace.addCodebaseViewToPalaceRoom(roomId, 'feature-view');
+
+// Add a note to a room
+palace.addNoteToPalaceRoom(roomId, noteId);
+
+// Find which room contains specific content
+const room = palace.findPalaceRoomByDrawing('architecture-diagram');
+```
+
+## Palace Portals
+
+Create portals to reference content from other memory palaces:
+
+```typescript
+// Add a portal to another local repository
+const portal = palace.addPortalToRoom(roomId, {
+  name: 'Shared Components',
+  description: 'Reference to company component library',
+  target: {
+    type: 'local',
+    path: '/repos/component-library'
+  }
+});
+
+// Add a portal to a GitHub repository
+palace.addPortalToRoom(roomId, {
+  name: 'Best Practices',
+  target: {
+    type: 'git',
+    gitUrl: 'https://github.com/company/standards',
+    branch: 'main'
+  },
+  referenceType: 'selective',
+  references: {
+    roomIds: ['architecture-room'],
+    notePatterns: ['best-practices/*']
+  }
+});
+
+// Create a Palace URI for cross-referencing
+const uri = palace.createPalaceUri('room', 'my-room-id');
+// Returns: palace:///path/to/repo/room/my-room-id
+```
+
 ## Error Handling
 
 MemoryPalace operations are generally safe and return null/undefined on failure:
@@ -148,6 +229,8 @@ if (!view) {
 MemoryPalace stores all data in the `.alexandria` directory within your repository:
 - `.alexandria/notes/` - Anchored notes organized by date
 - `.alexandria/views/` - CodebaseView definitions
+- `.alexandria/palace-rooms/` - Palace room definitions and portals
+- `.alexandria/drawings/` - Excalidraw and other drawing files
 - `.alexandria/configuration.json` - Repository configuration
 
 ## Full API
@@ -162,4 +245,4 @@ For complete method signatures and advanced usage, see:
 - [Adapter Architecture](adapter-architecture.md) - Using different file system adapters
 
 ---
-*Last reviewed: 2025-09-23 - Document confirmed to be up-to-date with current implementation.*
+*Last reviewed: 2025-09-25 - Added PalaceRooms and PalacePortals documentation.*

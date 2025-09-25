@@ -87,4 +87,4 @@ views.forEach(view => {
 4. **Separation of Concerns** - Metadata separate from file references
 
 ---
-*Last reviewed: 2025-09-23 - Document confirmed to be up-to-date with current implementation.*
+*Last reviewed: 2025-09-25 - Document remains accurate; new PalaceRoom types added to index.ts are unrelated to view summaries.*

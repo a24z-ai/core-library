@@ -322,3 +322,30 @@ export interface MemoryPalaceConfiguration {
 
 // Re-export StaleAnchoredNote from stores
 export type { StaleAnchoredNote } from '../stores/AnchoredNotesStore';
+
+// Re-export PalaceRoom types
+export type {
+  PalaceRoom,
+  CreatePalaceRoomOptions,
+  UpdatePalaceRoomOptions,
+  PalaceRoomOperationResult,
+} from './palace-room';
+
+// Re-export PalacePortal types
+export type {
+  PalacePortal,
+  PortalTarget,
+  PortalTargetType,
+  PortalDisplayMode,
+  PortalSyncStrategy,
+  PortalReferenceType,
+  PortalStatus,
+  PortalReferences,
+  CreatePortalOptions,
+  ImportPortalOptions,
+  PortalContent,
+  PalaceURI,
+  PalaceResourceType,
+  CrossPalaceReference,
+  ReferenceStatus,
+} from './palace-portal';

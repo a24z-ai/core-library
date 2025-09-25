@@ -2,6 +2,17 @@
 
 This document captures ideas for improving the Alexandria core library and documentation system.
 
+## Recently Completed (2025-09-25)
+
+### PalaceRooms and PalacePortals
+✅ **Implemented**: Organizational system for memory palace content
+- PalaceRooms provide workspaces to group related drawings, views, and notes
+- Default "Main Palace" room that cannot be deleted
+- PalacePortals enable cross-repository references
+- Palace URI scheme (palace://host/resourceType/resourceId) for linking
+- Full CRUD operations with safety checks (can't delete rooms with content)
+- Foundation ready for UI implementation and user feedback collection
+
 ## Documentation Organization
 
 ### Folder-Based Categories
@@ -90,10 +101,18 @@ docs/
 - Reduce filesystem calls for frequently accessed repositories
 - Implement cache invalidation on directory structure changes
 
-### Remote Repository Support
-- Extend path validation for remote repositories
-- Support for GitHub/GitLab repository references
-- Enable cross-repository CodebaseViews
+### Cross-Repository Support ✅ FOUNDATION IMPLEMENTED
+- ✅ **Implemented**: PalacePortals enable cross-repository references (2025-09-25)
+  - PalaceRooms for organizing content into workspaces
+  - PalacePortals for creating associations between workspaces
+  - Palace URI scheme for cross-palace linking
+  - Support for local, Git, and URL-based repository references
+  - Selective content referencing configuration
+- **Future Iterations** (based on user feedback):
+  - Content resolution strategies (manual pull, auto-sync, reference-only)
+  - Permission models for portal content (read-only, bidirectional sync)
+  - Caching strategies for remote content
+  - UI representations (links, previews, embedded content)
 
 ## Developer Experience
 
@@ -134,4 +153,4 @@ When implementing these enhancements:
 - Consider performance impact on large repositories
 
 ---
-*Last reviewed: 2025-09-24 - Document confirmed to be up-to-date with current implementation.*
+*Last reviewed: 2025-09-25 - Updated to reflect PalaceRooms and PalacePortals implementation.*

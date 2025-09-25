@@ -26,6 +26,29 @@ export type {
   ViewValidationResult,
   PatternValidationResult,
   FileListValidationResult,
+
+  // PalaceRoom types
+  PalaceRoom,
+  CreatePalaceRoomOptions,
+  UpdatePalaceRoomOptions,
+  PalaceRoomOperationResult,
+
+  // PalacePortal types
+  PalacePortal,
+  PortalTarget,
+  PortalTargetType,
+  PortalDisplayMode,
+  PortalSyncStrategy,
+  PortalReferenceType,
+  PortalStatus,
+  PortalReferences,
+  CreatePortalOptions,
+  ImportPortalOptions,
+  PortalContent,
+  PalaceURI,
+  PalaceResourceType,
+  CrossPalaceReference,
+  ReferenceStatus,
 } from './pure-core/types';
 
 // Repository and Alexandria types
@@ -73,11 +96,23 @@ export { AlexandriaOutpostManager } from './projects-core/AlexandriaOutpostManag
 export { CodebaseViewsStore, generateViewIdFromName } from './pure-core/stores/CodebaseViewsStore';
 export { DrawingStore } from './pure-core/stores/DrawingStore';
 export type { DrawingMetadata } from './pure-core/stores/DrawingStore';
+export { PalaceRoomStore } from './pure-core/stores/PalaceRoomStore';
 
 // Utilities and rules
 export { LibraryRulesEngine } from './rules/index';
 export { OverviewPathAutoFix } from './pure-core/autofixes/OverviewPathAutoFix';
 export { ConfigValidator } from './config/validator';
+
+// Palace URI utilities
+export {
+  parsePalaceUri,
+  buildPalaceUri,
+  createCrossPalaceReference,
+  buildLocalPalaceUri,
+  buildGitHubPalaceUri,
+  isPalaceUri,
+  extractRepositoryFromUri,
+} from './pure-core/utils/palaceUri';
 
 // Rule types for CLI and external consumers
 export type {
