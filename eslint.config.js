@@ -24,11 +24,6 @@ export default [
         require: 'readonly',
         module: 'readonly',
         fetch: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
-        NodeJS: 'readonly',
       },
     },
     plugins: {
