@@ -2,23 +2,20 @@
  * PalaceRoomStore - Storage and management for palace rooms in memory palace
  */
 
-import { FileSystemAdapter } from '../abstractions/filesystem';
-import type { ValidatedAlexandriaPath } from '../types/repository';
+import { FileSystemAdapter } from "../abstractions/filesystem";
+import type { ValidatedAlexandriaPath } from "../types/repository";
 import type {
   PalaceRoom,
   CreatePalaceRoomOptions,
   UpdatePalaceRoomOptions,
   PalaceRoomOperationResult,
-} from '../types/palace-room';
-import type {
-  PalacePortal,
-  CreatePortalOptions,
-} from '../types/palace-portal';
-import { generateId } from '../utils/idGenerator';
+} from "../types/palace-room";
+import type { PalacePortal, CreatePortalOptions } from "../types/palace-portal";
+import { generateId } from "../utils/idGenerator";
 
-const PALACE_ROOMS_DIR = 'palace-rooms';
-const DEFAULT_ROOM_ID = 'default';
-const DEFAULT_ROOM_NAME = 'Main Palace';
+const PALACE_ROOMS_DIR = "palace-rooms";
+const DEFAULT_ROOM_ID = "default";
+const DEFAULT_ROOM_NAME = "Main Palace";
 
 /**
  * Store for managing palace rooms
@@ -32,18 +29,15 @@ export class PalaceRoomStore {
     this.fs = fs;
     this.alexandriaPath = alexandriaPath;
     this.palaceRoomsPath = this.fs.join(alexandriaPath, PALACE_ROOMS_DIR);
+    // Lazy initialization - don't create directory or default room until needed
+  }
 
-    // Ensure palace rooms directory exists
+  /**
+   * Ensure the palace rooms directory exists
+   */
+  private ensureDirectoryExists(): void {
     if (!this.fs.exists(this.palaceRoomsPath)) {
       this.fs.createDir(this.palaceRoomsPath);
-      // Create default room on initialization
-      this.createDefaultRoom();
-    } else {
-      // Ensure default room exists
-      const defaultRoomPath = this.fs.join(this.palaceRoomsPath, `${DEFAULT_ROOM_ID}.json`);
-      if (!this.fs.exists(defaultRoomPath)) {
-        this.createDefaultRoom();
-      }
     }
   }
 
@@ -51,10 +45,11 @@ export class PalaceRoomStore {
    * Create the default palace room
    */
   private createDefaultRoom(): void {
+    this.ensureDirectoryExists();
     const defaultRoom: PalaceRoom = {
       id: DEFAULT_ROOM_ID,
       name: DEFAULT_ROOM_NAME,
-      description: 'The main palace room for general organization',
+      description: "The main palace room for general organization",
       drawingIds: [],
       codebaseViewIds: [],
       noteIds: [],
@@ -65,7 +60,10 @@ export class PalaceRoomStore {
       isDefault: true,
     };
 
-    const roomPath = this.fs.join(this.palaceRoomsPath, `${DEFAULT_ROOM_ID}.json`);
+    const roomPath = this.fs.join(
+      this.palaceRoomsPath,
+      `${DEFAULT_ROOM_ID}.json`,
+    );
     this.fs.writeFile(roomPath, JSON.stringify(defaultRoom, null, 2));
   }
 
@@ -88,7 +86,7 @@ export class PalaceRoomStore {
     const rooms: PalaceRoom[] = [];
 
     for (const file of files) {
-      if (file.endsWith('.json')) {
+      if (file.endsWith(".json")) {
         const roomPath = this.fs.join(this.palaceRoomsPath, file);
         try {
           const content = this.fs.readFile(roomPath);
@@ -139,6 +137,13 @@ export class PalaceRoomStore {
    */
   createRoom(options: CreatePalaceRoomOptions): PalaceRoomOperationResult {
     try {
+      this.ensureDirectoryExists();
+
+      // If this is the first room being created and no default exists, create it first
+      if (!this.fs.exists(this.getRoomPath(DEFAULT_ROOM_ID))) {
+        this.createDefaultRoom();
+      }
+
       const roomId = generateId();
       const now = new Date().toISOString();
 
@@ -177,7 +182,10 @@ export class PalaceRoomStore {
   /**
    * Update a palace room
    */
-  updateRoom(roomId: string, options: UpdatePalaceRoomOptions): PalaceRoomOperationResult {
+  updateRoom(
+    roomId: string,
+    options: UpdatePalaceRoomOptions,
+  ): PalaceRoomOperationResult {
     try {
       const room = this.getRoom(roomId);
       if (!room) {
@@ -188,10 +196,14 @@ export class PalaceRoomStore {
       }
 
       // Don't allow updating the default room's essential properties
-      if (room.isDefault && options.name !== undefined && options.name !== room.name) {
+      if (
+        room.isDefault &&
+        options.name !== undefined &&
+        options.name !== room.name
+      ) {
         return {
           success: false,
-          error: 'Cannot rename the default palace room',
+          error: "Cannot rename the default palace room",
         };
       }
 
@@ -233,13 +245,19 @@ export class PalaceRoomStore {
 
       // Don't allow deleting the default room
       if (room.isDefault) {
-        console.error('Cannot delete the default palace room');
+        console.error("Cannot delete the default palace room");
         return false;
       }
 
       // Check if room has content
-      if (room.drawingIds.length > 0 || room.codebaseViewIds.length > 0 || room.noteIds.length > 0) {
-        console.error('Cannot delete palace room with content. Remove all content first.');
+      if (
+        room.drawingIds.length > 0 ||
+        room.codebaseViewIds.length > 0 ||
+        room.noteIds.length > 0
+      ) {
+        console.error(
+          "Cannot delete palace room with content. Remove all content first.",
+        );
         return false;
       }
 
@@ -256,6 +274,10 @@ export class PalaceRoomStore {
    * Add a drawing to a palace room
    */
   addDrawingToRoom(roomId: string, drawingId: string): boolean {
+    // If trying to add to default room, ensure it exists
+    if (roomId === DEFAULT_ROOM_ID && !this.fs.exists(this.palaceRoomsPath)) {
+      this.getDefaultRoom(); // This will create the directory and default room
+    }
     const room = this.getRoom(roomId);
     if (!room) {
       return false;
@@ -297,6 +319,10 @@ export class PalaceRoomStore {
    * Add a codebase view to a palace room
    */
   addCodebaseViewToRoom(roomId: string, viewId: string): boolean {
+    // If trying to add to default room, ensure it exists
+    if (roomId === DEFAULT_ROOM_ID && !this.fs.exists(this.palaceRoomsPath)) {
+      this.getDefaultRoom(); // This will create the directory and default room
+    }
     const room = this.getRoom(roomId);
     if (!room) {
       return false;
@@ -338,6 +364,10 @@ export class PalaceRoomStore {
    * Add a note to a palace room
    */
   addNoteToRoom(roomId: string, noteId: string): boolean {
+    // If trying to add to default room, ensure it exists
+    if (roomId === DEFAULT_ROOM_ID && !this.fs.exists(this.palaceRoomsPath)) {
+      this.getDefaultRoom(); // This will create the directory and default room
+    }
     const room = this.getRoom(roomId);
     if (!room) {
       return false;
@@ -380,7 +410,7 @@ export class PalaceRoomStore {
    */
   findRoomByDrawing(drawingId: string): PalaceRoom | null {
     const rooms = this.listRooms();
-    return rooms.find(room => room.drawingIds.includes(drawingId)) || null;
+    return rooms.find((room) => room.drawingIds.includes(drawingId)) || null;
   }
 
   /**
@@ -388,7 +418,7 @@ export class PalaceRoomStore {
    */
   findRoomByCodebaseView(viewId: string): PalaceRoom | null {
     const rooms = this.listRooms();
-    return rooms.find(room => room.codebaseViewIds.includes(viewId)) || null;
+    return rooms.find((room) => room.codebaseViewIds.includes(viewId)) || null;
   }
 
   /**
@@ -396,16 +426,23 @@ export class PalaceRoomStore {
    */
   findRoomByNote(noteId: string): PalaceRoom | null {
     const rooms = this.listRooms();
-    return rooms.find(room => room.noteIds.includes(noteId)) || null;
+    return rooms.find((room) => room.noteIds.includes(noteId)) || null;
   }
 
   /**
    * Get the default palace room
    */
   getDefaultRoom(): PalaceRoom {
+    // Check if directory exists first
+    if (!this.fs.exists(this.palaceRoomsPath)) {
+      // First time using palace rooms - create directory and default room
+      this.createDefaultRoom();
+      return this.getRoom(DEFAULT_ROOM_ID)!;
+    }
+
     const defaultRoom = this.getRoom(DEFAULT_ROOM_ID);
     if (!defaultRoom) {
-      // Recreate default room if it doesn't exist
+      // Directory exists but default room is missing - recreate it
       this.createDefaultRoom();
       return this.getRoom(DEFAULT_ROOM_ID)!;
     }
@@ -415,7 +452,14 @@ export class PalaceRoomStore {
   /**
    * Add a portal to a palace room
    */
-  addPortalToRoom(roomId: string, portalOptions: CreatePortalOptions): PalacePortal | null {
+  addPortalToRoom(
+    roomId: string,
+    portalOptions: CreatePortalOptions,
+  ): PalacePortal | null {
+    // If trying to add to default room, ensure it exists
+    if (roomId === DEFAULT_ROOM_ID && !this.fs.exists(this.palaceRoomsPath)) {
+      this.getDefaultRoom(); // This will create the directory and default room
+    }
     const room = this.getRoom(roomId);
     if (!room) {
       console.error(`Room ${roomId} not found`);
@@ -430,11 +474,11 @@ export class PalaceRoomStore {
       name: portalOptions.name,
       description: portalOptions.description,
       target: portalOptions.target,
-      referenceType: portalOptions.referenceType || 'full',
+      referenceType: portalOptions.referenceType || "full",
       references: portalOptions.references,
-      displayMode: portalOptions.displayMode || 'linked',
+      displayMode: portalOptions.displayMode || "linked",
       syncStrategy: portalOptions.syncStrategy,
-      status: 'pending',
+      status: "pending",
       createdAt: now,
       updatedAt: now,
       metadata: portalOptions.metadata,
@@ -463,7 +507,7 @@ export class PalaceRoomStore {
       return false;
     }
 
-    const index = room.portals.findIndex(p => p.id === portalId);
+    const index = room.portals.findIndex((p) => p.id === portalId);
     if (index === -1) {
       return false;
     }
@@ -480,13 +524,17 @@ export class PalaceRoomStore {
   /**
    * Update a portal in a palace room
    */
-  updatePortalInRoom(roomId: string, portalId: string, updates: Partial<PalacePortal>): PalacePortal | null {
+  updatePortalInRoom(
+    roomId: string,
+    portalId: string,
+    updates: Partial<PalacePortal>,
+  ): PalacePortal | null {
     const room = this.getRoom(roomId);
     if (!room || !room.portals) {
       return null;
     }
 
-    const portalIndex = room.portals.findIndex(p => p.id === portalId);
+    const portalIndex = room.portals.findIndex((p) => p.id === portalId);
     if (portalIndex === -1) {
       return null;
     }
@@ -518,7 +566,7 @@ export class PalaceRoomStore {
       return null;
     }
 
-    return room.portals.find(p => p.id === portalId) || null;
+    return room.portals.find((p) => p.id === portalId) || null;
   }
 
   /**
@@ -538,14 +586,15 @@ export class PalaceRoomStore {
    */
   findRoomsByPortalTarget(targetPath: string): PalaceRoom[] {
     const rooms = this.listRooms();
-    return rooms.filter(room => {
+    return rooms.filter((room) => {
       if (!room.portals || room.portals.length === 0) {
         return false;
       }
-      return room.portals.some(portal =>
-        portal.target.path === targetPath ||
-        portal.target.gitUrl === targetPath ||
-        portal.target.url === targetPath
+      return room.portals.some(
+        (portal) =>
+          portal.target.path === targetPath ||
+          portal.target.gitUrl === targetPath ||
+          portal.target.url === targetPath,
       );
     });
   }
