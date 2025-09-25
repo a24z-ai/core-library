@@ -21,7 +21,9 @@
               "$ref": "#/definitions/FixType"
             }
           },
-          "required": ["type"],
+          "required": [
+            "type"
+          ],
           "type": "object"
         },
         "id": {
@@ -59,7 +61,11 @@
           "$ref": "#/definitions/RuleSeverity"
         }
       },
-      "required": ["id", "name", "severity"],
+      "required": [
+        "id",
+        "name",
+        "severity"
+      ],
       "type": "object"
     },
     "DocumentOrganizationOptions": {
@@ -92,7 +98,11 @@
         },
         "caseStyle": {
           "description": "Additional case enforcement",
-          "enum": ["lower", "mixed", "upper"],
+          "enum": [
+            "lower",
+            "mixed",
+            "upper"
+          ],
           "type": "string"
         },
         "documentFoldersOnly": {
@@ -122,7 +132,12 @@
         },
         "separator": {
           "description": "Custom separator character (overrides style)",
-          "enum": [" ", "-", ".", "_"],
+          "enum": [
+            " ",
+            "-",
+            ".",
+            "_"
+          ],
           "type": "string"
         },
         "style": {
@@ -141,11 +156,20 @@
       "type": "object"
     },
     "FixType": {
-      "enum": ["add", "remove", "replace"],
+      "enum": [
+        "add",
+        "remove",
+        "replace"
+      ],
       "type": "string"
     },
     "PriorityLevel": {
-      "enum": ["critical", "high", "low", "medium"],
+      "enum": [
+        "critical",
+        "high",
+        "low",
+        "medium"
+      ],
       "type": "string"
     },
     "PriorityPattern": {
@@ -161,7 +185,10 @@
           "type": "string"
         }
       },
-      "required": ["pattern", "priority"],
+      "required": [
+        "pattern",
+        "priority"
+      ],
       "type": "object"
     },
     "Record<string,string|number|boolean|string[]>": {
@@ -181,7 +208,11 @@
       "type": "object"
     },
     "RuleSeverity": {
-      "enum": ["error", "info", "warning"],
+      "enum": [
+        "error",
+        "info",
+        "warning"
+      ],
       "type": "string"
     },
     "StaleReferencesOptions": {
@@ -279,25 +310,40 @@
           "type": "string"
         },
         "type": {
-          "enum": ["application", "library", "monorepo", "service"],
+          "enum": [
+            "application",
+            "library",
+            "monorepo",
+            "service"
+          ],
           "type": "string"
         },
         "version": {
           "type": "string"
         }
       },
-      "required": ["name"],
+      "required": [
+        "name"
+      ],
       "type": "object"
     },
     "reporting": {
       "additionalProperties": false,
       "properties": {
         "format": {
-          "enum": ["html", "json", "text"],
+          "enum": [
+            "html",
+            "json",
+            "text"
+          ],
           "type": "string"
         },
         "output": {
-          "enum": ["both", "console", "file"],
+          "enum": [
+            "both",
+            "console",
+            "file"
+          ],
           "type": "string"
         },
         "path": {
@@ -314,7 +360,9 @@
       "type": "string"
     }
   },
-  "required": ["version"],
+  "required": [
+    "version"
+  ],
   "type": "object",
   "$id": "https://raw.githubusercontent.com/a24z-ai/alexandria/main/schema/alexandriarc.json",
   "title": "Alexandria Configuration Schema",
