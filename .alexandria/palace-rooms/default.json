@@ -1,0 +1,13 @@
+{
+  "id": "default",
+  "name": "Main Palace",
+  "description": "The main palace room for general organization",
+  "drawingIds": [],
+  "codebaseViewIds": [],
+  "noteIds": [],
+  "portals": [],
+  "createdAt": "2025-09-25T18:30:22.120Z",
+  "updatedAt": "2025-09-25T18:30:22.120Z",
+  "displayOrder": 0,
+  "isDefault": true
+}

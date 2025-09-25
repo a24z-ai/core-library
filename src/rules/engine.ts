@@ -5,18 +5,18 @@ import {
   LibraryLintResult,
   LibraryRuleSet,
   FileInfo,
-} from './types';
-import { requireReferences } from './implementations/require-references';
-import { orphanedReferences } from './implementations/orphaned-references';
-import { staleReferences } from './implementations/stale-references';
-import { documentOrganization } from './implementations/document-organization';
-import { filenameConvention } from './implementations/filename-convention';
-import { AlexandriaConfig, RuleSeverity } from '../config/types';
-import { ConfigLoader } from '../config/loader';
-import { ValidatedRepositoryPath } from '../pure-core/types';
-import { MemoryPalace } from '../MemoryPalace';
-import { GlobAdapter } from '../pure-core/abstractions/glob';
-import { FileSystemAdapter } from '../pure-core/abstractions/filesystem';
+} from "./types";
+import { requireReferences } from "./implementations/require-references";
+import { orphanedReferences } from "./implementations/orphaned-references";
+import { staleReferences } from "./implementations/stale-references";
+import { documentOrganization } from "./implementations/document-organization";
+import { filenameConvention } from "./implementations/filename-convention";
+import { AlexandriaConfig, RuleSeverity } from "../config/types";
+import { ConfigLoader } from "../config/loader";
+import { ValidatedRepositoryPath } from "../pure-core/types";
+import { MemoryPalace } from "../MemoryPalace";
+import { GlobAdapter } from "../pure-core/abstractions/glob";
+import { FileSystemAdapter } from "../pure-core/abstractions/filesystem";
 
 export class LibraryRulesEngine {
   private rules: Map<string, LibraryRule> = new Map();
@@ -49,14 +49,14 @@ export class LibraryRulesEngine {
   private async scanFiles(
     projectRoot: ValidatedRepositoryPath,
     useGitignore: boolean = true,
-    excludePatterns: string[] = []
+    excludePatterns: string[] = [],
   ): Promise<{ files: FileInfo[]; markdownFiles: FileInfo[] }> {
     const files: FileInfo[] = [];
     const markdownFiles: FileInfo[] = [];
 
     try {
       // Get all files using glob adapter (respecting gitignore if enabled)
-      const allFilePaths = await this.globAdapter.findFiles(['**/*'], {
+      const allFilePaths = await this.globAdapter.findFiles(["**/*"], {
         cwd: projectRoot,
         gitignore: useGitignore,
         dot: false,
@@ -65,13 +65,16 @@ export class LibraryRulesEngine {
       });
 
       // Get markdown files specifically
-      const markdownFilePaths = await this.globAdapter.findFiles(['**/*.md', '**/*.mdx'], {
-        cwd: projectRoot,
-        gitignore: useGitignore,
-        dot: false,
-        onlyFiles: true,
-        ignore: excludePatterns,
-      });
+      const markdownFilePaths = await this.globAdapter.findFiles(
+        ["**/*.md", "**/*.mdx"],
+        {
+          cwd: projectRoot,
+          gitignore: useGitignore,
+          dot: false,
+          onlyFiles: true,
+          ignore: excludePatterns,
+        },
+      );
 
       // Create a set of markdown paths for quick lookup
       const markdownPathSet = new Set(markdownFilePaths);
@@ -112,10 +115,13 @@ export class LibraryRulesEngine {
       enabledRules?: string[];
       disabledRules?: string[];
       fix?: boolean;
-    } = {}
+    } = {},
   ): Promise<LibraryLintResult> {
     // Use the injected filesystem adapter
-    const validatedPath = MemoryPalace.validateRepositoryPath(this.fsAdapter, projectRoot || process.cwd());
+    const validatedPath = MemoryPalace.validateRepositoryPath(
+      this.fsAdapter,
+      projectRoot || process.cwd(),
+    );
     const memoryPalace = new MemoryPalace(validatedPath, this.fsAdapter);
 
     // Load configuration
@@ -130,7 +136,7 @@ export class LibraryRulesEngine {
     const { files, markdownFiles } = await this.scanFiles(
       validatedPath,
       useGitignore,
-      excludePatterns
+      excludePatterns,
     );
 
     // Load views and notes using MemoryPalace public API
@@ -149,7 +155,10 @@ export class LibraryRulesEngine {
     };
 
     // Build a map of rule configuration overrides from config
-    const ruleOverrides = new Map<string, { severity?: RuleSeverity; enabled?: boolean }>();
+    const ruleOverrides = new Map<
+      string,
+      { severity?: RuleSeverity; enabled?: boolean }
+    >();
     if (config?.context?.rules) {
       for (const ruleConfig of config.context.rules) {
         ruleOverrides.set(ruleConfig.id, {
@@ -196,13 +205,13 @@ export class LibraryRulesEngine {
 
     for (const violation of violations) {
       switch (violation.severity) {
-        case 'error':
+        case "error":
           errorCount++;
           break;
-        case 'warning':
+        case "warning":
           warningCount++;
           break;
-        case 'info':
+        case "info":
           infoCount++;
           break;
       }
@@ -229,7 +238,9 @@ export class LibraryRulesEngine {
   getRuleSet(): LibraryRuleSet {
     return {
       rules: Array.from(this.rules.values()),
-      enabledRules: Array.from(this.rules.keys()).filter((id) => this.rules.get(id)?.enabled),
+      enabledRules: Array.from(this.rules.keys()).filter(
+        (id) => this.rules.get(id)?.enabled,
+      ),
     };
   }
 }

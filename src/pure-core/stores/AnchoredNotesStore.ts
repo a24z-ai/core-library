@@ -5,17 +5,17 @@
  * No Node.js dependencies - can run in browsers, Deno, Bun, or anywhere JavaScript runs
  */
 
-import { FileSystemAdapter } from '../abstractions/filesystem';
+import { FileSystemAdapter } from "../abstractions/filesystem";
 import {
   StoredAnchoredNote,
   AnchoredNoteWithPath,
   MemoryPalaceConfiguration,
   ValidatedRepositoryPath,
   ValidatedRelativePath,
-} from '../types';
-import { ValidatedAlexandriaPath } from '../types/repository';
-import { A24zConfigurationStore } from './A24zConfigurationStore';
-import { ALEXANDRIA_DIRS } from '../../constants/paths';
+} from "../types";
+import { ValidatedAlexandriaPath } from "../types/repository";
+import { A24zConfigurationStore } from "./A24zConfigurationStore";
+import { ALEXANDRIA_DIRS } from "../../constants/paths";
 
 // ============================================================================
 // Types and Interfaces
@@ -23,13 +23,13 @@ import { ALEXANDRIA_DIRS } from '../../constants/paths';
 
 export interface ValidationError {
   type:
-    | 'noteTooLong'
-    | 'tooManyTags'
-    | 'tooManyAnchors'
-    | 'invalidTags'
-    | 'anchorOutsideRepo'
-    | 'missingAnchors'
-    | 'invalidAnchor';
+    | "noteTooLong"
+    | "tooManyTags"
+    | "tooManyAnchors"
+    | "invalidTags"
+    | "anchorOutsideRepo"
+    | "missingAnchors"
+    | "invalidAnchor";
   message: string;
   context?: Record<string, unknown>;
 }
@@ -64,12 +64,18 @@ export class AnchoredNotesStore {
   private alexandriaPath: ValidatedAlexandriaPath;
   private notesDir: string;
 
-  constructor(fileSystemAdapter: FileSystemAdapter, alexandriaPath: ValidatedAlexandriaPath) {
+  constructor(
+    fileSystemAdapter: FileSystemAdapter,
+    alexandriaPath: ValidatedAlexandriaPath,
+  ) {
     this.fs = fileSystemAdapter;
     this.alexandriaPath = alexandriaPath;
-    this.notesDir = this.fs.join(alexandriaPath, 'notes');
+    this.notesDir = this.fs.join(alexandriaPath, "notes");
     // Pass the same alexandriaPath to config store
-    this.configStore = new A24zConfigurationStore(fileSystemAdapter, alexandriaPath);
+    this.configStore = new A24zConfigurationStore(
+      fileSystemAdapter,
+      alexandriaPath,
+    );
     // Ensure notes directory exists
     this.fs.createDir(this.notesDir);
   }
@@ -90,7 +96,7 @@ export class AnchoredNotesStore {
    * Get the tags directory path
    */
   private getTagsDir(): string {
-    return this.fs.join(this.alexandriaPath, 'tags');
+    return this.fs.join(this.alexandriaPath, "tags");
   }
 
   /**
@@ -99,11 +105,11 @@ export class AnchoredNotesStore {
   private getNotePath(
     repositoryRootPath: ValidatedRepositoryPath,
     noteId: string,
-    timestamp: number
+    timestamp: number,
   ): string {
     const date = new Date(timestamp);
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
     const noteDir = this.fs.join(this.getNotesDir(), year.toString(), month);
     return this.fs.join(noteDir, `${noteId}.json`);
   }
@@ -111,10 +117,13 @@ export class AnchoredNotesStore {
   /**
    * Ensure the date-based notes directory exists
    */
-  private ensureNotesDir(repositoryRootPath: ValidatedRepositoryPath, timestamp: number): void {
+  private ensureNotesDir(
+    repositoryRootPath: ValidatedRepositoryPath,
+    timestamp: number,
+  ): void {
     const date = new Date(timestamp);
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
     const noteDir = this.fs.join(this.getNotesDir(), year.toString(), month);
     this.fs.createDir(noteDir);
   }
@@ -144,7 +153,7 @@ export class AnchoredNotesStore {
    */
   updateConfiguration(
     repositoryRootPath: ValidatedRepositoryPath,
-    updates: Partial<MemoryPalaceConfiguration>
+    updates: Partial<MemoryPalaceConfiguration>,
   ): MemoryPalaceConfiguration {
     return this.configStore.updateConfiguration(updates);
   }
@@ -152,7 +161,10 @@ export class AnchoredNotesStore {
   /**
    * Enable or disable allowed tags enforcement
    */
-  setEnforceAllowedTags(repositoryRootPath: ValidatedRepositoryPath, enforce: boolean): void {
+  setEnforceAllowedTags(
+    repositoryRootPath: ValidatedRepositoryPath,
+    enforce: boolean,
+  ): void {
     return this.configStore.setEnforceAllowedTags(enforce);
   }
 
@@ -164,15 +176,24 @@ export class AnchoredNotesStore {
    * Save a note to storage
    */
   saveNote(input: SaveNoteInput): AnchoredNoteWithPath {
-    const { note: noteContent, anchors, tags, codebaseViewId, metadata, directoryPath } = input;
+    const {
+      note: noteContent,
+      anchors,
+      tags,
+      codebaseViewId,
+      metadata,
+      directoryPath,
+    } = input;
 
     // Validate input
     const validation = this.validateNote(
       { note: noteContent, anchors, tags, codebaseViewId, metadata },
-      directoryPath
+      directoryPath,
     );
     if (validation.length > 0) {
-      throw new Error(`Validation failed: ${validation.map((v) => v.message).join(', ')}`);
+      throw new Error(
+        `Validation failed: ${validation.map((v) => v.message).join(", ")}`,
+      );
     }
 
     // Create the note
@@ -206,7 +227,7 @@ export class AnchoredNotesStore {
    */
   getNoteById(
     repositoryRootPath: ValidatedRepositoryPath,
-    noteId: string
+    noteId: string,
   ): StoredAnchoredNote | null {
     const notesDir = this.getNotesDir();
 
@@ -215,11 +236,15 @@ export class AnchoredNotesStore {
     }
 
     // Search through year/month directories
-    const yearDirs = this.fs.readDir(notesDir).filter((item) => /^\d{4}$/.test(item));
+    const yearDirs = this.fs
+      .readDir(notesDir)
+      .filter((item) => /^\d{4}$/.test(item));
 
     for (const year of yearDirs) {
       const yearDir = this.fs.join(notesDir, year);
-      const monthDirs = this.fs.readDir(yearDir).filter((item) => /^\d{2}$/.test(item));
+      const monthDirs = this.fs
+        .readDir(yearDir)
+        .filter((item) => /^\d{2}$/.test(item));
 
       for (const month of monthDirs) {
         const monthDir = this.fs.join(yearDir, month);
@@ -243,7 +268,10 @@ export class AnchoredNotesStore {
   /**
    * Delete a note by its ID (searches through date-based directory structure)
    */
-  deleteNoteById(repositoryRootPath: ValidatedRepositoryPath, noteId: string): boolean {
+  deleteNoteById(
+    repositoryRootPath: ValidatedRepositoryPath,
+    noteId: string,
+  ): boolean {
     const notesDir = this.getNotesDir();
 
     if (!this.fs.exists(notesDir)) {
@@ -251,11 +279,15 @@ export class AnchoredNotesStore {
     }
 
     // Search through year/month directories
-    const yearDirs = this.fs.readDir(notesDir).filter((item) => /^\d{4}$/.test(item));
+    const yearDirs = this.fs
+      .readDir(notesDir)
+      .filter((item) => /^\d{4}$/.test(item));
 
     for (const year of yearDirs) {
       const yearDir = this.fs.join(notesDir, year);
-      const monthDirs = this.fs.readDir(yearDir).filter((item) => /^\d{2}$/.test(item));
+      const monthDirs = this.fs
+        .readDir(yearDir)
+        .filter((item) => /^\d{2}$/.test(item));
 
       for (const month of monthDirs) {
         const monthDir = this.fs.join(yearDir, month);
@@ -282,7 +314,7 @@ export class AnchoredNotesStore {
   getNotesForPath(
     repositoryRoot: ValidatedRepositoryPath,
     relativePath: ValidatedRelativePath,
-    includeParentNotes: boolean = true
+    includeParentNotes: boolean = true,
   ): AnchoredNoteWithPath[] {
     // Get all notes from the repository
     const allNotes = this.readAllNotes(repositoryRoot);
@@ -291,58 +323,70 @@ export class AnchoredNotesStore {
     const queryRelative = relativePath;
 
     // Filter and sort notes based on path matching
-    const processedNotes = allNotes.map((noteWithPath: AnchoredNoteWithPath) => {
-      const note = noteWithPath.note;
-      let isParent = false;
+    const processedNotes = allNotes.map(
+      (noteWithPath: AnchoredNoteWithPath) => {
+        const note = noteWithPath.note;
+        let isParent = false;
 
-      // Check if any anchor matches the query path
-      const matchesAnchor = note.anchors.some((anchor: string) => {
-        // Normalize the anchor path
-        const normalizedAnchor = anchor.replace(/\\/g, '/');
-        const normalizedQuery = queryRelative.replace(/\\/g, '/');
+        // Check if any anchor matches the query path
+        const matchesAnchor = note.anchors.some((anchor: string) => {
+          // Normalize the anchor path
+          const normalizedAnchor = anchor.replace(/\\/g, "/");
+          const normalizedQuery = queryRelative.replace(/\\/g, "/");
 
-        return (
-          normalizedQuery === normalizedAnchor ||
-          normalizedQuery.startsWith(`${normalizedAnchor}/`) ||
-          normalizedAnchor.startsWith(`${normalizedQuery}/`)
-        );
-      });
+          return (
+            normalizedQuery === normalizedAnchor ||
+            normalizedQuery.startsWith(`${normalizedAnchor}/`) ||
+            normalizedAnchor.startsWith(`${normalizedQuery}/`)
+          );
+        });
 
-      // With ValidatedRelativePath, we know the query is always in the repository
-      if (matchesAnchor) {
-        isParent = false;
-      } else {
-        isParent = true; // If it doesn't match anchor, it must be a parent
-      }
+        // With ValidatedRelativePath, we know the query is always in the repository
+        if (matchesAnchor) {
+          isParent = false;
+        } else {
+          isParent = true; // If it doesn't match anchor, it must be a parent
+        }
 
-      // Calculate distance for sorting - use the relative path segments
-      const distance = matchesAnchor
-        ? 0
-        : isParent
-          ? queryRelative.split('/').filter(Boolean).length
-          : 9999;
+        // Calculate distance for sorting - use the relative path segments
+        const distance = matchesAnchor
+          ? 0
+          : isParent
+            ? queryRelative.split("/").filter(Boolean).length
+            : 9999;
 
-      return {
-        note: { ...note, isParentDirectory: isParent, pathDistance: distance },
-        path: noteWithPath.path,
-      };
-    });
+        return {
+          note: {
+            ...note,
+            isParentDirectory: isParent,
+            pathDistance: distance,
+          },
+          path: noteWithPath.path,
+        };
+      },
+    );
 
     // Filter nulls and apply parent filter
     const filtered = processedNotes
       .filter(
         (
-          x
+          x,
         ): x is {
-          note: StoredAnchoredNote & { isParentDirectory: boolean; pathDistance: number };
+          note: StoredAnchoredNote & {
+            isParentDirectory: boolean;
+            pathDistance: number;
+          };
           path: string;
-        } => x !== null
+        } => x !== null,
       )
       .filter((x) => (includeParentNotes ? true : !x.note.isParentDirectory));
 
     // Sort by distance and timestamp
     filtered.sort((a, b) => {
-      return a.note.pathDistance - b.note.pathDistance || b.note.timestamp - a.note.timestamp;
+      return (
+        a.note.pathDistance - b.note.pathDistance ||
+        b.note.timestamp - a.note.timestamp
+      );
     });
 
     // Return as AnchoredNoteWithPath array (remove the extra properties)
@@ -355,10 +399,18 @@ export class AnchoredNotesStore {
   /**
    * Read all notes from a repository
    */
-  private readAllNotes(repositoryRootPath: ValidatedRepositoryPath): AnchoredNoteWithPath[] {
+  private readAllNotes(
+    repositoryRootPath: ValidatedRepositoryPath,
+  ): AnchoredNoteWithPath[] {
     // Calculate the notes directory for the specific repository
-    const repositoryAlexandriaPath = this.fs.join(repositoryRootPath, ALEXANDRIA_DIRS.PRIMARY);
-    const notesDir = this.fs.join(repositoryAlexandriaPath, ALEXANDRIA_DIRS.NOTES);
+    const repositoryAlexandriaPath = this.fs.join(
+      repositoryRootPath,
+      ALEXANDRIA_DIRS.PRIMARY,
+    );
+    const notesDir = this.fs.join(
+      repositoryAlexandriaPath,
+      ALEXANDRIA_DIRS.NOTES,
+    );
     const notes: AnchoredNoteWithPath[] = [];
 
     if (!this.fs.exists(notesDir)) {
@@ -377,11 +429,11 @@ export class AnchoredNotesStore {
         if (isDirectory) {
           // Recurse into the directory
           readNotesRecursive(fullPath);
-        } else if (entry.endsWith('.json')) {
+        } else if (entry.endsWith(".json")) {
           try {
             const noteContent = this.fs.readFile(fullPath);
             const note = JSON.parse(noteContent) as StoredAnchoredNote;
-            if (note && typeof note === 'object' && note.id) {
+            if (note && typeof note === "object" && note.id) {
               notes.push({
                 note,
                 path: this.fs.relative(repositoryRootPath, fullPath),
@@ -402,7 +454,9 @@ export class AnchoredNotesStore {
   /**
    * Check for notes with stale anchors (files that no longer exist)
    */
-  checkStaleAnchoredNotes(repositoryRootPath: ValidatedRepositoryPath): StaleAnchoredNote[] {
+  checkStaleAnchoredNotes(
+    repositoryRootPath: ValidatedRepositoryPath,
+  ): StaleAnchoredNote[] {
     const notesWithPaths = this.readAllNotes(repositoryRootPath);
     const staleNotes: StaleAnchoredNote[] = [];
 
@@ -444,8 +498,8 @@ export class AnchoredNotesStore {
    * TODO: _repositoryRootPath to be used to validate anchors exist in the fs
    */
   validateNote(
-    note: Omit<StoredAnchoredNote, 'id' | 'timestamp'>,
-    _repositoryRootPath: ValidatedRepositoryPath
+    note: Omit<StoredAnchoredNote, "id" | "timestamp">,
+    _repositoryRootPath: ValidatedRepositoryPath,
   ): ValidationError[] {
     const errors: ValidationError[] = [];
     const config = this.getConfiguration();
@@ -453,42 +507,51 @@ export class AnchoredNotesStore {
     // Check note length
     if (note.note.length > config.limits.noteMaxLength) {
       errors.push({
-        type: 'noteTooLong',
+        type: "noteTooLong",
         message: `Note is too long (${note.note.length} > ${config.limits.noteMaxLength})`,
-        context: { actual: note.note.length, limit: config.limits.noteMaxLength },
+        context: {
+          actual: note.note.length,
+          limit: config.limits.noteMaxLength,
+        },
       });
     }
 
     // Check tags count
     if (note.tags.length > config.limits.maxTagsPerNote) {
       errors.push({
-        type: 'tooManyTags',
+        type: "tooManyTags",
         message: `Too many tags (${note.tags.length} > ${config.limits.maxTagsPerNote})`,
-        context: { actual: note.tags.length, limit: config.limits.maxTagsPerNote },
+        context: {
+          actual: note.tags.length,
+          limit: config.limits.maxTagsPerNote,
+        },
       });
     }
 
     // Check anchors count
     if (note.anchors.length > config.limits.maxAnchorsPerNote) {
       errors.push({
-        type: 'tooManyAnchors',
+        type: "tooManyAnchors",
         message: `Too many anchors (${note.anchors.length} > ${config.limits.maxAnchorsPerNote})`,
-        context: { actual: note.anchors.length, limit: config.limits.maxAnchorsPerNote },
+        context: {
+          actual: note.anchors.length,
+          limit: config.limits.maxAnchorsPerNote,
+        },
       });
     }
 
     // Check for missing anchors
     if (note.anchors.length === 0) {
       errors.push({
-        type: 'missingAnchors',
-        message: 'Notes must have at least one anchor',
+        type: "missingAnchors",
+        message: "Notes must have at least one anchor",
         context: { actual: note.anchors.length },
       });
     }
 
     // Check for invalid anchor patterns (reject globs and wildcards)
     const invalidAnchors: string[] = [];
-    const globPatterns = ['*', '?', '[', ']', '{', '}', '**'];
+    const globPatterns = ["*", "?", "[", "]", "{", "}", "**"];
 
     for (const anchor of note.anchors) {
       // Check if anchor contains any glob pattern characters
@@ -497,15 +560,15 @@ export class AnchoredNotesStore {
       }
 
       // Also check for absolute paths (optional - you may want to keep this)
-      if (anchor.startsWith('/')) {
+      if (anchor.startsWith("/")) {
         invalidAnchors.push(anchor);
       }
     }
 
     if (invalidAnchors.length > 0) {
       errors.push({
-        type: 'invalidAnchor',
-        message: `Invalid anchor paths detected. Anchors must be relative paths without glob patterns (*, ?, **, etc.). Invalid anchors: ${invalidAnchors.join(', ')}`,
+        type: "invalidAnchor",
+        message: `Invalid anchor paths detected. Anchors must be relative paths without glob patterns (*, ?, **, etc.). Invalid anchors: ${invalidAnchors.join(", ")}`,
         context: { invalidAnchors },
       });
     }
@@ -514,11 +577,13 @@ export class AnchoredNotesStore {
     if (config.tags?.enforceAllowedTags) {
       const allowedTags = this.getAllowedTags();
       if (allowedTags.enforced && allowedTags.tags.length > 0) {
-        const invalidTags = note.tags.filter((tag) => !allowedTags.tags.includes(tag));
+        const invalidTags = note.tags.filter(
+          (tag) => !allowedTags.tags.includes(tag),
+        );
         if (invalidTags.length > 0) {
           errors.push({
-            type: 'invalidTags',
-            message: `The following tags are not allowed: ${invalidTags.join(', ')}. Allowed tags: ${allowedTags.tags.join(', ')}`,
+            type: "invalidTags",
+            message: `The following tags are not allowed: ${invalidTags.join(", ")}. Allowed tags: ${allowedTags.tags.join(", ")}`,
             context: { invalidTags, allowedTags: allowedTags.tags },
           });
         }
@@ -546,19 +611,22 @@ export class AnchoredNotesStore {
     try {
       const files = this.fs.readDir(tagsDir);
       for (const file of files) {
-        if (file.endsWith('.md')) {
+        if (file.endsWith(".md")) {
           const tagName = file.slice(0, -3); // Remove .md extension
           const filePath = this.fs.join(tagsDir, file);
           try {
             const content = this.fs.readFile(filePath);
             descriptions[tagName] = content.trim();
           } catch (error) {
-            console.error(`Error reading tag description for ${tagName}:`, error);
+            console.error(
+              `Error reading tag description for ${tagName}:`,
+              error,
+            );
           }
         }
       }
     } catch (error) {
-      console.error('Error reading tags directory:', error);
+      console.error("Error reading tags directory:", error);
     }
 
     return descriptions;
@@ -574,7 +642,7 @@ export class AnchoredNotesStore {
     if (description.length > config.limits.tagDescriptionMaxLength) {
       throw new Error(
         `Tag description exceeds maximum length of ${config.limits.tagDescriptionMaxLength} characters. ` +
-          `Current length: ${description.length}`
+          `Current length: ${description.length}`,
       );
     }
 
@@ -609,7 +677,10 @@ export class AnchoredNotesStore {
   /**
    * Remove a tag from all notes in the repository
    */
-  removeTagFromNotes(repositoryRootPath: ValidatedRepositoryPath, tag: string): number {
+  removeTagFromNotes(
+    repositoryRootPath: ValidatedRepositoryPath,
+    tag: string,
+  ): number {
     const notesWithPaths = this.readAllNotes(repositoryRootPath);
     let modifiedCount = 0;
 
@@ -619,7 +690,11 @@ export class AnchoredNotesStore {
         // Remove the tag from the note
         note.tags = note.tags.filter((t: string) => t !== tag);
         // Save the updated note - reconstruct the note path from the ID and timestamp
-        const notePath = this.getNotePath(repositoryRootPath, note.id, note.timestamp);
+        const notePath = this.getNotePath(
+          repositoryRootPath,
+          note.id,
+          note.timestamp,
+        );
         this.fs.writeFile(notePath, JSON.stringify(note, null, 2));
         modifiedCount++;
       }
@@ -634,7 +709,7 @@ export class AnchoredNotesStore {
   replaceTagInNotes(
     repositoryRootPath: ValidatedRepositoryPath,
     oldTag: string,
-    newTag: string
+    newTag: string,
   ): number {
     const notesWithPaths = this.readAllNotes(repositoryRootPath);
     let modifiedCount = 0;
@@ -647,7 +722,11 @@ export class AnchoredNotesStore {
         // Remove duplicates if the new tag was already present
         note.tags = [...new Set(note.tags)];
         // Save the updated note - reconstruct the note path from the ID and timestamp
-        const notePath = this.getNotePath(repositoryRootPath, note.id, note.timestamp);
+        const notePath = this.getNotePath(
+          repositoryRootPath,
+          note.id,
+          note.timestamp,
+        );
         this.fs.writeFile(notePath, JSON.stringify(note, null, 2));
         modifiedCount++;
       }
@@ -660,7 +739,7 @@ export class AnchoredNotesStore {
    * Get all used tags for a path
    */
   getUsedTagsForPath(targetPath: ValidatedRepositoryPath): string[] {
-    const rootPath = '' as ValidatedRelativePath;
+    const rootPath = "" as ValidatedRelativePath;
     const notes = this.getNotesForPath(targetPath, rootPath, true);
     const counts = new Map<string, number>();
     for (const n of notes) {
@@ -689,12 +768,14 @@ export class AnchoredNotesStore {
   /**
    * Get repository guidance
    */
-  getRepositoryGuidance(repositoryPath: ValidatedRepositoryPath): string | null {
+  getRepositoryGuidance(
+    repositoryPath: ValidatedRepositoryPath,
+  ): string | null {
     try {
       const guidanceFile = this.fs.join(
         repositoryPath,
         ALEXANDRIA_DIRS.PRIMARY,
-        'note-guidance.md'
+        "note-guidance.md",
       );
 
       // Try to read repository-specific guidance first
@@ -734,8 +815,10 @@ export class AnchoredNotesStore {
   /**
    * Get all unreviewed notes for a repository path
    */
-  getUnreviewedNotes(repositoryPath: ValidatedRepositoryPath): StoredAnchoredNote[] {
-    const rootPath = '' as ValidatedRelativePath;
+  getUnreviewedNotes(
+    repositoryPath: ValidatedRepositoryPath,
+  ): StoredAnchoredNote[] {
+    const rootPath = "" as ValidatedRelativePath;
     const notes = this.getNotesForPath(repositoryPath, rootPath, true);
     return notes.map((n) => n.note).filter((note) => !note.reviewed);
   }
@@ -743,7 +826,10 @@ export class AnchoredNotesStore {
   /**
    * Mark a note as reviewed by its ID
    */
-  markNoteReviewed(repositoryPath: ValidatedRepositoryPath, noteId: string): boolean {
+  markNoteReviewed(
+    repositoryPath: ValidatedRepositoryPath,
+    noteId: string,
+  ): boolean {
     const note = this.getNoteById(repositoryPath, noteId);
 
     if (!note) {
@@ -764,7 +850,7 @@ export class AnchoredNotesStore {
    * Mark all notes as reviewed for a given path
    */
   markAllNotesReviewed(repositoryPath: ValidatedRepositoryPath): number {
-    const rootPath = '' as ValidatedRelativePath;
+    const rootPath = "" as ValidatedRelativePath;
     const notes = this.getNotesForPath(repositoryPath, rootPath, true);
 
     let count = 0;
@@ -772,7 +858,11 @@ export class AnchoredNotesStore {
       const note = noteWithPath.note;
       if (!note.reviewed) {
         note.reviewed = true;
-        const notePath = this.getNotePath(repositoryPath, note.id, note.timestamp);
+        const notePath = this.getNotePath(
+          repositoryPath,
+          note.id,
+          note.timestamp,
+        );
         this.fs.writeFile(notePath, JSON.stringify(note, null, 2));
         count++;
       }
@@ -798,7 +888,7 @@ export class AnchoredNotesStore {
       noteIds: string[];
       codebaseViewId: string;
       deleteOriginals?: boolean;
-    }
+    },
   ): {
     mergedNote: StoredAnchoredNote;
     deletedCount: number;
@@ -842,14 +932,18 @@ export class AnchoredNotesStore {
   getNotesForPathWithLimit(
     targetPath: ValidatedRepositoryPath,
     includeParentNotes: boolean,
-    limitType: 'count',
-    limit: number
+    limitType: "count",
+    limit: number,
   ): {
     notes: AnchoredNoteWithPath[];
   } {
     // Get all notes first
-    const rootPath = '' as ValidatedRelativePath;
-    const allNotes = this.getNotesForPath(targetPath, rootPath, includeParentNotes);
+    const rootPath = "" as ValidatedRelativePath;
+    const allNotes = this.getNotesForPath(
+      targetPath,
+      rootPath,
+      includeParentNotes,
+    );
 
     // Apply count-based limiting
     const results = allNotes.slice(0, Math.max(1, limit));

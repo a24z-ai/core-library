@@ -3,7 +3,7 @@
  * These types are used for note operations like merging, filtering, and result sets
  */
 
-import { StoredAnchoredNote } from './index';
+import { StoredAnchoredNote } from "./index";
 
 // ============================================================================
 // Note Query Result Types
@@ -15,7 +15,7 @@ import { StoredAnchoredNote } from './index';
 export interface TokenLimitInfo {
   totalTokens: number;
   limit: number;
-  limitType: 'count' | 'tokens';
+  limitType: "count" | "tokens";
   notesIncluded: number;
   notesExcluded: number;
 }
@@ -24,7 +24,9 @@ export interface TokenLimitInfo {
  * Result of a notes query with optional token limiting
  */
 export interface AnchoredNotesResult {
-  notes: Array<StoredAnchoredNote & { isParentDirectory: boolean; pathDistance: number }>;
+  notes: Array<
+    StoredAnchoredNote & { isParentDirectory: boolean; pathDistance: number }
+  >;
   tokenInfo?: TokenLimitInfo;
 }
 
@@ -56,5 +58,5 @@ export interface MergeAnchoredNotesResult {
 // Re-export types that are defined elsewhere but belong to notes domain
 // ============================================================================
 
-export { StoredAnchoredNote, AnchoredNoteWithPath } from './index';
-export type { StaleAnchoredNote } from '../stores/AnchoredNotesStore';
+export { StoredAnchoredNote, AnchoredNoteWithPath } from "./index";
+export type { StaleAnchoredNote } from "../stores/AnchoredNotesStore";

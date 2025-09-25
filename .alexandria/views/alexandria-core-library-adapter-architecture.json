@@ -7,10 +7,7 @@
   "cols": 1,
   "referenceGroups": {
     "See Also": {
-      "coordinates": [
-        0,
-        0
-      ],
+      "coordinates": [0, 0],
       "files": [
         "src/pure-core/abstractions/filesystem.ts",
         "src/node-adapters/NodeFileSystemAdapter.ts",

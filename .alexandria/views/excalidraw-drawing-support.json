@@ -8,10 +8,7 @@
   "referenceGroups": {
     "Core Drawing Storage": {
       "coordinates": [0, 0],
-      "files": [
-        "src/pure-core/stores/DrawingStore.ts",
-        "src/MemoryPalace.ts"
-      ]
+      "files": ["src/pure-core/stores/DrawingStore.ts", "src/MemoryPalace.ts"]
     },
     "Binary File Support": {
       "coordinates": [0, 1],
@@ -23,15 +20,11 @@
     },
     "Tests": {
       "coordinates": [1, 0],
-      "files": [
-        "tests/pure-core/stores/DrawingStore.test.ts"
-      ]
+      "files": ["tests/pure-core/stores/DrawingStore.test.ts"]
     },
     "Documentation": {
       "coordinates": [1, 1],
-      "files": [
-        "docs/excalidraw-support-design.md"
-      ]
+      "files": ["docs/excalidraw-support-design.md"]
     }
   },
   "overviewPath": "docs/excalidraw-support-design.md",

@@ -5,10 +5,10 @@
  * focusing on required fields and file path validation.
  */
 
-import { FileSystemAdapter } from '../abstractions/filesystem';
-import { CodebaseView, ValidatedRepositoryPath } from '../types';
+import { FileSystemAdapter } from "../abstractions/filesystem";
+import { CodebaseView, ValidatedRepositoryPath } from "../types";
 
-export type ValidationSeverity = 'error' | 'warning' | 'info';
+export type ValidationSeverity = "error" | "warning" | "info";
 
 export interface ValidationIssue {
   /** Severity level of the issue */
@@ -60,7 +60,7 @@ export class CodebaseViewValidator {
   validate(
     repositoryPath: ValidatedRepositoryPath,
     view: CodebaseView,
-    existingViews?: CodebaseView[]
+    existingViews?: CodebaseView[],
   ): ValidationResult {
     const issues: ValidationIssue[] = [];
     let validatedView = { ...view };
@@ -72,30 +72,37 @@ export class CodebaseViewValidator {
     this.validateFilePaths(repositoryPath, validatedView, issues);
 
     // Scope validation and cleanup
-    validatedView = this.validateAndCleanScope(repositoryPath, validatedView, issues);
+    validatedView = this.validateAndCleanScope(
+      repositoryPath,
+      validatedView,
+      issues,
+    );
 
     // Calculate summary
     const summary = {
-      errors: issues.filter((i) => i.severity === 'error').length,
-      warnings: issues.filter((i) => i.severity === 'warning').length,
-      info: issues.filter((i) => i.severity === 'info').length,
+      errors: issues.filter((i) => i.severity === "error").length,
+      warnings: issues.filter((i) => i.severity === "warning").length,
+      info: issues.filter((i) => i.severity === "info").length,
     };
 
     // Prepare displayOrder information
     const displayOrderInfo = {
       current: validatedView.displayOrder,
-      category: validatedView.category || 'other',
+      category: validatedView.category || "other",
       suggestedNext: undefined as number | undefined,
     };
 
     // If displayOrder is missing, calculate suggested next value
-    if (displayOrderInfo.current === undefined || displayOrderInfo.current === null) {
+    if (
+      displayOrderInfo.current === undefined ||
+      displayOrderInfo.current === null
+    ) {
       // Use provided existing views to calculate next order
       if (existingViews && existingViews.length > 0) {
         let maxOrder = -1;
 
         for (const otherView of existingViews) {
-          if ((otherView.category || 'other') === displayOrderInfo.category) {
+          if ((otherView.category || "other") === displayOrderInfo.category) {
             maxOrder = Math.max(maxOrder, otherView.displayOrder || 0);
           }
         }
@@ -118,54 +125,57 @@ export class CodebaseViewValidator {
   /**
    * Validate required fields are present and have correct types
    */
-  private validateRequiredFields(view: CodebaseView, issues: ValidationIssue[]): void {
+  private validateRequiredFields(
+    view: CodebaseView,
+    issues: ValidationIssue[],
+  ): void {
     // ID is required
-    if (!view.id || typeof view.id !== 'string') {
+    if (!view.id || typeof view.id !== "string") {
       issues.push({
-        severity: 'error',
-        type: 'missing_required_field',
-        message: 'View must have a valid string ID',
-        location: 'view.id',
+        severity: "error",
+        type: "missing_required_field",
+        message: "View must have a valid string ID",
+        location: "view.id",
       });
     }
 
     // Name is required
-    if (!view.name || typeof view.name !== 'string') {
+    if (!view.name || typeof view.name !== "string") {
       issues.push({
-        severity: 'error',
-        type: 'missing_required_field',
-        message: 'View must have a valid string name',
-        location: 'view.name',
+        severity: "error",
+        type: "missing_required_field",
+        message: "View must have a valid string name",
+        location: "view.name",
       });
     }
 
     // Version is optional - we'll add default if missing
-    if (view.version && typeof view.version !== 'string') {
+    if (view.version && typeof view.version !== "string") {
       issues.push({
-        severity: 'error',
-        type: 'invalid_field_type',
-        message: 'View version must be a string if provided',
-        location: 'view.version',
+        severity: "error",
+        type: "invalid_field_type",
+        message: "View version must be a string if provided",
+        location: "view.version",
       });
     }
 
     // Description is required
-    if (!view.description || typeof view.description !== 'string') {
+    if (!view.description || typeof view.description !== "string") {
       issues.push({
-        severity: 'error',
-        type: 'missing_required_field',
-        message: 'View must have a description',
-        location: 'view.description',
+        severity: "error",
+        type: "missing_required_field",
+        message: "View must have a description",
+        location: "view.description",
       });
     }
 
     // OverviewPath is required
-    if (!view.overviewPath || typeof view.overviewPath !== 'string') {
+    if (!view.overviewPath || typeof view.overviewPath !== "string") {
       issues.push({
-        severity: 'error',
-        type: 'missing_required_field',
-        message: 'View must have an overviewPath',
-        location: 'view.overviewPath',
+        severity: "error",
+        type: "missing_required_field",
+        message: "View must have an overviewPath",
+        location: "view.overviewPath",
       });
     }
 
@@ -173,82 +183,90 @@ export class CodebaseViewValidator {
     if (
       view.displayOrder === undefined ||
       view.displayOrder === null ||
-      typeof view.displayOrder !== 'number'
+      typeof view.displayOrder !== "number"
     ) {
       issues.push({
-        severity: 'error',
-        type: 'missing_required_field',
-        message: 'View must have a displayOrder number',
-        location: 'view.displayOrder',
-        context: 'The displayOrder field determines the ordering within a category',
+        severity: "error",
+        type: "missing_required_field",
+        message: "View must have a displayOrder number",
+        location: "view.displayOrder",
+        context:
+          "The displayOrder field determines the ordering within a category",
       });
     }
 
     // ReferenceGroups is required and must be an object
-    if (!view.referenceGroups || typeof view.referenceGroups !== 'object') {
+    if (!view.referenceGroups || typeof view.referenceGroups !== "object") {
       issues.push({
-        severity: 'error',
-        type: 'missing_required_field',
-        message: 'View must have referenceGroups object',
-        location: 'view.referenceGroups',
+        severity: "error",
+        type: "missing_required_field",
+        message: "View must have referenceGroups object",
+        location: "view.referenceGroups",
       });
       return; // Can't continue validating referenceGroups
     }
 
     // Validate basic reference group structure
-    Object.entries(view.referenceGroups).forEach(([groupName, referenceGroup]) => {
-      const location = `view.referenceGroups.${groupName}`;
+    Object.entries(view.referenceGroups).forEach(
+      ([groupName, referenceGroup]) => {
+        const location = `view.referenceGroups.${groupName}`;
 
-      // Reference group must have coordinates
-      if (!referenceGroup.coordinates || !Array.isArray(referenceGroup.coordinates) || referenceGroup.coordinates.length !== 2) {
-        issues.push({
-          severity: 'error',
-          type: 'invalid_reference_group_coordinates',
-          message: 'Reference group must have coordinates array with [row, col]',
-          location: `${location}.coordinates`,
-        });
-      }
+        // Reference group must have coordinates
+        if (
+          !referenceGroup.coordinates ||
+          !Array.isArray(referenceGroup.coordinates) ||
+          referenceGroup.coordinates.length !== 2
+        ) {
+          issues.push({
+            severity: "error",
+            type: "invalid_reference_group_coordinates",
+            message:
+              "Reference group must have coordinates array with [row, col]",
+            location: `${location}.coordinates`,
+          });
+        }
 
-      // Reference group must have files array
-      if (!referenceGroup.files || !Array.isArray(referenceGroup.files)) {
-        issues.push({
-          severity: 'error',
-          type: 'missing_reference_group_files',
-          message: 'Reference group must have files array',
-          location: `${location}.files`,
-        });
-      } else {
-        // Validate file paths are strings and relative
-        referenceGroup.files.forEach((filePath, index) => {
-          if (typeof filePath !== 'string') {
-            issues.push({
-              severity: 'error',
-              type: 'invalid_file_path',
-              message: 'File path must be a string',
-              location: `${location}.files[${index}]`,
-            });
-          } else if (filePath.startsWith('/')) {
-            issues.push({
-              severity: 'error',
-              type: 'absolute_file_path',
-              message: 'File paths must be relative to repository root',
-              location: `${location}.files[${index}]`,
-              context: `Found: "${filePath}"`,
-            });
-          }
-        });
-      }
-    });
+        // Reference group must have files array
+        if (!referenceGroup.files || !Array.isArray(referenceGroup.files)) {
+          issues.push({
+            severity: "error",
+            type: "missing_reference_group_files",
+            message: "Reference group must have files array",
+            location: `${location}.files`,
+          });
+        } else {
+          // Validate file paths are strings and relative
+          referenceGroup.files.forEach((filePath, index) => {
+            if (typeof filePath !== "string") {
+              issues.push({
+                severity: "error",
+                type: "invalid_file_path",
+                message: "File path must be a string",
+                location: `${location}.files[${index}]`,
+              });
+            } else if (filePath.startsWith("/")) {
+              issues.push({
+                severity: "error",
+                type: "absolute_file_path",
+                message: "File paths must be relative to repository root",
+                location: `${location}.files[${index}]`,
+                context: `Found: "${filePath}"`,
+              });
+            }
+          });
+        }
+      },
+    );
 
     // Validate timestamp format if present
     if (view.timestamp) {
       const parsedDate = new Date(view.timestamp);
       if (isNaN(parsedDate.getTime())) {
         issues.push({
-          severity: 'warning',
-          type: 'invalid_timestamp',
-          message: 'View timestamp is not a valid ISO date string',
-          location: 'view.timestamp',
+          severity: "warning",
+          type: "invalid_timestamp",
+          message: "View timestamp is not a valid ISO date string",
+          location: "view.timestamp",
         });
       }
     }
@@ -260,42 +278,45 @@ export class CodebaseViewValidator {
   private validateFilePaths(
     repositoryPath: ValidatedRepositoryPath,
     view: CodebaseView,
-    issues: ValidationIssue[]
+    issues: ValidationIssue[],
   ): void {
     // Check overview file exists
-    if (view.overviewPath && typeof view.overviewPath === 'string') {
+    if (view.overviewPath && typeof view.overviewPath === "string") {
       const overviewFullPath = this.fs.join(repositoryPath, view.overviewPath);
       if (!this.fs.exists(overviewFullPath)) {
         issues.push({
-          severity: 'warning',
-          type: 'missing_overview_file',
+          severity: "warning",
+          type: "missing_overview_file",
           message: `Overview file not found: ${view.overviewPath}`,
-          location: 'view.overviewPath',
+          location: "view.overviewPath",
           context: "The overview file will be created if it doesn't exist",
         });
       }
     }
 
     // Check files in reference groups exist
-    if (view.referenceGroups && typeof view.referenceGroups === 'object') {
-      Object.entries(view.referenceGroups).forEach(([groupName, referenceGroup]) => {
-        if (referenceGroup.files && Array.isArray(referenceGroup.files)) {
-          referenceGroup.files.forEach((filePath, index) => {
-            if (typeof filePath === 'string' && !filePath.startsWith('/')) {
-              const fullPath = this.fs.join(repositoryPath, filePath);
-              if (!this.fs.exists(fullPath)) {
-                issues.push({
-                  severity: 'warning',
-                  type: 'missing_reference_group_file',
-                  message: `File not found: ${filePath}`,
-                  location: `view.referenceGroups.${groupName}.files[${index}]`,
-                  context: 'Missing files will not appear in the visualization',
-                });
+    if (view.referenceGroups && typeof view.referenceGroups === "object") {
+      Object.entries(view.referenceGroups).forEach(
+        ([groupName, referenceGroup]) => {
+          if (referenceGroup.files && Array.isArray(referenceGroup.files)) {
+            referenceGroup.files.forEach((filePath, index) => {
+              if (typeof filePath === "string" && !filePath.startsWith("/")) {
+                const fullPath = this.fs.join(repositoryPath, filePath);
+                if (!this.fs.exists(fullPath)) {
+                  issues.push({
+                    severity: "warning",
+                    type: "missing_reference_group_file",
+                    message: `File not found: ${filePath}`,
+                    location: `view.referenceGroups.${groupName}.files[${index}]`,
+                    context:
+                      "Missing files will not appear in the visualization",
+                  });
+                }
               }
-            }
-          });
-        }
-      });
+            });
+          }
+        },
+      );
     }
   }
 
@@ -305,7 +326,7 @@ export class CodebaseViewValidator {
   private validateAndCleanScope(
     repositoryPath: ValidatedRepositoryPath,
     view: CodebaseView,
-    issues: ValidationIssue[]
+    issues: ValidationIssue[],
   ): CodebaseView {
     if (!view.scope?.basePath) {
       return view; // No scope to validate
@@ -318,11 +339,11 @@ export class CodebaseViewValidator {
     const scopePath = this.fs.join(repositoryPath, scopeBasePath);
     if (!this.fs.exists(scopePath)) {
       issues.push({
-        severity: 'warning',
-        type: 'scope_removed_missing_path',
+        severity: "warning",
+        type: "scope_removed_missing_path",
         message: `Scope removed: base path not found: ${scopeBasePath}`,
-        location: 'view.scope',
-        context: 'Scope will be regenerated based on reference group contents',
+        location: "view.scope",
+        context: "Scope will be regenerated based on reference group contents",
       });
 
       // Remove scope
@@ -332,28 +353,33 @@ export class CodebaseViewValidator {
     }
 
     // Check if any reference group files violate the scope
-    if (view.referenceGroups && typeof view.referenceGroups === 'object') {
-      Object.entries(view.referenceGroups).forEach(([groupName, referenceGroup]) => {
-        if (referenceGroup.files && Array.isArray(referenceGroup.files)) {
-          referenceGroup.files.forEach((filePath) => {
-            if (typeof filePath === 'string' && !filePath.startsWith('/')) {
-              // Check if file is within scope
-              if (!filePath.startsWith(scopeBasePath + '/') && filePath !== scopeBasePath) {
-                violatingFiles.push(`${groupName}: ${filePath}`);
+    if (view.referenceGroups && typeof view.referenceGroups === "object") {
+      Object.entries(view.referenceGroups).forEach(
+        ([groupName, referenceGroup]) => {
+          if (referenceGroup.files && Array.isArray(referenceGroup.files)) {
+            referenceGroup.files.forEach((filePath) => {
+              if (typeof filePath === "string" && !filePath.startsWith("/")) {
+                // Check if file is within scope
+                if (
+                  !filePath.startsWith(scopeBasePath + "/") &&
+                  filePath !== scopeBasePath
+                ) {
+                  violatingFiles.push(`${groupName}: ${filePath}`);
+                }
               }
-            }
-          });
-        }
-      });
+            });
+          }
+        },
+      );
     }
 
     if (violatingFiles.length > 0) {
       issues.push({
-        severity: 'info',
-        type: 'scope_removed_violations',
+        severity: "info",
+        type: "scope_removed_violations",
         message: `Scope removed: ${violatingFiles.length} files outside scope "${scopeBasePath}"`,
-        location: 'view.scope',
-        context: `Violating files: ${violatingFiles.join(', ')}. Scope will be regenerated based on reference group contents.`,
+        location: "view.scope",
+        context: `Violating files: ${violatingFiles.join(", ")}. Scope will be regenerated based on reference group contents.`,
       });
 
       // Remove scope

@@ -1,15 +1,21 @@
-import { LibraryRule, LibraryRuleViolation, LibraryRuleContext } from '../types';
-import { RequireReferencesOptions } from '../../config/types';
-import { ALEXANDRIA_DIRS } from '../../constants/paths';
-import { matchesPatterns } from '../utils/patterns';
+import {
+  LibraryRule,
+  LibraryRuleViolation,
+  LibraryRuleContext,
+} from "../types";
+import { RequireReferencesOptions } from "../../config/types";
+import { ALEXANDRIA_DIRS } from "../../constants/paths";
+import { matchesPatterns } from "../utils/patterns";
 
 export const requireReferences: LibraryRule = {
-  id: 'require-references',
-  name: 'Require References',
-  severity: 'error',
-  category: 'critical',
-  description: 'Every markdown file must be used as an overview in at least one CodebaseView',
-  impact: 'AI agents lack structured context for understanding this documentation',
+  id: "require-references",
+  name: "Require References",
+  severity: "error",
+  category: "critical",
+  description:
+    "Every markdown file must be used as an overview in at least one CodebaseView",
+  impact:
+    "AI agents lack structured context for understanding this documentation",
   fixable: false,
   enabled: true,
 
@@ -18,8 +24,12 @@ export const requireReferences: LibraryRule = {
     const { markdownFiles, views, config, globAdapter } = context;
 
     // Get options from config
-    const ruleConfig = config?.context?.rules?.find((r) => r.id === 'require-references');
-    const configOptions = ruleConfig?.options as RequireReferencesOptions | undefined;
+    const ruleConfig = config?.context?.rules?.find(
+      (r) => r.id === "require-references",
+    );
+    const configOptions = ruleConfig?.options as
+      | RequireReferencesOptions
+      | undefined;
 
     // Build a set of all markdown files that are associated with views (as overviews only)
     const associatedFiles = new Set<string>();
@@ -28,9 +38,9 @@ export const requireReferences: LibraryRule = {
     for (const view of views) {
       // Check overview path
       if (
-        'overviewPath' in view &&
-        typeof view.overviewPath === 'string' &&
-        view.overviewPath.endsWith('.md')
+        "overviewPath" in view &&
+        typeof view.overviewPath === "string" &&
+        view.overviewPath.endsWith(".md")
       ) {
         associatedFiles.add(view.overviewPath);
       }
@@ -52,7 +62,9 @@ export const requireReferences: LibraryRule = {
       }
 
       // Skip files explicitly excluded in config
-      if (matchesPatterns(globAdapter, configOptions?.excludeFiles, relativePath)) {
+      if (
+        matchesPatterns(globAdapter, configOptions?.excludeFiles, relativePath)
+      ) {
         continue;
       }
 

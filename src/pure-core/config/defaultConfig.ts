@@ -3,7 +3,7 @@
  * All default values should be defined here for easier maintenance
  */
 
-import type { MemoryPalaceConfiguration } from '../types';
+import type { MemoryPalaceConfiguration } from "../types";
 
 /**
  * Configuration interface for A24z Memory AI functionality
@@ -18,7 +18,7 @@ export interface A24zMemoryConfig {
   responseStyle: {
     acknowledgeLimitations: boolean;
     suggestNoteSaving: boolean;
-    conversationalTone: 'mentor' | 'casual' | 'formal';
+    conversationalTone: "mentor" | "casual" | "formal";
   };
 }
 
@@ -79,7 +79,7 @@ export const DEFAULT_NOTE_FETCHING_CONFIG = {
 export const DEFAULT_RESPONSE_STYLE_CONFIG = {
   acknowledgeLimitations: true,
   suggestNoteSaving: true,
-  conversationalTone: 'mentor' as const,
+  conversationalTone: "mentor" as const,
 };
 
 /**
@@ -94,10 +94,16 @@ export const DEFAULT_A24Z_MEMORY_CONFIG: A24zMemoryConfig = {
  * Default tag suggestions based on common categories
  */
 export const DEFAULT_TAG_CATEGORIES = {
-  technical: ['architecture', 'performance', 'security', 'testing', 'refactoring'],
-  domain: ['authentication', 'database', 'api', 'ui', 'backend', 'frontend'],
-  quality: ['bugfix', 'optimization', 'cleanup', 'documentation'],
-  status: ['wip', 'deprecated', 'experimental', 'stable'],
+  technical: [
+    "architecture",
+    "performance",
+    "security",
+    "testing",
+    "refactoring",
+  ],
+  domain: ["authentication", "database", "api", "ui", "backend", "frontend"],
+  quality: ["bugfix", "optimization", "cleanup", "documentation"],
+  status: ["wip", "deprecated", "experimental", "stable"],
 };
 
 /**
@@ -118,7 +124,7 @@ export function getAllDefaultConfigs() {
  */
 export function getConfigWithOverrides<T extends Record<string, unknown>>(
   defaultConfig: T,
-  overrides?: Partial<T>
+  overrides?: Partial<T>,
 ): T {
   if (!overrides) return defaultConfig;
 

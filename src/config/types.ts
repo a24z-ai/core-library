@@ -1,14 +1,14 @@
-export type ProjectType = 'library' | 'application' | 'monorepo' | 'service';
-export type RuleSeverity = 'error' | 'warning' | 'info';
-export type ReportingOutput = 'console' | 'file' | 'both';
-export type ReportingFormat = 'text' | 'json' | 'html';
-export type PriorityLevel = 'critical' | 'high' | 'medium' | 'low';
-export type FixType = 'replace' | 'remove' | 'add';
+export type ProjectType = "library" | "application" | "monorepo" | "service";
+export type RuleSeverity = "error" | "warning" | "info";
+export type ReportingOutput = "console" | "file" | "both";
+export type ReportingFormat = "text" | "json" | "html";
+export type PriorityLevel = "critical" | "high" | "medium" | "low";
+export type FixType = "replace" | "remove" | "add";
 export type ConfigValue = string | number | boolean | null | undefined;
 
 export interface AlexandriaConfig {
   $schema?: string;
-  version: '1.0.0';
+  version: "1.0.0";
 
   project?: {
     name: string;
@@ -54,9 +54,15 @@ export interface RequireReferencesOptions {
   excludeFiles?: string[];
 }
 
-export type FilenameStyle = 'snake_case' | 'kebab-case' | 'camelCase' | 'PascalCase' | 'lowercase' | 'UPPERCASE';
-export type FilenameSeparator = '_' | '-' | ' ' | '.';
-export type FilenameCaseStyle = 'lower' | 'upper' | 'mixed';
+export type FilenameStyle =
+  | "snake_case"
+  | "kebab-case"
+  | "camelCase"
+  | "PascalCase"
+  | "lowercase"
+  | "UPPERCASE";
+export type FilenameSeparator = "_" | "-" | " " | ".";
+export type FilenameCaseStyle = "lower" | "upper" | "mixed";
 
 export interface FilenameConventionOptions {
   /** Naming style to enforce */

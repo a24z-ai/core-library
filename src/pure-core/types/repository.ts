@@ -3,8 +3,8 @@
  * between code-city-landing, alexandria, and a24z-Memory project registry
  */
 
-import type { CodebaseViewSummary } from './summary';
-import type { ValidatedRepositoryPath } from './index';
+import type { CodebaseViewSummary } from "./summary";
+import type { ValidatedRepositoryPath } from "./index";
 
 /**
  * A validated Alexandria data directory path (.alexandria)

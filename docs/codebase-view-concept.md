@@ -7,11 +7,13 @@ A CodebaseView is a structured way to connect documentation with the actual code
 ## The Core Problem
 
 When you write documentation like:
+
 ```markdown
 The authentication system uses JWT tokens and middleware to protect routes.
 ```
 
 Questions arise:
+
 - Which files implement authentication?
 - Where are the JWT utilities?
 - Which middleware files are involved?
@@ -28,6 +30,7 @@ Your markdown documentation describes concepts, architecture, and implementation
 ### 2. Explicit File References
 
 CodebaseView stores which specific files are referenced:
+
 ```json
 {
   "name": "Authentication System",
@@ -35,25 +38,15 @@ CodebaseView stores which specific files are referenced:
   "referenceGroups": {
     "jwt": {
       "coordinates": [0, 0],
-      "files": [
-        "src/auth/jwt.ts",
-        "src/auth/tokens.ts",
-        "src/auth/refresh.ts"
-      ]
+      "files": ["src/auth/jwt.ts", "src/auth/tokens.ts", "src/auth/refresh.ts"]
     },
     "middleware": {
       "coordinates": [0, 1],
-      "files": [
-        "src/middleware/auth.ts",
-        "src/middleware/validate-token.ts"
-      ]
+      "files": ["src/middleware/auth.ts", "src/middleware/validate-token.ts"]
     },
     "config": {
       "coordinates": [0, 2],
-      "files": [
-        "src/config/auth.config.ts",
-        "src/types/auth.types.ts"
-      ]
+      "files": ["src/config/auth.config.ts", "src/types/auth.types.ts"]
     }
   }
 }
@@ -62,6 +55,7 @@ CodebaseView stores which specific files are referenced:
 ### 3. Validation
 
 Alexandria can verify these references:
+
 - ✅ All referenced files exist
 - ✅ No duplicate file references
 - ❌ Alert when files are deleted or moved
@@ -96,15 +90,15 @@ Alexandria can verify these references:
 
 ```typescript
 interface CodebaseView {
-  id: string;                    // Unique identifier
-  name: string;                  // Human-readable name
-  description: string;           // What this view documents
-  overviewPath: string;          // Path to main documentation file
-  category: string;              // Grouping (e.g., 'guide', 'reference')
-  displayOrder: number;          // Sort order within category
+  id: string; // Unique identifier
+  name: string; // Human-readable name
+  description: string; // What this view documents
+  overviewPath: string; // Path to main documentation file
+  category: string; // Grouping (e.g., 'guide', 'reference')
+  displayOrder: number; // Sort order within category
   referenceGroups: Record<string, CodebaseViewFileCell>; // Named groups of files
-  rows?: number;                 // Grid rows (optional)
-  cols?: number;                 // Grid columns (optional)
+  rows?: number; // Grid rows (optional)
+  cols?: number; // Grid columns (optional)
 }
 ```
 
@@ -115,8 +109,8 @@ Each reference group contains an explicit list of related files:
 ```typescript
 interface CodebaseViewFileCell {
   coordinates: [number, number]; // Position in grid [row, col]
-  files: string[];               // Explicit file paths only
-  priority?: number;             // For conflict resolution
+  files: string[]; // Explicit file paths only
+  priority?: number; // For conflict resolution
   links?: Record<string, string>; // Links to other views
 }
 ```
@@ -127,7 +121,7 @@ You can scope a view to a specific directory:
 
 ```typescript
 interface CodebaseViewScope {
-  basePath?: string;  // Focus on a subdirectory (e.g., 'src/frontend')
+  basePath?: string; // Focus on a subdirectory (e.g., 'src/frontend')
 }
 ```
 
@@ -141,13 +135,15 @@ Given this API documentation:
 Our User API provides CRUD operations for user management.
 
 ## Endpoints
+
 - GET /users - List all users
-- POST /users - Create a user  
+- POST /users - Create a user
 - GET /users/:id - Get a specific user
 - PUT /users/:id - Update a user
 - DELETE /users/:id - Delete a user
 
 ## Implementation
+
 The API uses Express routes with validation middleware and service layer separation.
 ```
 
@@ -166,45 +162,27 @@ The CodebaseView would be:
   "referenceGroups": {
     "routes": {
       "coordinates": [0, 0],
-      "files": [
-        "src/routes/users.ts",
-        "src/routes/index.ts"
-      ]
+      "files": ["src/routes/users.ts", "src/routes/index.ts"]
     },
     "services": {
       "coordinates": [0, 1],
-      "files": [
-        "src/services/userService.ts",
-        "src/services/userValidator.ts"
-      ]
+      "files": ["src/services/userService.ts", "src/services/userValidator.ts"]
     },
     "models": {
       "coordinates": [0, 2],
-      "files": [
-        "src/models/User.ts",
-        "src/types/user.ts"
-      ]
+      "files": ["src/models/User.ts", "src/types/user.ts"]
     },
     "middleware": {
       "coordinates": [1, 0],
-      "files": [
-        "src/middleware/validation.ts",
-        "src/middleware/auth.ts"
-      ]
+      "files": ["src/middleware/validation.ts", "src/middleware/auth.ts"]
     },
     "tests": {
       "coordinates": [1, 1],
-      "files": [
-        "src/routes/users.test.ts",
-        "src/services/userService.test.ts"
-      ]
+      "files": ["src/routes/users.test.ts", "src/services/userService.test.ts"]
     },
     "config": {
       "coordinates": [1, 2],
-      "files": [
-        "src/config/database.ts",
-        "src/config/api.ts"
-      ]
+      "files": ["src/config/database.ts", "src/config/api.ts"]
     }
   }
 }
@@ -233,6 +211,7 @@ alexandria validate user-api
 ### Handling Changes
 
 When files move or are deleted:
+
 1. Validation fails with clear errors
 2. Documentation authors are notified
 3. References must be updated manually
@@ -252,6 +231,7 @@ alexandria add-doc docs/authentication.md
 ### What Gets Extracted
 
 Alexandria looks for file references in your markdown:
+
 - File paths in markdown links: `[JWT Implementation](src/auth/jwt.ts)`
 - Code block file references: `` `src/config/auth.js` ``
 - Inline code paths: `The middleware in src/middleware/auth.ts`
@@ -260,6 +240,7 @@ Alexandria looks for file references in your markdown:
 ### Manual Creation
 
 You can also create views manually by:
+
 1. Creating a JSON file in `.alexandria/views/`
 2. Specifying exact file paths
 3. Organizing them into logical reference groups
@@ -270,6 +251,7 @@ You can also create views manually by:
 While the primary purpose is documentation-to-code linking, CodebaseViews organize files into a spatial grid:
 
 ### Visual Organization
+
 ```
 ┌─────────────┬─────────────┬─────────────┐
 │   Routes    │   Services  │   Models    │
@@ -281,6 +263,7 @@ While the primary purpose is documentation-to-code linking, CodebaseViews organi
 ```
 
 ### Benefits of Spatial Organization
+
 - **Mental Models**: Developers can "see" where code lives
 - **Consistent Structure**: Similar projects use similar layouts
 - **Navigation**: Tools can provide spatial navigation
@@ -298,33 +281,41 @@ While the primary purpose is documentation-to-code linking, CodebaseViews organi
 ## Limitations
 
 ### No Glob Patterns in Reference Groups
+
 Reference groups require explicit file lists. You cannot use patterns like `src/**/*.ts`. This ensures:
+
 - Predictable behavior
 - Clear validation
 - No ambiguity about which files are included
 
 ### Manual Updates Required
+
 When files are renamed or moved, you must manually update the view. This is intentional to ensure documentation authors are aware of structural changes.
 
 ### One File Per Reference Group
+
 Each file should only appear in one reference group within a view to avoid confusion about its primary purpose.
 
 ## Integration Points
 
 ### Pre-commit Hooks
+
 ```bash
 # Validate views before committing
 alexandria validate-all --errors-only
 ```
 
 ### CI/CD Pipeline
+
 ```yaml
 - name: Validate Documentation References
   run: alexandria validate-all
 ```
 
 ### Editor Integration
+
 Future integrations could provide:
+
 - Jump from documentation to referenced files
 - See which docs reference current file
 - Get warnings about broken references
@@ -341,4 +332,5 @@ CodebaseViews are fundamentally about creating maintainable, validated links bet
 The spatial grid layout provides an additional layer of organization, making it easier to visualize and remember where different parts of your codebase live.
 
 ---
-*Last reviewed: 2025-09-25 - Document remains accurate; new PalaceRoom methods in MemoryPalace.ts are complementary features.*
+
+_Last reviewed: 2025-09-25 - Document remains accurate; new PalaceRoom methods in MemoryPalace.ts are complementary features._

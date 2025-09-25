@@ -7,10 +7,7 @@
   "cols": 1,
   "referenceGroups": {
     "Implementation": {
-      "coordinates": [
-        0,
-        0
-      ],
+      "coordinates": [0, 0],
       "files": [
         "src/pure-core/types/summary.ts",
         "src/pure-core/types/index.ts"

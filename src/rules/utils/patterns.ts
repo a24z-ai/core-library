@@ -1,4 +1,4 @@
-import { GlobAdapter } from '../../pure-core/abstractions/glob';
+import { GlobAdapter } from "../../pure-core/abstractions/glob";
 
 /**
  * Utility helper for rules to determine if a path matches any provided patterns.
@@ -7,7 +7,7 @@ import { GlobAdapter } from '../../pure-core/abstractions/glob';
 export function matchesPatterns(
   globAdapter: GlobAdapter | undefined,
   patterns: string[] | undefined,
-  candidate: string
+  candidate: string,
 ): boolean {
   if (!patterns || patterns.length === 0) {
     return false;

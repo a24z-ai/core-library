@@ -5,13 +5,13 @@
  * Handles Excalidraw and other drawing formats
  */
 
-import { FileSystemAdapter } from '../abstractions/filesystem';
-import { ValidatedAlexandriaPath } from '../types/repository';
+import { FileSystemAdapter } from "../abstractions/filesystem";
+import { ValidatedAlexandriaPath } from "../types/repository";
 
 export interface DrawingMetadata {
   id: string;
   name: string;
-  format: 'excalidraw' | 'svg' | 'png';
+  format: "excalidraw" | "svg" | "png";
   created: string;
   modified: string;
   size: number;
@@ -25,10 +25,13 @@ export class DrawingStore {
   private alexandriaPath: ValidatedAlexandriaPath;
   private drawingsDir: string;
 
-  constructor(fileSystemAdapter: FileSystemAdapter, alexandriaPath: ValidatedAlexandriaPath) {
+  constructor(
+    fileSystemAdapter: FileSystemAdapter,
+    alexandriaPath: ValidatedAlexandriaPath,
+  ) {
     this.fs = fileSystemAdapter;
     this.alexandriaPath = alexandriaPath;
-    this.drawingsDir = this.fs.join(alexandriaPath, 'drawings');
+    this.drawingsDir = this.fs.join(alexandriaPath, "drawings");
     // Ensure drawings directory exists
     this.fs.createDir(this.drawingsDir);
   }
@@ -106,10 +109,9 @@ export class DrawingStore {
     }
 
     const files = this.fs.readDir(this.drawingsDir);
-    return files.filter(f =>
-      f.endsWith('.excalidraw') ||
-      f.endsWith('.svg') ||
-      f.endsWith('.png')
+    return files.filter(
+      (f) =>
+        f.endsWith(".excalidraw") || f.endsWith(".svg") || f.endsWith(".png"),
     );
   }
 
@@ -122,16 +124,20 @@ export class DrawingStore {
 
     for (const fileName of drawings) {
       // Extract format from extension
-      const format = fileName.endsWith('.excalidraw') ? 'excalidraw' :
-                     fileName.endsWith('.svg') ? 'svg' :
-                     fileName.endsWith('.png') ? 'png' : 'excalidraw';
+      const format = fileName.endsWith(".excalidraw")
+        ? "excalidraw"
+        : fileName.endsWith(".svg")
+          ? "svg"
+          : fileName.endsWith(".png")
+            ? "png"
+            : "excalidraw";
 
       // For now, we'll use file name as ID and name
       // In future, could read file stats for dates and size
       metadata.push({
         id: fileName,
         name: fileName,
-        format: format as 'excalidraw' | 'svg' | 'png',
+        format: format as "excalidraw" | "svg" | "png",
         created: new Date().toISOString(), // Would need file stats
         modified: new Date().toISOString(), // Would need file stats
         size: 0, // Would need file stats
@@ -181,7 +187,10 @@ export class DrawingStore {
       this.fs.deleteFile(oldPath);
       return true;
     } catch (error) {
-      console.error(`Error renaming drawing from ${oldName} to ${newName}:`, error);
+      console.error(
+        `Error renaming drawing from ${oldName} to ${newName}:`,
+        error,
+      );
       return false;
     }
   }
@@ -209,7 +218,7 @@ export class DrawingStore {
    */
   private normalizeDrawingName(name: string): string {
     // If no extension, assume .excalidraw
-    if (!name.includes('.')) {
+    if (!name.includes(".")) {
       return `${name}.excalidraw`;
     }
     return name;

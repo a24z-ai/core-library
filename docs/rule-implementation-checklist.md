@@ -36,6 +36,7 @@ This checklist guides you through implementing a new rule in Alexandria's rule s
 - [ ] Include JSDoc comments for each option
 
 Example:
+
 ```typescript
 export interface YourRuleOptions {
   /** Description of option */
@@ -49,7 +50,7 @@ export type RuleOptions =
   | DocumentOrganizationOptions
   | StaleReferencesOptions
   | RequireReferencesOptions
-  | YourRuleOptions  // Add here
+  | YourRuleOptions // Add here
   | Record<string, string | number | boolean | string[]>;
 ```
 
@@ -73,21 +74,26 @@ export type RuleOptions =
   - [ ] `fix()` - Auto-fix implementation (if fixable)
 
 Template:
+
 ```typescript
-import { LibraryRule, LibraryRuleViolation, LibraryRuleContext } from '../types';
-import { YourRuleOptions } from '../../config/types';
+import {
+  LibraryRule,
+  LibraryRuleViolation,
+  LibraryRuleContext,
+} from "../types";
+import { YourRuleOptions } from "../../config/types";
 
 const DEFAULT_OPTIONS: YourRuleOptions = {
   // defaults
 };
 
 export const yourRuleName: LibraryRule = {
-  id: 'your-rule-name',
-  name: 'Your Rule Name',
-  severity: 'warning',
-  category: 'structure',
-  description: 'Brief description',
-  impact: 'Impact statement',
+  id: "your-rule-name",
+  name: "Your Rule Name",
+  severity: "warning",
+  category: "structure",
+  description: "Brief description",
+  impact: "Impact statement",
   fixable: false,
   enabled: true,
   options: DEFAULT_OPTIONS,
@@ -98,9 +104,12 @@ export const yourRuleName: LibraryRule = {
     return violations;
   },
 
-  async fix(violation: LibraryRuleViolation, context: LibraryRuleContext): Promise<void> {
+  async fix(
+    violation: LibraryRuleViolation,
+    context: LibraryRuleContext,
+  ): Promise<void> {
     // Only if fixable: true
-  }
+  },
 };
 ```
 
@@ -112,8 +121,9 @@ export const yourRuleName: LibraryRule = {
 - [ ] Add registration in constructor
 
 Example:
+
 ```typescript
-import { yourRuleName } from './rules/your-rule-name';
+import { yourRuleName } from "./rules/your-rule-name";
 
 // In constructor:
 this.registerRule(yourRuleName);
@@ -131,22 +141,23 @@ this.registerRule(yourRuleName);
 - [ ] Test with different file structures
 
 Test structure:
+
 ```typescript
-describe('your-rule-name', () => {
-  it('should not report violations for valid files', async () => {
+describe("your-rule-name", () => {
+  it("should not report violations for valid files", async () => {
     // Test implementation
   });
 
-  it('should report violations for invalid files', async () => {
+  it("should report violations for invalid files", async () => {
     // Test implementation
   });
 
-  it('should respect configuration options', async () => {
+  it("should respect configuration options", async () => {
     // Test implementation
   });
 
   if (fixable) {
-    it('should fix violations when auto-fix is enabled', async () => {
+    it("should fix violations when auto-fix is enabled", async () => {
       // Test implementation
     });
   }
@@ -169,7 +180,8 @@ describe('your-rule-name', () => {
   - [ ] Configuration examples
 
 Template:
-```markdown
+
+````markdown
 ### `your-rule-name`
 
 **Purpose:** Brief purpose description
@@ -177,10 +189,12 @@ Template:
 **Default Severity:** `warning`
 
 **How it works:**
+
 - Step-by-step explanation
 - Of how the rule validates
 
 **Configuration Options:**
+
 - `optionName`: Description (default: value)
 - `anotherOption`: Description (default: value)
 
@@ -189,25 +203,26 @@ Template:
 **Example Violation:**
 \```
 path/to/file.md
-    ⚠ Violation message
-      rule: your-rule-name
+⚠ Violation message
+rule: your-rule-name
 \```
 
 **How to Fix:**
+
 - Instructions for fixing violations
 - Multiple steps if needed
 
 **Configuration Example:**
 \```json
 {
-  "id": "your-rule-name",
-  "severity": "error",
-  "options": {
-    "optionName": "value"
-  }
+"id": "your-rule-name",
+"severity": "error",
+"options": {
+"optionName": "value"
+}
 }
 \```
-```
+````
 
 ### 6. Update Schema (Optional)
 

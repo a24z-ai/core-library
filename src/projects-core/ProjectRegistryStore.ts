@@ -4,10 +4,10 @@
  * Manages a registry of local project paths with their git remotes
  */
 
-import { FileSystemAdapter } from '../pure-core/abstractions/filesystem';
-import { ValidatedRepositoryPath } from '../pure-core/types';
-import { AlexandriaEntry } from '../pure-core/types/repository';
-import { ProjectRegistryData } from './types';
+import { FileSystemAdapter } from "../pure-core/abstractions/filesystem";
+import { ValidatedRepositoryPath } from "../pure-core/types";
+import { AlexandriaEntry } from "../pure-core/types/repository";
+import { ProjectRegistryData } from "./types";
 
 export class ProjectRegistryStore {
   private fs: FileSystemAdapter;
@@ -15,7 +15,7 @@ export class ProjectRegistryStore {
 
   constructor(fileSystemAdapter: FileSystemAdapter, homeDir: string) {
     this.fs = fileSystemAdapter;
-    this.registryPath = this.fs.join(homeDir, '.alexandria', 'projects.json');
+    this.registryPath = this.fs.join(homeDir, ".alexandria", "projects.json");
   }
 
   /**
@@ -36,7 +36,7 @@ export class ProjectRegistryStore {
 
     if (!this.fs.exists(this.registryPath)) {
       return {
-        version: '1.0.0',
+        version: "1.0.0",
         projects: [],
       };
     }
@@ -46,7 +46,7 @@ export class ProjectRegistryStore {
       return JSON.parse(content) as ProjectRegistryData;
     } catch {
       return {
-        version: '1.0.0',
+        version: "1.0.0",
         projects: [],
       };
     }
@@ -66,7 +66,7 @@ export class ProjectRegistryStore {
   public registerProject(
     name: string,
     projectPath: ValidatedRepositoryPath,
-    remoteUrl?: string
+    remoteUrl?: string,
   ): void {
     const registry = this.loadRegistry();
 
@@ -76,7 +76,9 @@ export class ProjectRegistryStore {
     }
 
     // Check if path already registered
-    const existingProject = registry.projects.find((p) => p.path === projectPath);
+    const existingProject = registry.projects.find(
+      (p) => p.path === projectPath,
+    );
     if (existingProject) {
       throw new Error(`Path already registered as '${existingProject.name}'`);
     }
@@ -134,7 +136,7 @@ export class ProjectRegistryStore {
    */
   public updateProject(
     name: string,
-    updates: Partial<Omit<AlexandriaEntry, 'name' | 'registeredAt'>>
+    updates: Partial<Omit<AlexandriaEntry, "name" | "registeredAt">>,
   ): void {
     const registry = this.loadRegistry();
     const projectIndex = registry.projects.findIndex((p) => p.name === name);
@@ -149,10 +151,12 @@ export class ProjectRegistryStore {
     if (updates.path && updates.path !== project.path) {
       // Check if new path is already registered
       const existingWithPath = registry.projects.find(
-        (p) => p.path === updates.path && p.name !== name
+        (p) => p.path === updates.path && p.name !== name,
       );
       if (existingWithPath) {
-        throw new Error(`Path already registered as '${existingWithPath.name}'`);
+        throw new Error(
+          `Path already registered as '${existingWithPath.name}'`,
+        );
       }
     }
 
@@ -162,7 +166,7 @@ export class ProjectRegistryStore {
       ...updates,
       // Preserve immutable fields
       name: project.name,
-      registeredAt: project.registeredAt
+      registeredAt: project.registeredAt,
     };
 
     this.saveRegistry(registry);

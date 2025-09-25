@@ -55,29 +55,29 @@ export interface ValidationMessageData {
  * Default validation message templates
  */
 export const DEFAULT_VALIDATION_MESSAGES = {
-  noteTooLong: (data: ValidationMessageData['noteTooLong']) =>
+  noteTooLong: (data: ValidationMessageData["noteTooLong"]) =>
     `Note content is too long (${data.actual.toLocaleString()} characters, ${data.percentage}% of limit). ` +
     `Maximum allowed: ${data.limit.toLocaleString()} characters. ` +
     `You are ${data.overBy.toLocaleString()} characters over the limit. ` +
     `💡 Tip: Consider splitting this into multiple focused notes.`,
 
-  tooManyTags: (data: ValidationMessageData['tooManyTags']) =>
+  tooManyTags: (data: ValidationMessageData["tooManyTags"]) =>
     `Note has too many tags (${data.actual}). Maximum allowed: ${data.limit}`,
 
-  tooManyAnchors: (data: ValidationMessageData['tooManyAnchors']) =>
+  tooManyAnchors: (data: ValidationMessageData["tooManyAnchors"]) =>
     `Note has too many anchors (${data.actual}). Maximum allowed: ${data.limit}`,
 
-  invalidTags: (data: ValidationMessageData['invalidTags']) =>
-    `The following tags are not allowed: ${data.invalidTags.join(', ')}. ` +
-    `Allowed tags: ${data.allowedTags.join(', ')}`,
+  invalidTags: (data: ValidationMessageData["invalidTags"]) =>
+    `The following tags are not allowed: ${data.invalidTags.join(", ")}. ` +
+    `Allowed tags: ${data.allowedTags.join(", ")}`,
 
-  invalidType: (data: ValidationMessageData['invalidType']) =>
-    `Invalid note type: ${data.type}. Allowed types: ${data.allowedTypes.join(', ')}`,
+  invalidType: (data: ValidationMessageData["invalidType"]) =>
+    `Invalid note type: ${data.type}. Allowed types: ${data.allowedTypes.join(", ")}`,
 
-  anchorOutsideRepo: (data: ValidationMessageData['anchorOutsideRepo']) =>
+  anchorOutsideRepo: (data: ValidationMessageData["anchorOutsideRepo"]) =>
     `Anchor is outside the repository: ${data.anchor}`,
 
-  missingAnchors: (data: ValidationMessageData['missingAnchors']) =>
+  missingAnchors: (data: ValidationMessageData["missingAnchors"]) =>
     `Note must have at least one anchor (currently has ${data.actual})`,
 };
 
@@ -89,7 +89,9 @@ export const DEFAULT_VALIDATION_MESSAGES = {
  * Type for custom validation message overrides
  */
 export type ValidationMessageOverrides = Partial<{
-  [K in keyof typeof DEFAULT_VALIDATION_MESSAGES]: (data: ValidationMessageData[K]) => string;
+  [K in keyof typeof DEFAULT_VALIDATION_MESSAGES]: (
+    data: ValidationMessageData[K],
+  ) => string;
 }>;
 
 // ============================================================================
@@ -129,7 +131,10 @@ export class ValidationMessageFormatter {
   /**
    * Format a validation error with the appropriate message
    */
-  format<T extends keyof ValidationMessageData>(type: T, data: ValidationMessageData[T]): string {
+  format<T extends keyof ValidationMessageData>(
+    type: T,
+    data: ValidationMessageData[T],
+  ): string {
     const formatter = this.messages[type];
     if (!formatter) {
       return `Validation error: ${type}`;

@@ -2,7 +2,7 @@
  * Guidance generation utilities
  */
 
-import { MemoryPalaceConfiguration } from '../types';
+import { MemoryPalaceConfiguration } from "../types";
 
 export interface GuidanceContent {
   guidance: string;
@@ -37,7 +37,7 @@ const DEFAULT_GUIDANCE = `# Note Creation Guidelines
 export function generateFullGuidanceContent(
   guidance: string | null,
   configuration: MemoryPalaceConfiguration,
-  tagDescriptions: Record<string, string> = {}
+  tagDescriptions: Record<string, string> = {},
 ): GuidanceContent {
   const result: GuidanceContent = {
     guidance: guidance || DEFAULT_GUIDANCE,

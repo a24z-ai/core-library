@@ -1,6 +1,6 @@
 /**
  * @a24z/core-library
- * 
+ *
  * Core library exports for the a24z ecosystem.
  * Provides essential functionality for managing notes, views, and configurations.
  */
@@ -49,7 +49,7 @@ export type {
   PalaceResourceType,
   CrossPalaceReference,
   ReferenceStatus,
-} from './pure-core/types';
+} from "./pure-core/types";
 
 // Repository and Alexandria types
 export type {
@@ -58,50 +58,53 @@ export type {
   AlexandriaEntry,
   AlexandriaRepositoryRegistry,
   GithubRepository,
-} from './pure-core/types/repository';
+} from "./pure-core/types/repository";
 
 // CodebaseView summary types
-export type { CodebaseViewSummary } from './pure-core/types/summary';
+export type { CodebaseViewSummary } from "./pure-core/types/summary";
 export {
   extractCodebaseViewSummary,
   extractCodebaseViewSummaries,
-} from './pure-core/types/summary';
+} from "./pure-core/types/summary";
 
 // Validation types
-export type { 
+export type {
   ValidationResult as CodebaseValidationResult,
-  ValidationIssue 
-} from './pure-core/validation/CodebaseViewValidator';
+  ValidationIssue,
+} from "./pure-core/validation/CodebaseViewValidator";
 
 // Config types
-export type { ValidationResult as ConfigValidationResult } from './config/types';
+export type { ValidationResult as ConfigValidationResult } from "./config/types";
 
 // Filesystem adapter for dependency injection
-export type { FileSystemAdapter } from './pure-core/abstractions/filesystem';
-export { NodeFileSystemAdapter } from './node-adapters/NodeFileSystemAdapter';
-export { InMemoryFileSystemAdapter } from './test-adapters/InMemoryFileSystemAdapter';
+export type { FileSystemAdapter } from "./pure-core/abstractions/filesystem";
+export { NodeFileSystemAdapter } from "./node-adapters/NodeFileSystemAdapter";
+export { InMemoryFileSystemAdapter } from "./test-adapters/InMemoryFileSystemAdapter";
 
 // Glob adapter for pattern matching
-export type { GlobAdapter, GlobOptions } from './pure-core/abstractions/glob';
-export { NodeGlobAdapter } from './node-adapters/NodeGlobAdapter';
+export type { GlobAdapter, GlobOptions } from "./pure-core/abstractions/glob";
+export { NodeGlobAdapter } from "./node-adapters/NodeGlobAdapter";
 
 // Primary API classes
-export { MemoryPalace } from './MemoryPalace';
+export { MemoryPalace } from "./MemoryPalace";
 
 // Project management
-export { ProjectRegistryStore } from './projects-core/ProjectRegistryStore';
-export { AlexandriaOutpostManager } from './projects-core/AlexandriaOutpostManager';
+export { ProjectRegistryStore } from "./projects-core/ProjectRegistryStore";
+export { AlexandriaOutpostManager } from "./projects-core/AlexandriaOutpostManager";
 
 // Store exports for direct access if needed
-export { CodebaseViewsStore, generateViewIdFromName } from './pure-core/stores/CodebaseViewsStore';
-export { DrawingStore } from './pure-core/stores/DrawingStore';
-export type { DrawingMetadata } from './pure-core/stores/DrawingStore';
-export { PalaceRoomStore } from './pure-core/stores/PalaceRoomStore';
+export {
+  CodebaseViewsStore,
+  generateViewIdFromName,
+} from "./pure-core/stores/CodebaseViewsStore";
+export { DrawingStore } from "./pure-core/stores/DrawingStore";
+export type { DrawingMetadata } from "./pure-core/stores/DrawingStore";
+export { PalaceRoomStore } from "./pure-core/stores/PalaceRoomStore";
 
 // Utilities and rules
-export { LibraryRulesEngine } from './rules/index';
-export { OverviewPathAutoFix } from './pure-core/autofixes/OverviewPathAutoFix';
-export { ConfigValidator } from './config/validator';
+export { LibraryRulesEngine } from "./rules/index";
+export { OverviewPathAutoFix } from "./pure-core/autofixes/OverviewPathAutoFix";
+export { ConfigValidator } from "./config/validator";
 
 // Palace URI utilities
 export {
@@ -112,7 +115,7 @@ export {
   buildGitHubPalaceUri,
   isPalaceUri,
   extractRepositoryFromUri,
-} from './pure-core/utils/palaceUri';
+} from "./pure-core/utils/palaceUri";
 
 // Rule types for CLI and external consumers
 export type {
@@ -125,7 +128,7 @@ export type {
   LibraryLintResult,
   FileInfo,
   GitFileHistory,
-} from './rules/types';
+} from "./rules/types";
 
 // Configuration types
 export type {
@@ -146,23 +149,26 @@ export type {
   FilenameStyle,
   FilenameSeparator,
   FilenameCaseStyle,
-} from './config/types';
+} from "./config/types";
 
 // Constants
-export { ALEXANDRIA_DIRS } from './constants/paths';
-export { CONFIG_FILENAME } from './config/schema';
+export { ALEXANDRIA_DIRS } from "./constants/paths";
+export { CONFIG_FILENAME } from "./config/schema";
 
 // Project utilities
-export { hasAlexandriaWorkflow, hasMemoryNotes } from './projects-core/workflow-utils';
+export {
+  hasAlexandriaWorkflow,
+  hasMemoryNotes,
+} from "./projects-core/workflow-utils";
 
 // ============================================================================
 // Storage and Bookmarking System
 // ============================================================================
 
 // Storage manager and adapters
-export { ReadingRecordManager } from './storage/ReadingRecordManager';
-export { MemoryReadingRecordAdapter } from './storage/adapters/memory';
-export { LocalStorageReadingRecordAdapter } from './storage/adapters/localStorage';
+export { ReadingRecordManager } from "./storage/ReadingRecordManager";
+export { MemoryReadingRecordAdapter } from "./storage/adapters/memory";
+export { LocalStorageReadingRecordAdapter } from "./storage/adapters/localStorage";
 
 // Storage types
 export type {
@@ -174,7 +180,7 @@ export type {
   StorageEvents,
   VisitQuery,
   BookmarkQuery,
-} from './storage/types';
+} from "./storage/types";
 
 // Alexandria bookmark and state types
 export type {
@@ -183,4 +189,4 @@ export type {
   AlexandriaLibraryCard,
   AlexandriaDocumentVersion,
   AlexandriaBookmarkedDocument,
-} from './types/alexandria-state';
+} from "./types/alexandria-state";

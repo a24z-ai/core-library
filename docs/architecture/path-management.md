@@ -49,12 +49,22 @@ The central API that manages all memory operations. Key responsibilities:
 ```typescript
 class MemoryPalace {
   // Static methods for path operations
-  static validateRepositoryPath(fs: FileSystemAdapter, path: string): ValidatedRepositoryPath
-  static getAlexandriaPath(repositoryPath: ValidatedRepositoryPath, fs: FileSystemAdapter): ValidatedAlexandriaPath
-  static validateRelativePath(repositoryPath: ValidatedRepositoryPath, targetPath: string, fs: FileSystemAdapter): ValidatedRelativePath
-  
+  static validateRepositoryPath(
+    fs: FileSystemAdapter,
+    path: string,
+  ): ValidatedRepositoryPath;
+  static getAlexandriaPath(
+    repositoryPath: ValidatedRepositoryPath,
+    fs: FileSystemAdapter,
+  ): ValidatedAlexandriaPath;
+  static validateRelativePath(
+    repositoryPath: ValidatedRepositoryPath,
+    targetPath: string,
+    fs: FileSystemAdapter,
+  ): ValidatedRelativePath;
+
   // Instance created with validated paths
-  constructor(repositoryRoot: string, fileSystem: FileSystemAdapter)
+  constructor(repositoryRoot: string, fileSystem: FileSystemAdapter);
 }
 ```
 
@@ -69,7 +79,10 @@ Storage components that handle specific data types. They receive pre-validated p
 ```typescript
 // Stores receive pre-validated paths, no re-validation needed
 class AnchoredNotesStore {
-  constructor(fileSystemAdapter: FileSystemAdapter, alexandriaPath: ValidatedAlexandriaPath)
+  constructor(
+    fileSystemAdapter: FileSystemAdapter,
+    alexandriaPath: ValidatedAlexandriaPath,
+  );
 }
 ```
 
@@ -90,12 +103,12 @@ The system uses the `.alexandria` directory for storing all repository-specific 
 ```typescript
 static getAlexandriaPath(repositoryPath: ValidatedRepositoryPath, fs: FileSystemAdapter): ValidatedAlexandriaPath {
   const alexandriaPath = fs.join(repositoryPath, '.alexandria');
-  
+
   // Create alexandria directory if it doesn't exist
   if (!fs.exists(alexandriaPath)) {
     fs.createDir(alexandriaPath);
   }
-  
+
   return alexandriaPath as ValidatedAlexandriaPath;
 }
 ```
@@ -178,4 +191,5 @@ This centralized path management architecture provides a robust foundation for t
 The architecture provides clear patterns for extending the system with new features. Most importantly, it reduces complexity by consolidating path-related logic in a single, well-tested location.
 
 ---
-*Last reviewed: 2025-09-25 - Document remains accurate; PalaceRoom additions to MemoryPalace.ts follow existing path management patterns.*
+
+_Last reviewed: 2025-09-25 - Document remains accurate; PalaceRoom additions to MemoryPalace.ts follow existing path management patterns._

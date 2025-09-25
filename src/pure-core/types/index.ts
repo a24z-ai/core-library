@@ -11,13 +11,17 @@
  * A branded type for repository paths that have been validated.
  * This ensures only properly validated paths are used in data operations.
  */
-export type ValidatedRepositoryPath = string & { readonly __brand: 'ValidatedRepositoryPath' };
+export type ValidatedRepositoryPath = string & {
+  readonly __brand: "ValidatedRepositoryPath";
+};
 
 /**
  * A branded type for relative paths that have been validated to be within a repository.
  * These paths are always relative to the repository root, without './' prefix.
  */
-export type ValidatedRelativePath = string & { readonly __brand: 'ValidatedRelativePath' };
+export type ValidatedRelativePath = string & {
+  readonly __brand: "ValidatedRelativePath";
+};
 
 // ============================================================================
 // CodebaseView Types
@@ -192,7 +196,7 @@ export interface CodebaseView {
    */
   metadata?: {
     /** How this view was created - used for cleanup and management */
-    generationType?: 'user' | 'session';
+    generationType?: "user" | "session";
 
     /** UI configuration for visualization/rendering */
     ui?: {
@@ -207,7 +211,7 @@ export interface CodebaseView {
       /** Whether to show labels for grid reference groups */
       showCellLabels?: boolean;
       /** Position of reference group labels relative to the reference group */
-      cellLabelPosition?: 'none' | 'top' | 'bottom';
+      cellLabelPosition?: "none" | "top" | "bottom";
       /** Height of cell labels as percentage of cell height (0-1) */
       cellLabelHeightPercent?: number;
     };
@@ -321,7 +325,7 @@ export interface MemoryPalaceConfiguration {
 }
 
 // Re-export StaleAnchoredNote from stores
-export type { StaleAnchoredNote } from '../stores/AnchoredNotesStore';
+export type { StaleAnchoredNote } from "../stores/AnchoredNotesStore";
 
 // Re-export PalaceRoom types
 export type {
@@ -329,7 +333,7 @@ export type {
   CreatePalaceRoomOptions,
   UpdatePalaceRoomOptions,
   PalaceRoomOperationResult,
-} from './palace-room';
+} from "./palace-room";
 
 // Re-export PalacePortal types
 export type {
@@ -348,4 +352,4 @@ export type {
   PalaceResourceType,
   CrossPalaceReference,
   ReferenceStatus,
-} from './palace-portal';
+} from "./palace-portal";

@@ -73,6 +73,7 @@ export interface FileSystemAdapter {
 Production adapter for Node.js environments using native `fs` and `path` modules.
 
 **Features:**
+
 - Atomic writes using temp files
 - Recursive directory creation
 - Synchronous operations for simplicity
@@ -80,11 +81,12 @@ Production adapter for Node.js environments using native `fs` and `path` modules
 - Binary file support for images and other non-text formats
 
 **Usage:**
+
 ```typescript
-import { NodeFileSystemAdapter, MemoryPalace } from '@a24z/core-library';
+import { NodeFileSystemAdapter, MemoryPalace } from "@a24z/core-library";
 
 const fsAdapter = new NodeFileSystemAdapter();
-const palace = new MemoryPalace(fsAdapter, '/path/to/repo');
+const palace = new MemoryPalace(fsAdapter, "/path/to/repo");
 ```
 
 ### InMemoryFileSystemAdapter
@@ -92,6 +94,7 @@ const palace = new MemoryPalace(fsAdapter, '/path/to/repo');
 Testing adapter that simulates a filesystem in memory. Now located in `src/test-adapters/` for better organization.
 
 **Features:**
+
 - No disk I/O
 - Binary file support for testing image/document operations
 - Predictable behavior
@@ -99,14 +102,15 @@ Testing adapter that simulates a filesystem in memory. Now located in `src/test-
 - Perfect for unit tests
 
 **Usage:**
+
 ```typescript
-import { InMemoryFileSystemAdapter, MemoryPalace } from '@a24z/core-library';
+import { InMemoryFileSystemAdapter, MemoryPalace } from "@a24z/core-library";
 
 const fsAdapter = new InMemoryFileSystemAdapter();
 // Pre-populate with test data
-fsAdapter.writeFile('/test/file.md', '# Test Content');
+fsAdapter.writeFile("/test/file.md", "# Test Content");
 
-const palace = new MemoryPalace(fsAdapter, '/test');
+const palace = new MemoryPalace(fsAdapter, "/test");
 ```
 
 ## Using the Adapter Pattern
@@ -116,12 +120,12 @@ const palace = new MemoryPalace(fsAdapter, '/test');
 When building applications with the Alexandria core library, inject the appropriate adapter:
 
 ```typescript
-import { 
-  MemoryPalace, 
+import {
+  MemoryPalace,
   NodeFileSystemAdapter,
-  ProjectRegistryStore 
-} from '@a24z/core-library';
-import * as os from 'os';
+  ProjectRegistryStore,
+} from "@a24z/core-library";
+import * as os from "os";
 
 // Create adapter instance
 const fsAdapter = new NodeFileSystemAdapter();
@@ -138,18 +142,18 @@ const registry = new ProjectRegistryStore(fsAdapter, os.homedir());
 Use the in-memory adapter for fast, isolated tests:
 
 ```typescript
-import { InMemoryFileSystemAdapter } from '@a24z/core-library';
+import { InMemoryFileSystemAdapter } from "@a24z/core-library";
 
-describe('MyComponent', () => {
+describe("MyComponent", () => {
   let fsAdapter: InMemoryFileSystemAdapter;
-  
+
   beforeEach(() => {
     fsAdapter = new InMemoryFileSystemAdapter();
     // Set up test filesystem state
-    fsAdapter.writeFile('/.alexandria/config.json', '{}');
+    fsAdapter.writeFile("/.alexandria/config.json", "{}");
   });
-  
-  it('should handle file operations', () => {
+
+  it("should handle file operations", () => {
     // Your test using the adapter
   });
 });
@@ -162,30 +166,32 @@ To support new environments, implement the `FileSystemAdapter` interface:
 ### Example: Browser Adapter
 
 ```typescript
-import { FileSystemAdapter } from '@a24z/core-library';
+import { FileSystemAdapter } from "@a24z/core-library";
 
 export class BrowserFileSystemAdapter implements FileSystemAdapter {
   private storage = new Map<string, string>();
-  
+
   exists(path: string): boolean {
-    return this.storage.has(path) || 
-           localStorage.getItem(this.prefixPath(path)) !== null;
+    return (
+      this.storage.has(path) ||
+      localStorage.getItem(this.prefixPath(path)) !== null
+    );
   }
-  
+
   readFile(path: string): string {
-    const content = this.storage.get(path) || 
-                   localStorage.getItem(this.prefixPath(path));
+    const content =
+      this.storage.get(path) || localStorage.getItem(this.prefixPath(path));
     if (!content) throw new Error(`File not found: ${path}`);
     return content;
   }
-  
+
   writeFile(path: string, content: string): void {
     this.storage.set(path, content);
     localStorage.setItem(this.prefixPath(path), content);
   }
-  
+
   // ... implement other required methods
-  
+
   private prefixPath(path: string): string {
     return `alexandria:${path}`;
   }
@@ -196,24 +202,27 @@ export class BrowserFileSystemAdapter implements FileSystemAdapter {
 
 ```typescript
 export class RemoteAPIAdapter implements FileSystemAdapter {
-  constructor(private apiUrl: string, private authToken: string) {}
-  
+  constructor(
+    private apiUrl: string,
+    private authToken: string,
+  ) {}
+
   async exists(path: string): boolean {
     const response = await fetch(`${this.apiUrl}/files/${path}`, {
-      method: 'HEAD',
-      headers: { 'Authorization': `Bearer ${this.authToken}` }
+      method: "HEAD",
+      headers: { Authorization: `Bearer ${this.authToken}` },
     });
     return response.ok;
   }
-  
+
   async readFile(path: string): string {
     const response = await fetch(`${this.apiUrl}/files/${path}`, {
-      headers: { 'Authorization': `Bearer ${this.authToken}` }
+      headers: { Authorization: `Bearer ${this.authToken}` },
     });
     if (!response.ok) throw new Error(`File not found: ${path}`);
     return response.text();
   }
-  
+
   // ... implement other methods
 }
 ```
@@ -223,11 +232,13 @@ export class RemoteAPIAdapter implements FileSystemAdapter {
 ### Synchronous vs Asynchronous
 
 The current interface uses synchronous methods for simplicity. This works well for:
+
 - Node.js filesystem operations
 - In-memory operations
 - Local storage in browsers
 
 For async environments, consider:
+
 1. Creating an `AsyncFileSystemAdapter` interface
 2. Wrapping async operations in sync-like APIs
 3. Using separate async methods where needed
@@ -235,11 +246,13 @@ For async environments, consider:
 ### Pure Core Separation
 
 The adapter pattern enables complete separation between:
+
 - **Pure Core**: Business logic, data structures, algorithms
 - **Adapters**: Platform-specific I/O operations
 - **Applications**: Environment-specific initialization
 
 This separation ensures:
+
 - Testability without real filesystem
 - Portability across JavaScript runtimes
 - Clear boundaries and responsibilities
@@ -255,6 +268,7 @@ This separation ensures:
 ## Usage Examples
 
 ### CLI Tool
+
 ```typescript
 const fsAdapter = new NodeFileSystemAdapter();
 const palace = new MemoryPalace(fsAdapter, process.cwd());
@@ -262,6 +276,7 @@ const notes = palace.listNotes();
 ```
 
 ### VS Code Extension
+
 ```typescript
 const fsAdapter = new NodeFileSystemAdapter();
 const workspace = vscode.workspace.workspaceFolders[0].uri.fsPath;
@@ -269,16 +284,18 @@ const palace = new MemoryPalace(fsAdapter, workspace);
 ```
 
 ### Web Application
+
 ```typescript
 const fsAdapter = new BrowserFileSystemAdapter();
-const palace = new MemoryPalace(fsAdapter, '/virtual/root');
+const palace = new MemoryPalace(fsAdapter, "/virtual/root");
 ```
 
 ### Unit Tests
+
 ```typescript
 const fsAdapter = new InMemoryFileSystemAdapter();
-fsAdapter.writeFile('/test.md', '# Test');
-const palace = new MemoryPalace(fsAdapter, '/');
+fsAdapter.writeFile("/test.md", "# Test");
+const palace = new MemoryPalace(fsAdapter, "/");
 ```
 
 ## See Also
@@ -288,4 +305,5 @@ const palace = new MemoryPalace(fsAdapter, '/');
 - [InMemoryFileSystemAdapter Implementation](src/test-adapters/InMemoryFileSystemAdapter.ts)
 
 ---
-*Last reviewed: 2025-09-23 - Document confirmed to be up-to-date with current implementation.*
+
+_Last reviewed: 2025-09-23 - Document confirmed to be up-to-date with current implementation._

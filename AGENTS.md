@@ -49,6 +49,7 @@ alexandria hooks --check   # Check if hooks are installed
 ### Understanding Codebase Views
 
 Each codebase view in `.alexandria/views/` contains:
+
 - **Grouped File References**: Related source files grouped together (e.g., `files: ['src/auth/login.ts', 'src/auth/session.ts']`)
 - **Documentation Links**: Connections between documentation and the code it describes
 - **Contextual Relationships**: Explicit mappings of which files work together
@@ -65,6 +66,7 @@ When exploring a codebase with Alexandria, these views tell you which files are 
 ### Pre-commit Integration
 
 If the project has a pre-commit hook configured, `alexandria lint` will run automatically to check for:
+
 - Orphaned references in codebase views
 - Stale context that needs updating
 - Invalid view structures

@@ -5,19 +5,25 @@
  * Tools should use this class instead of directly accessing stores.
  */
 
-import { FileSystemAdapter } from './pure-core/abstractions/filesystem';
-import { AnchoredNotesStore, StaleAnchoredNote } from './pure-core/stores/AnchoredNotesStore';
-import { CodebaseViewsStore } from './pure-core/stores/CodebaseViewsStore';
-import { A24zConfigurationStore } from './pure-core/stores/A24zConfigurationStore';
-import { DrawingStore, DrawingMetadata } from './pure-core/stores/DrawingStore';
-import { PalaceRoomStore } from './pure-core/stores/PalaceRoomStore';
-import { generateFullGuidanceContent, GuidanceContent } from './pure-core/utils/guidanceGenerator';
-import { buildLocalPalaceUri } from './pure-core/utils/palaceUri';
+import { FileSystemAdapter } from "./pure-core/abstractions/filesystem";
+import {
+  AnchoredNotesStore,
+  StaleAnchoredNote,
+} from "./pure-core/stores/AnchoredNotesStore";
+import { CodebaseViewsStore } from "./pure-core/stores/CodebaseViewsStore";
+import { A24zConfigurationStore } from "./pure-core/stores/A24zConfigurationStore";
+import { DrawingStore, DrawingMetadata } from "./pure-core/stores/DrawingStore";
+import { PalaceRoomStore } from "./pure-core/stores/PalaceRoomStore";
+import {
+  generateFullGuidanceContent,
+  GuidanceContent,
+} from "./pure-core/utils/guidanceGenerator";
+import { buildLocalPalaceUri } from "./pure-core/utils/palaceUri";
 import {
   CodebaseViewValidator,
   ValidationResult,
-} from './pure-core/validation/CodebaseViewValidator';
-import { ALEXANDRIA_DIRS } from './constants/paths';
+} from "./pure-core/validation/CodebaseViewValidator";
+import { ALEXANDRIA_DIRS } from "./constants/paths";
 import type {
   StoredAnchoredNote,
   AnchoredNoteWithPath,
@@ -25,19 +31,19 @@ import type {
   CodebaseView,
   ValidatedRepositoryPath,
   ValidatedRelativePath,
-} from './pure-core/types';
-import type { ValidatedAlexandriaPath } from './pure-core/types/repository';
+} from "./pure-core/types";
+import type { ValidatedAlexandriaPath } from "./pure-core/types/repository";
 import type {
   PalaceRoom,
   CreatePalaceRoomOptions,
   UpdatePalaceRoomOptions,
   PalaceRoomOperationResult,
-} from './pure-core/types/palace-room';
+} from "./pure-core/types/palace-room";
 import type {
   PalacePortal,
   CreatePortalOptions,
   PortalContent,
-} from './pure-core/types/palace-portal';
+} from "./pure-core/types/palace-portal";
 
 export interface SaveNoteOptions {
   note: string;
@@ -68,8 +74,14 @@ export class MemoryPalace {
 
   constructor(repositoryRoot: string, fileSystem: FileSystemAdapter) {
     this.fs = fileSystem;
-    this.repositoryRoot = MemoryPalace.validateRepositoryPath(fileSystem, repositoryRoot);
-    const alexandriaPath = MemoryPalace.getAlexandriaPath(this.repositoryRoot, fileSystem);
+    this.repositoryRoot = MemoryPalace.validateRepositoryPath(
+      fileSystem,
+      repositoryRoot,
+    );
+    const alexandriaPath = MemoryPalace.getAlexandriaPath(
+      this.repositoryRoot,
+      fileSystem,
+    );
 
     // Initialize stores with the validated Alexandria path
     this.notesStore = new AnchoredNotesStore(fileSystem, alexandriaPath);
@@ -86,7 +98,7 @@ export class MemoryPalace {
    */
   static getAlexandriaPath(
     repositoryPath: ValidatedRepositoryPath,
-    fs: FileSystemAdapter
+    fs: FileSystemAdapter,
   ): ValidatedAlexandriaPath {
     const alexandriaPath = fs.join(repositoryPath, ALEXANDRIA_DIRS.PRIMARY);
 
@@ -102,7 +114,7 @@ export class MemoryPalace {
     } catch (error) {
       throw new Error(
         `Cannot create Alexandria data directory at ${alexandriaPath}. ` +
-          `Make sure the repository path is writable. Error: ${error}`
+          `Make sure the repository path is writable. Error: ${error}`,
       );
     }
   }
@@ -112,14 +124,17 @@ export class MemoryPalace {
    * This is the single point of path validation for the entire system.
    * Can be used to validate paths before creating MemoryPalace instances.
    */
-  static validateRepositoryPath(fs: FileSystemAdapter, path: string): ValidatedRepositoryPath {
+  static validateRepositoryPath(
+    fs: FileSystemAdapter,
+    path: string,
+  ): ValidatedRepositoryPath {
     // Validate that path is absolute
     if (!fs.isAbsolute(path)) {
       throw new Error(
         `❌ directoryPath must be an absolute path starting with '/'. ` +
           `Received: "${path}". ` +
           `💡 Tip: Use absolute paths like /Users/username/projects/my-repo or /home/user/project. ` +
-          `You can get the current working directory and build the absolute path from there.`
+          `You can get the current working directory and build the absolute path from there.`,
       );
     }
 
@@ -128,14 +143,15 @@ export class MemoryPalace {
       throw new Error(
         `❌ directoryPath must point to an existing directory. ` +
           `Path does not exist: "${path}". ` +
-          `Check your current working directory and build the correct absolute path.`
+          `Check your current working directory and build the correct absolute path.`,
       );
     }
 
     // Validate that it's a directory
     if (!fs.isDirectory(path)) {
       throw new Error(
-        `❌ directoryPath must point to a directory, not a file. ` + `Received: "${path}"`
+        `❌ directoryPath must point to a directory, not a file. ` +
+          `Received: "${path}"`,
       );
     }
 
@@ -146,7 +162,7 @@ export class MemoryPalace {
         throw new Error(
           `❌ directoryPath must be the git repository root, not a subdirectory. ` +
             `Received: "${path}", but repository root is: "${repoRoot}". ` +
-            `💡 Tip: Navigate to the repository root directory that contains the .git folder.`
+            `💡 Tip: Navigate to the repository root directory that contains the .git folder.`,
         );
       }
     } catch {
@@ -154,7 +170,7 @@ export class MemoryPalace {
         `❌ directoryPath must be a git repository root containing a .git directory. ` +
           `Path: "${path}" is not a git repository. ` +
           `💡 Tip: Initialize a git repository with 'git init' in your project root, or navigate to an existing git repository. ` +
-          `Repository roots contain a .git directory and serve as the base for all note storage.`
+          `Repository roots contain a .git directory and serve as the base for all note storage.`,
       );
     }
 
@@ -169,14 +185,14 @@ export class MemoryPalace {
   static validateRelativePath(
     repositoryRoot: ValidatedRepositoryPath,
     targetPath: string,
-    fs: FileSystemAdapter
+    fs: FileSystemAdapter,
   ): ValidatedRelativePath {
     // Ensure targetPath is absolute
     if (!fs.isAbsolute(targetPath)) {
       throw new Error(
         `❌ targetPath must be an absolute path starting with '/'. ` +
           `Received: "${targetPath}". ` +
-          `💡 Tip: Use absolute paths like /Users/username/projects/my-repo/src/file.ts`
+          `💡 Tip: Use absolute paths like /Users/username/projects/my-repo/src/file.ts`,
       );
     }
 
@@ -184,18 +200,24 @@ export class MemoryPalace {
     const relativePath = fs.relative(repositoryRoot, targetPath);
 
     // Ensure targetPath is within repositoryRoot (not outside with ../)
-    if (relativePath.startsWith('../') || relativePath === '..' || relativePath.includes('..')) {
+    if (
+      relativePath.startsWith("../") ||
+      relativePath === ".." ||
+      relativePath.includes("..")
+    ) {
       throw new Error(
         `❌ targetPath "${targetPath}" is not within repository root "${repositoryRoot}". ` +
-          `Target paths must be within the repository.`
+          `Target paths must be within the repository.`,
       );
     }
 
     // Clean up the relative path - remove './' prefix if present
-    const cleanPath = relativePath.startsWith('./') ? relativePath.slice(2) : relativePath;
+    const cleanPath = relativePath.startsWith("./")
+      ? relativePath.slice(2)
+      : relativePath;
 
     // Handle root case - if target is the repository root, return empty string
-    const finalPath = cleanPath === '.' ? '' : cleanPath;
+    const finalPath = cleanPath === "." ? "" : cleanPath;
 
     return finalPath as ValidatedRelativePath;
   }
@@ -219,8 +241,12 @@ export class MemoryPalace {
    */
   getNotes(includeParentNotes = true): AnchoredNoteWithPath[] {
     // Get all notes from the repository root (empty string = repository root)
-    const rootPath = '' as ValidatedRelativePath; // Root is represented as empty string
-    return this.notesStore.getNotesForPath(this.repositoryRoot, rootPath, includeParentNotes);
+    const rootPath = "" as ValidatedRelativePath; // Root is represented as empty string
+    return this.notesStore.getNotesForPath(
+      this.repositoryRoot,
+      rootPath,
+      includeParentNotes,
+    );
   }
 
   /**
@@ -228,9 +254,13 @@ export class MemoryPalace {
    */
   getNotesForPath(
     relativePath: ValidatedRelativePath,
-    includeParentNotes = true
+    includeParentNotes = true,
   ): AnchoredNoteWithPath[] {
-    return this.notesStore.getNotesForPath(this.repositoryRoot, relativePath, includeParentNotes);
+    return this.notesStore.getNotesForPath(
+      this.repositoryRoot,
+      relativePath,
+      includeParentNotes,
+    );
   }
 
   /**
@@ -249,7 +279,7 @@ export class MemoryPalace {
       note: options.note,
       anchors: options.anchors,
       tags: options.tags,
-      codebaseViewId: options.codebaseViewId || 'default',
+      codebaseViewId: options.codebaseViewId || "default",
       metadata: options.metadata || {},
       directoryPath: this.repositoryRoot,
     });
@@ -290,7 +320,11 @@ export class MemoryPalace {
     const guidance = this.getGuidance();
     const configuration = this.getConfiguration();
     const tagDescriptions = this.getTagDescriptions();
-    return generateFullGuidanceContent(guidance, configuration, tagDescriptions);
+    return generateFullGuidanceContent(
+      guidance,
+      configuration,
+      tagDescriptions,
+    );
   }
 
   /**
@@ -304,7 +338,8 @@ export class MemoryPalace {
     return {
       totalNotes: notes.length,
       staleNotesCount: staleNotes.length,
-      message: 'Coverage reports are deprecated. Use getNotes() for note information.',
+      message:
+        "Coverage reports are deprecated. Use getNotes() for note information.",
     };
   }
 
@@ -344,14 +379,18 @@ export class MemoryPalace {
   saveViewWithValidation(view: CodebaseView): ValidationResult {
     // Validate and get potentially modified view (e.g., scope removal)
     const existingViews = this.viewsStore.listViews(this.repositoryRoot);
-    const validationResult = this.validator.validate(this.repositoryRoot, view, existingViews);
+    const validationResult = this.validator.validate(
+      this.repositoryRoot,
+      view,
+      existingViews,
+    );
 
     // Add default version if missing
     let viewToSave = validationResult.validatedView;
     if (!viewToSave.version) {
       viewToSave = {
         ...viewToSave,
-        version: '1.0.0',
+        version: "1.0.0",
       };
     }
 
@@ -376,7 +415,11 @@ export class MemoryPalace {
    * Replace a tag across all notes
    */
   replaceTagInNotes(oldTag: string, newTag: string): number {
-    return this.notesStore.replaceTagInNotes(this.repositoryRoot, oldTag, newTag);
+    return this.notesStore.replaceTagInNotes(
+      this.repositoryRoot,
+      oldTag,
+      newTag,
+    );
   }
 
   /**
@@ -530,14 +573,19 @@ export class MemoryPalace {
   /**
    * Create a new palace room
    */
-  createPalaceRoom(options: CreatePalaceRoomOptions): PalaceRoomOperationResult {
+  createPalaceRoom(
+    options: CreatePalaceRoomOptions,
+  ): PalaceRoomOperationResult {
     return this.palaceRoomStore.createRoom(options);
   }
 
   /**
    * Update a palace room
    */
-  updatePalaceRoom(roomId: string, options: UpdatePalaceRoomOptions): PalaceRoomOperationResult {
+  updatePalaceRoom(
+    roomId: string,
+    options: UpdatePalaceRoomOptions,
+  ): PalaceRoomOperationResult {
     return this.palaceRoomStore.updateRoom(roomId, options);
   }
 
@@ -639,7 +687,10 @@ export class MemoryPalace {
   /**
    * Add a portal to a palace room
    */
-  addPortalToRoom(roomId: string, portalOptions: CreatePortalOptions): PalacePortal | null {
+  addPortalToRoom(
+    roomId: string,
+    portalOptions: CreatePortalOptions,
+  ): PalacePortal | null {
     return this.palaceRoomStore.addPortalToRoom(roomId, portalOptions);
   }
 
@@ -653,7 +704,11 @@ export class MemoryPalace {
   /**
    * Update a portal in a palace room
    */
-  updatePortalInRoom(roomId: string, portalId: string, updates: Partial<PalacePortal>): PalacePortal | null {
+  updatePortalInRoom(
+    roomId: string,
+    portalId: string,
+    updates: Partial<PalacePortal>,
+  ): PalacePortal | null {
     return this.palaceRoomStore.updatePortalInRoom(roomId, portalId, updates);
   }
 
@@ -682,14 +737,17 @@ export class MemoryPalace {
    * Resolve a portal to fetch content from the target palace
    * This is a placeholder - actual implementation would depend on the target type
    */
-  async resolvePortal(roomId: string, portalId: string): Promise<PortalContent> {
+  async resolvePortal(
+    roomId: string,
+    portalId: string,
+  ): Promise<PortalContent> {
     const portal = this.getPortalFromRoom(roomId, portalId);
 
     if (!portal) {
       return {
         portalId,
         success: false,
-        error: 'Portal not found',
+        error: "Portal not found",
       };
     }
 
@@ -704,9 +762,10 @@ export class MemoryPalace {
     return {
       portalId: portal.id,
       success: false,
-      error: 'Portal resolution not yet implemented',
+      error: "Portal resolution not yet implemented",
       targetMetadata: {
-        repositoryPath: portal.target.path || portal.target.gitUrl || portal.target.url,
+        repositoryPath:
+          portal.target.path || portal.target.gitUrl || portal.target.url,
       },
     };
   }
@@ -714,7 +773,10 @@ export class MemoryPalace {
   /**
    * Create a Palace URI for a resource in this palace
    */
-  createPalaceUri(resourceType: 'room' | 'view' | 'note' | 'drawing', resourceId: string): string {
+  createPalaceUri(
+    resourceType: "room" | "view" | "note" | "drawing",
+    resourceId: string,
+  ): string {
     return buildLocalPalaceUri(this.repositoryRoot, resourceType, resourceId);
   }
 }

@@ -1,7 +1,7 @@
-import { join, resolve } from 'path';
-import { AlexandriaConfig } from './types';
-import { CONFIG_FILENAMES, DEFAULT_CONFIG } from './schema';
-import { FileSystemAdapter } from '../pure-core/abstractions/filesystem';
+import { join, resolve } from "path";
+import { AlexandriaConfig } from "./types";
+import { CONFIG_FILENAMES, DEFAULT_CONFIG } from "./schema";
+import { FileSystemAdapter } from "../pure-core/abstractions/filesystem";
 
 export class ConfigLoader {
   private configCache: Map<string, AlexandriaConfig> = new Map();
@@ -13,7 +13,7 @@ export class ConfigLoader {
 
   findConfigFile(startDir: string = process.cwd()): string | null {
     let currentDir = resolve(startDir);
-    const root = resolve('/');
+    const root = resolve("/");
 
     while (currentDir !== root) {
       for (const filename of CONFIG_FILENAMES) {
@@ -23,7 +23,7 @@ export class ConfigLoader {
         }
       }
 
-      const parentDir = resolve(currentDir, '..');
+      const parentDir = resolve(currentDir, "..");
       if (parentDir === currentDir) break;
       currentDir = parentDir;
     }
@@ -56,7 +56,9 @@ export class ConfigLoader {
     }
   }
 
-  private mergeWithDefaults(config: Partial<AlexandriaConfig>): AlexandriaConfig {
+  private mergeWithDefaults(
+    config: Partial<AlexandriaConfig>,
+  ): AlexandriaConfig {
     return {
       ...DEFAULT_CONFIG,
       ...config,

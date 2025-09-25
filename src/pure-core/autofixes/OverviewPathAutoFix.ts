@@ -3,15 +3,15 @@
  * Handles moving misplaced overview documents and updating paths
  */
 
-import * as path from 'node:path';
-import type { MemoryPalace } from '../../MemoryPalace';
-import { CodebaseView } from '../types';
+import * as path from "node:path";
+import type { MemoryPalace } from "../../MemoryPalace";
+import { CodebaseView } from "../types";
 import {
   AutoFixProvider,
   AutoFixSuggestion,
   AutoFixResult,
   AutoFixIssue,
-} from './types';
+} from "./types";
 
 export interface OverviewPathAutoFixOptions {
   /** Preferred directory for overview documents */
@@ -25,8 +25,8 @@ export interface OverviewPathAutoFixOptions {
 }
 
 export class OverviewPathAutoFix implements AutoFixProvider {
-  name = 'OverviewPathAutoFix';
-  description = 'Fixes issues with CodebaseView overview document paths';
+  name = "OverviewPathAutoFix";
+  description = "Fixes issues with CodebaseView overview document paths";
 
   private palace: MemoryPalace;
   private options: OverviewPathAutoFixOptions;
@@ -34,7 +34,7 @@ export class OverviewPathAutoFix implements AutoFixProvider {
   constructor(palace: MemoryPalace, options: OverviewPathAutoFixOptions = {}) {
     this.palace = palace;
     this.options = {
-      preferredOverviewDir: 'docs/views',
+      preferredOverviewDir: "docs/views",
       createMissing: true,
       consolidateDocs: false,
       ...options,
@@ -68,19 +68,21 @@ export class OverviewPathAutoFix implements AutoFixProvider {
     return suggestions;
   }
 
-  private async checkMissingOverview(view: CodebaseView): Promise<AutoFixSuggestion | null> {
+  private async checkMissingOverview(
+    view: CodebaseView,
+  ): Promise<AutoFixSuggestion | null> {
     const overviewPath = view.overviewPath;
     if (!overviewPath) return null;
 
     // Use palace's file system check
-    const fullPath = this.palace.getRepositoryPath() + '/' + overviewPath;
+    const fullPath = this.palace.getRepositoryPath() + "/" + overviewPath;
     if (this.palace.fileExists(fullPath)) return null;
 
     const issue: AutoFixIssue = {
-      type: 'missing_overview_file',
+      type: "missing_overview_file",
       description: `Overview file not found for view "${view.name}"`,
       location: overviewPath,
-      severity: 'safe',
+      severity: "safe",
       context: { viewId: view.id, viewName: view.name },
     };
 
@@ -93,22 +95,24 @@ export class OverviewPathAutoFix implements AutoFixProvider {
         description: `Create new markdown file at ${overviewPath}`,
         changes: [
           {
-            type: 'file_created',
+            type: "file_created",
             path: overviewPath,
             after: this.generateOverviewContent(view),
           },
         ],
-        risk: 'safe',
+        risk: "safe",
       }),
     };
   }
 
-  private async checkMisplacedOverview(view: CodebaseView): Promise<AutoFixSuggestion | null> {
+  private async checkMisplacedOverview(
+    view: CodebaseView,
+  ): Promise<AutoFixSuggestion | null> {
     const overviewPath = view.overviewPath;
     if (!overviewPath || !this.options.preferredOverviewDir) return null;
 
     // Check if file exists using palace
-    const fullPath = this.palace.getRepositoryPath() + '/' + overviewPath;
+    const fullPath = this.palace.getRepositoryPath() + "/" + overviewPath;
     if (!this.palace.fileExists(fullPath)) return null;
 
     // Check if file is already in preferred directory
@@ -116,10 +120,10 @@ export class OverviewPathAutoFix implements AutoFixProvider {
     if (overviewPath.startsWith(preferredDir)) return null;
 
     const issue: AutoFixIssue = {
-      type: 'misplaced_overview_file',
+      type: "misplaced_overview_file",
       description: `Overview file for "${view.name}" is not in preferred directory`,
       location: overviewPath,
-      severity: 'moderate',
+      severity: "moderate",
       context: { viewId: view.id, preferredDir },
     };
 
@@ -133,25 +137,31 @@ export class OverviewPathAutoFix implements AutoFixProvider {
         description: `Move file and update view configuration`,
         changes: [
           {
-            type: 'file_moved',
+            type: "file_moved",
             path: overviewPath,
             before: overviewPath,
             after: newPath,
           },
           {
-            type: 'property_updated',
+            type: "property_updated",
             path: `view.${view.id}.overviewPath`,
             before: overviewPath,
             after: newPath,
           },
         ],
-        risk: 'moderate',
+        risk: "moderate",
       }),
     };
   }
 
-  private async checkExcludedOverview(view: CodebaseView): Promise<AutoFixSuggestion | null> {
-    if (!this.options.excludePatterns || this.options.excludePatterns.length === 0) return null;
+  private async checkExcludedOverview(
+    view: CodebaseView,
+  ): Promise<AutoFixSuggestion | null> {
+    if (
+      !this.options.excludePatterns ||
+      this.options.excludePatterns.length === 0
+    )
+      return null;
 
     const overviewPath = view.overviewPath;
     if (!overviewPath) return null;
@@ -165,14 +175,17 @@ export class OverviewPathAutoFix implements AutoFixProvider {
     if (!isExcluded) return null;
 
     const issue: AutoFixIssue = {
-      type: 'excluded_overview_location',
+      type: "excluded_overview_location",
       description: `Overview file for "${view.name}" is in an excluded location`,
       location: overviewPath,
-      severity: 'moderate',
-      context: { viewId: view.id, excludePatterns: this.options.excludePatterns },
+      severity: "moderate",
+      context: {
+        viewId: view.id,
+        excludePatterns: this.options.excludePatterns,
+      },
     };
 
-    const preferredDir = this.options.preferredOverviewDir || 'docs/views';
+    const preferredDir = this.options.preferredOverviewDir || "docs/views";
     const newPath = path.join(preferredDir, `${view.id}.md`);
 
     return {
@@ -183,19 +196,19 @@ export class OverviewPathAutoFix implements AutoFixProvider {
         description: `Move file out of excluded location`,
         changes: [
           {
-            type: 'file_moved',
+            type: "file_moved",
             path: overviewPath,
             before: overviewPath,
             after: newPath,
           },
           {
-            type: 'property_updated',
+            type: "property_updated",
             path: `view.${view.id}.overviewPath`,
             before: overviewPath,
             after: newPath,
           },
         ],
-        risk: 'moderate',
+        risk: "moderate",
       }),
     };
   }
@@ -206,10 +219,13 @@ export class OverviewPathAutoFix implements AutoFixProvider {
     return [];
   }
 
-  private async createMissingOverview(view: CodebaseView): Promise<AutoFixResult> {
+  private async createMissingOverview(
+    view: CodebaseView,
+  ): Promise<AutoFixResult> {
     try {
       const content = this.generateOverviewContent(view);
-      const fullPath = this.palace.getRepositoryPath() + '/' + view.overviewPath;
+      const fullPath =
+        this.palace.getRepositoryPath() + "/" + view.overviewPath;
 
       // Ensure directory exists
       const dir = path.dirname(fullPath);
@@ -221,11 +237,11 @@ export class OverviewPathAutoFix implements AutoFixProvider {
 
       return {
         success: true,
-        status: 'applied',
+        status: "applied",
         message: `Created overview file for view "${view.name}"`,
         changes: [
           {
-            type: 'file_created',
+            type: "file_created",
             path: view.overviewPath,
             after: content,
           },
@@ -234,17 +250,21 @@ export class OverviewPathAutoFix implements AutoFixProvider {
     } catch (error) {
       return {
         success: false,
-        status: 'failed',
+        status: "failed",
         message: `Failed to create overview file: ${error}`,
         error: String(error),
       };
     }
   }
 
-  private async moveOverviewFile(view: CodebaseView, newPath: string): Promise<AutoFixResult> {
+  private async moveOverviewFile(
+    view: CodebaseView,
+    newPath: string,
+  ): Promise<AutoFixResult> {
     try {
-      const oldFullPath = this.palace.getRepositoryPath() + '/' + view.overviewPath;
-      const newFullPath = this.palace.getRepositoryPath() + '/' + newPath;
+      const oldFullPath =
+        this.palace.getRepositoryPath() + "/" + view.overviewPath;
+      const newFullPath = this.palace.getRepositoryPath() + "/" + newPath;
 
       // Ensure target directory exists
       const targetDir = path.dirname(newFullPath);
@@ -267,17 +287,17 @@ export class OverviewPathAutoFix implements AutoFixProvider {
 
       return {
         success: true,
-        status: 'applied',
+        status: "applied",
         message: `Moved overview file from ${view.overviewPath} to ${newPath}`,
         changes: [
           {
-            type: 'file_moved',
+            type: "file_moved",
             path: view.overviewPath,
             before: view.overviewPath,
             after: newPath,
           },
           {
-            type: 'property_updated',
+            type: "property_updated",
             path: `view.${view.id}.overviewPath`,
             before: view.overviewPath,
             after: newPath,
@@ -287,7 +307,7 @@ export class OverviewPathAutoFix implements AutoFixProvider {
     } catch (error) {
       return {
         success: false,
-        status: 'failed',
+        status: "failed",
         message: `Failed to move overview file: ${error}`,
         error: String(error),
       };
@@ -318,28 +338,31 @@ ${this.generateLinksDescription(view)}
   }
 
   private generateCellsDescription(view: CodebaseView): string {
-    if (!view.referenceGroups || Object.keys(view.referenceGroups).length === 0) {
-      return 'No reference groups defined in this view.';
+    if (
+      !view.referenceGroups ||
+      Object.keys(view.referenceGroups).length === 0
+    ) {
+      return "No reference groups defined in this view.";
     }
 
     const referenceGroupDescriptions = Object.entries(view.referenceGroups)
       .map(([name, referenceGroup]) => {
         const fileCount = referenceGroup.files?.length || 0;
-        return `- **${name}** (${fileCount} files): Located at [${referenceGroup.coordinates.join(', ')}]`;
+        return `- **${name}** (${fileCount} files): Located at [${referenceGroup.coordinates.join(", ")}]`;
       })
-      .join('\n');
+      .join("\n");
 
     return referenceGroupDescriptions;
   }
 
   private generateLinksDescription(view: CodebaseView): string {
     if (!view.links || Object.keys(view.links).length === 0) {
-      return 'No links to other views.';
+      return "No links to other views.";
     }
 
     const linkDescriptions = Object.entries(view.links)
       .map(([targetId, description]) => `- [${description}](${targetId})`)
-      .join('\n');
+      .join("\n");
 
     return linkDescriptions;
   }
@@ -350,8 +373,8 @@ ${this.generateLinksDescription(view)}
       if (!canApply) {
         return {
           success: false,
-          status: 'skipped',
-          message: 'Fix cannot be applied due to configuration or constraints',
+          status: "skipped",
+          message: "Fix cannot be applied due to configuration or constraints",
         };
       }
     }
@@ -361,7 +384,9 @@ ${this.generateLinksDescription(view)}
 
   async applyAllSafe(): Promise<AutoFixResult[]> {
     const suggestions = await this.analyze();
-    const safeSuggestions = suggestions.filter((s) => s.issue.severity === 'safe');
+    const safeSuggestions = suggestions.filter(
+      (s) => s.issue.severity === "safe",
+    );
 
     const results: AutoFixResult[] = [];
     for (const suggestion of safeSuggestions) {

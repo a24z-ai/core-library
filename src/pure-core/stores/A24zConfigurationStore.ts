@@ -5,10 +5,10 @@
  * storage settings, and tag restrictions.
  */
 
-import { FileSystemAdapter } from '../abstractions/filesystem';
-import { MemoryPalaceConfiguration } from '../types';
-import { ValidatedAlexandriaPath } from '../types/repository';
-import { DEFAULT_REPOSITORY_CONFIG } from '../config/defaultConfig';
+import { FileSystemAdapter } from "../abstractions/filesystem";
+import { MemoryPalaceConfiguration } from "../types";
+import { ValidatedAlexandriaPath } from "../types/repository";
+import { DEFAULT_REPOSITORY_CONFIG } from "../config/defaultConfig";
 
 // ============================================================================
 // A24zConfigurationStore Class
@@ -19,17 +19,21 @@ export class A24zConfigurationStore {
   private alexandriaPath: ValidatedAlexandriaPath;
   private configPath: string;
 
-  constructor(fileSystemAdapter: FileSystemAdapter, alexandriaPath: ValidatedAlexandriaPath) {
+  constructor(
+    fileSystemAdapter: FileSystemAdapter,
+    alexandriaPath: ValidatedAlexandriaPath,
+  ) {
     this.fs = fileSystemAdapter;
     this.alexandriaPath = alexandriaPath;
-    this.configPath = this.fs.join(alexandriaPath, 'config.json');
+    this.configPath = this.fs.join(alexandriaPath, "config.json");
   }
 
   // ============================================================================
   // Configuration Management
   // ============================================================================
 
-  private readonly DEFAULT_CONFIG: MemoryPalaceConfiguration = DEFAULT_REPOSITORY_CONFIG;
+  private readonly DEFAULT_CONFIG: MemoryPalaceConfiguration =
+    DEFAULT_REPOSITORY_CONFIG;
 
   /**
    * Get repository configuration
@@ -62,13 +66,22 @@ export class A24zConfigurationStore {
   /**
    * Update repository configuration
    */
-  updateConfiguration(updates: Partial<MemoryPalaceConfiguration>): MemoryPalaceConfiguration {
+  updateConfiguration(
+    updates: Partial<MemoryPalaceConfiguration>,
+  ): MemoryPalaceConfiguration {
     const current = this.getConfiguration();
     const updated = {
       ...current,
-      version: updates && updates.version !== undefined ? updates.version : current.version,
-      limits: updates?.limits ? { ...current.limits, ...updates.limits } : current.limits,
-      storage: updates?.storage ? { ...current.storage, ...updates.storage } : current.storage,
+      version:
+        updates && updates.version !== undefined
+          ? updates.version
+          : current.version,
+      limits: updates?.limits
+        ? { ...current.limits, ...updates.limits }
+        : current.limits,
+      storage: updates?.storage
+        ? { ...current.storage, ...updates.storage }
+        : current.storage,
       tags: updates?.tags ? { ...current.tags, ...updates.tags } : current.tags,
       enabled_mcp_tools: updates?.enabled_mcp_tools
         ? { ...current.enabled_mcp_tools, ...updates.enabled_mcp_tools }
@@ -143,7 +156,7 @@ export class A24zConfigurationStore {
       // This requires access to the tags directory, but since this is configuration-related,
       // we'll return empty array and let the caller handle tag discovery
       console.warn(
-        'getAllowedTags: Tag enforcement is enabled but tag discovery requires AnchoredNotesStore'
+        "getAllowedTags: Tag enforcement is enabled but tag discovery requires AnchoredNotesStore",
       );
       return { enforced, tags: [] };
     }

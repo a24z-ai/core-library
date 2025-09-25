@@ -7,9 +7,9 @@ The Alexandria core library includes a `LibraryRulesEngine` that validates docum
 ## Basic Usage
 
 ```typescript
-import { LibraryRulesEngine } from '@a24z/core-library';
-import { NodeFileSystemAdapter } from '@a24z/core-library';
-import { BasicGlobAdapter } from '@a24z/core-library';
+import { LibraryRulesEngine } from "@a24z/core-library";
+import { NodeFileSystemAdapter } from "@a24z/core-library";
+import { BasicGlobAdapter } from "@a24z/core-library";
 
 // Initialize the rules engine - both adapters are required
 const fsAdapter = new NodeFileSystemAdapter();
@@ -23,17 +23,19 @@ const rulesEngine = new LibraryRulesEngine(fsAdapter, globAdapter);
 // const rulesEngine = new LibraryRulesEngine(fsAdapter, globAdapter);
 
 // Run lint with all enabled rules
-const results = await rulesEngine.lint('/path/to/repo');
+const results = await rulesEngine.lint("/path/to/repo");
 
 // Run lint with specific rules
-const docOrgResults = await rulesEngine.lint('/path/to/repo', {
-  enabledRules: ['document-organization']
+const docOrgResults = await rulesEngine.lint("/path/to/repo", {
+  enabledRules: ["document-organization"],
 });
 
 // Check results
 if (results.violations.length > 0) {
-  console.log(`Found ${results.errorCount} errors, ${results.warningCount} warnings`);
-  results.violations.forEach(v => {
+  console.log(
+    `Found ${results.errorCount} errors, ${results.warningCount} warnings`,
+  );
+  results.violations.forEach((v) => {
     console.log(`[${v.severity}] ${v.file}: ${v.message}`);
   });
 }
@@ -42,6 +44,7 @@ if (results.violations.length > 0) {
 ## How It Works
 
 The rules engine:
+
 1. Reads configuration from `.alexandriarc.json` (if present)
 2. Scans the repository based on rule requirements
 3. Validates against rule criteria
@@ -99,10 +102,10 @@ const rulesEngine = new LibraryRulesEngine(fsAdapter, globAdapter);
 
 // Validate before saving views
 const results = await rulesEngine.lint(repoPath, {
-  enabledRules: ['require-references']
+  enabledRules: ["require-references"],
 });
 if (results.violations.length > 0) {
-  console.warn('Documentation missing CodebaseView references');
+  console.warn("Documentation missing CodebaseView references");
 }
 ```
 
@@ -134,4 +137,5 @@ if (hasErrors) {
 - [Configuration](adapter-architecture.md) - Configuration options
 
 ---
-*Last reviewed: 2025-09-24 - Document confirmed to be up-to-date with current implementation.*
+
+_Last reviewed: 2025-09-24 - Document confirmed to be up-to-date with current implementation._

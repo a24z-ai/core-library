@@ -8,14 +8,14 @@ CodebaseView summaries provide lightweight representations of full CodebaseViews
 
 ```typescript
 export interface CodebaseViewSummary {
-  id: string;                    // Unique identifier
-  name: string;                  // Display name
-  description: string;           // Brief description
-  referenceGroupCount: number;   // Number of reference groups
-  gridSize: [number, number];    // [rows, columns]
-  overviewPath: string;          // Path to documentation
-  category: string;              // UI grouping category
-  displayOrder: number;          // Sort order in category
+  id: string; // Unique identifier
+  name: string; // Display name
+  description: string; // Brief description
+  referenceGroupCount: number; // Number of reference groups
+  gridSize: [number, number]; // [rows, columns]
+  overviewPath: string; // Path to documentation
+  category: string; // UI grouping category
+  displayOrder: number; // Sort order in category
 }
 ```
 
@@ -24,16 +24,18 @@ export interface CodebaseViewSummary {
 The library provides two functions for creating summaries:
 
 ### Single View Extraction
+
 ```typescript
-import { extractCodebaseViewSummary } from '@a24z/core-library';
+import { extractCodebaseViewSummary } from "@a24z/core-library";
 
 const view: CodebaseView = loadView();
 const summary = extractCodebaseViewSummary(view);
 ```
 
 ### Batch Extraction
+
 ```typescript
-import { extractCodebaseViewSummaries } from '@a24z/core-library';
+import { extractCodebaseViewSummaries } from "@a24z/core-library";
 
 const views: CodebaseView[] = loadAllViews();
 const summaries = extractCodebaseViewSummaries(views);
@@ -42,6 +44,7 @@ const summaries = extractCodebaseViewSummaries(views);
 ## How It Works
 
 The extraction process:
+
 1. **Counts reference groups** - Total number of reference groups in the view
 2. **Calculates grid dimensions** - Finds maximum row and column coordinates
 3. **Maps metadata** - Copies essential fields with sensible defaults
@@ -50,14 +53,18 @@ The extraction process:
 ## Use Cases
 
 ### View Listings
+
 Display all available views without loading full file references:
+
 ```typescript
 const summaries = views.map(extractCodebaseViewSummary);
 // Show in UI with just name, description, and reference group count
 ```
 
 ### API Responses
+
 Send lightweight metadata over the network:
+
 ```typescript
 // Instead of sending full views (potentially MBs)
 // Send just summaries (a few KBs)
@@ -65,11 +72,13 @@ return { views: extractCodebaseViewSummaries(fullViews) };
 ```
 
 ### Caching
+
 Store summaries for quick access:
+
 ```typescript
 // Cache summaries for fast retrieval
 const cache = new Map<string, CodebaseViewSummary>();
-views.forEach(view => {
+views.forEach((view) => {
   cache.set(view.id, extractCodebaseViewSummary(view));
 });
 ```
@@ -87,4 +96,5 @@ views.forEach(view => {
 4. **Separation of Concerns** - Metadata separate from file references
 
 ---
-*Last reviewed: 2025-09-25 - Document remains accurate; new PalaceRoom types added to index.ts are unrelated to view summaries.*
+
+_Last reviewed: 2025-09-25 - Document remains accurate; new PalaceRoom types added to index.ts are unrelated to view summaries._

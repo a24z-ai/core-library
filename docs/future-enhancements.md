@@ -5,7 +5,9 @@ This document captures ideas for improving the Alexandria core library and docum
 ## Recently Completed (2025-09-25)
 
 ### PalaceRooms and PalacePortals
+
 ✅ **Implemented**: Organizational system for memory palace content
+
 - PalaceRooms provide workspaces to group related drawings, views, and notes
 - Default "Main Palace" room that cannot be deleted
 - PalacePortals enable cross-repository references
@@ -21,7 +23,7 @@ Currently, CodebaseViews use a `category` field that must be manually set. We co
 
 ```
 docs/
-├── architecture/     → category: "architecture" 
+├── architecture/     → category: "architecture"
 ├── guides/          → category: "guides"
 ├── api/             → category: "api"
 ├── tutorials/       → category: "tutorials"
@@ -29,12 +31,14 @@ docs/
 ```
 
 **Benefits:**
+
 - Automatic category assignment based on file location
 - Easier to maintain and organize documentation
 - Natural grouping that matches filesystem structure
 - Reduces manual configuration in CodebaseViews
 
 **Implementation Ideas:**
+
 - New Alexandria rule: `folder-category-mapping`
 - Configuration in `.alexandriarc.json`:
   ```json
@@ -56,11 +60,13 @@ docs/
 ### Enhanced Rule System
 
 **New Rule: `folder-category-consistency`**
+
 - Validates that CodebaseView categories match their folder location
 - Auto-fixes by updating category to match folder structure
 - Warns when documents are in unexpected locations
 
 **New Rule: `minimum-references`**
+
 - Ensures CodebaseViews have a minimum number of file references
 - Configurable threshold (e.g., at least 3 files per view)
 - Prevents "orphaned" documentation that doesn't connect to code
@@ -76,6 +82,7 @@ docs/
   ```
 
 **New Rule: `minimum-coverage`**
+
 - Validates that important directories have associated documentation
 - Ensures core source directories are covered by CodebaseViews
 - Configurable coverage requirements per directory type
@@ -84,11 +91,7 @@ docs/
   {
     "minimum-coverage": {
       "enabled": true,
-      "requiredDirectories": [
-        "src/core/",
-        "src/api/", 
-        "src/utils/"
-      ],
+      "requiredDirectories": ["src/core/", "src/api/", "src/utils/"],
       "coverageThreshold": 80
     }
   }
@@ -97,11 +100,13 @@ docs/
 ## Path Management Enhancements
 
 ### Multi-Repository Path Caching
+
 - Cache validated paths across repository sessions
 - Reduce filesystem calls for frequently accessed repositories
 - Implement cache invalidation on directory structure changes
 
 ### Cross-Repository Support ✅ FOUNDATION IMPLEMENTED
+
 - ✅ **Implemented**: PalacePortals enable cross-repository references (2025-09-25)
   - PalaceRooms for organizing content into workspaces
   - PalacePortals for creating associations between workspaces
@@ -117,11 +122,13 @@ docs/
 ## Developer Experience
 
 ### Interactive Documentation Setup
+
 - CLI wizard for initial documentation organization
 - Suggested folder structure based on project type
 - Automated CodebaseView generation from existing docs
 
 ### Documentation Health Metrics
+
 - Track documentation coverage per code directory
 - Identify code areas lacking documentation
 - Generate reports on documentation freshness
@@ -129,11 +136,13 @@ docs/
 ## Quality Assurance
 
 ### Enhanced Validation Rules
+
 - `code-documentation-ratio`: Ensure adequate docs per code volume
 - `stale-reference-detection`: Flag outdated code references
 - `documentation-completeness`: Check for missing essential docs
 
 ### Integration Improvements
+
 - IDE extensions for real-time CodebaseView validation
 - GitHub bot for automatic documentation PR reviews
 - Slack/Discord notifications for documentation quality issues
@@ -147,10 +156,12 @@ docs/
 ## Contributing
 
 When implementing these enhancements:
+
 - Maintain backward compatibility with existing CodebaseViews
 - Add comprehensive tests for new rules and features
 - Update documentation and examples
 - Consider performance impact on large repositories
 
 ---
-*Last reviewed: 2025-09-25 - Updated to reflect PalaceRooms and PalacePortals implementation.*
+
+_Last reviewed: 2025-09-25 - Updated to reflect PalaceRooms and PalacePortals implementation._

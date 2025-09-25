@@ -9,27 +9,17 @@
     "0,0": {
       "label": "Configuration & Rules",
       "coordinates": [0, 0],
-      "files": [
-        ".alexandriarc.json",
-        "src/pure-core/",
-        "src/config/types.ts"
-      ]
+      "files": [".alexandriarc.json", "src/pure-core/", "src/config/types.ts"]
     },
     "0,1": {
       "label": "Documentation Organization",
       "coordinates": [0, 1],
-      "files": [
-        "docs/available-rules.md",
-        "docs/codebase-view-concept.md"
-      ]
+      "files": ["docs/available-rules.md", "docs/codebase-view-concept.md"]
     },
     "1,0": {
       "label": "CLI & Automation",
       "coordinates": [1, 0],
-      "files": [
-        "scripts/generate-schema.js",
-        ".husky/pre-commit"
-      ]
+      "files": ["scripts/generate-schema.js", ".husky/pre-commit"]
     },
     "1,1": {
       "label": "Future Implementation",

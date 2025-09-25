@@ -11,23 +11,23 @@ import type {
   PalaceURI,
   CrossPalaceReference,
   PalaceResourceType,
-} from '../types/palace-portal';
+} from "../types/palace-portal";
 
 /**
  * Parse a Palace URI string into its components
  */
 export function parsePalaceUri(uri: string): PalaceURI | null {
   // Basic validation
-  if (!uri.startsWith('palace://')) {
+  if (!uri.startsWith("palace://")) {
     return null;
   }
 
   try {
     // Remove the protocol
-    const withoutProtocol = uri.substring('palace://'.length);
+    const withoutProtocol = uri.substring("palace://".length);
 
     // Split by '/' to get components
-    const parts = withoutProtocol.split('/');
+    const parts = withoutProtocol.split("/");
 
     if (parts.length < 3) {
       return null;
@@ -43,10 +43,15 @@ export function parsePalaceUri(uri: string): PalaceURI | null {
 
     // Join all parts before resourceType to form the host
     const hostParts = parts.slice(0, resourceTypeIndex);
-    const host = hostParts.join('/') || 'local';
+    const host = hostParts.join("/") || "local";
 
     // Validate resource type
-    const validTypes: PalaceResourceType[] = ['room', 'view', 'note', 'drawing'];
+    const validTypes: PalaceResourceType[] = [
+      "room",
+      "view",
+      "note",
+      "drawing",
+    ];
     if (!validTypes.includes(resourceType)) {
       return null;
     }
@@ -58,14 +63,14 @@ export function parsePalaceUri(uri: string): PalaceURI | null {
     let finalResourceId = resourceId;
 
     // Check for fragment
-    const fragmentIndex = finalResourceId.indexOf('#');
+    const fragmentIndex = finalResourceId.indexOf("#");
     if (fragmentIndex > -1) {
       fragment = finalResourceId.substring(fragmentIndex + 1);
       finalResourceId = finalResourceId.substring(0, fragmentIndex);
     }
 
     // Check for query
-    const queryIndex = finalResourceId.indexOf('?');
+    const queryIndex = finalResourceId.indexOf("?");
     if (queryIndex > -1) {
       const queryString = finalResourceId.substring(queryIndex + 1);
       finalResourceId = finalResourceId.substring(0, queryIndex);
@@ -79,7 +84,7 @@ export function parsePalaceUri(uri: string): PalaceURI | null {
     }
 
     return {
-      protocol: 'palace',
+      protocol: "palace",
       host,
       resourceType,
       resourceId: finalResourceId,
@@ -87,7 +92,7 @@ export function parsePalaceUri(uri: string): PalaceURI | null {
       fragment,
     };
   } catch (error) {
-    console.error('Failed to parse Palace URI:', error);
+    console.error("Failed to parse Palace URI:", error);
     return null;
   }
 }
@@ -95,7 +100,9 @@ export function parsePalaceUri(uri: string): PalaceURI | null {
 /**
  * Build a Palace URI string from components
  */
-export function buildPalaceUri(components: Omit<PalaceURI, 'protocol'>): string {
+export function buildPalaceUri(
+  components: Omit<PalaceURI, "protocol">,
+): string {
   let uri = `palace://${components.host}/${components.resourceType}/${components.resourceId}`;
 
   // Add query parameters if present
@@ -121,8 +128,8 @@ export function createCrossPalaceReference(uri: string): CrossPalaceReference {
   return {
     uri,
     parsed: parsed || undefined,
-    status: parsed ? 'pending' : 'broken',
-    error: parsed ? undefined : 'Invalid Palace URI format',
+    status: parsed ? "pending" : "broken",
+    error: parsed ? undefined : "Invalid Palace URI format",
   };
 }
 
@@ -132,10 +139,12 @@ export function createCrossPalaceReference(uri: string): CrossPalaceReference {
 export function buildLocalPalaceUri(
   repositoryPath: string,
   resourceType: PalaceResourceType,
-  resourceId: string
+  resourceId: string,
 ): string {
   // For local paths, use the absolute path as the host
-  const host = repositoryPath.startsWith('/') ? repositoryPath : `local/${repositoryPath}`;
+  const host = repositoryPath.startsWith("/")
+    ? repositoryPath
+    : `local/${repositoryPath}`;
 
   return buildPalaceUri({
     host,
@@ -152,7 +161,7 @@ export function buildGitHubPalaceUri(
   repo: string,
   resourceType: PalaceResourceType,
   resourceId: string,
-  branch?: string
+  branch?: string,
 ): string {
   const host = `github.com/${owner}/${repo}`;
   const query = branch ? { branch } : undefined;
@@ -169,14 +178,14 @@ export function buildGitHubPalaceUri(
  * Check if a URI is a Palace URI
  */
 export function isPalaceUri(uri: string): boolean {
-  return uri.startsWith('palace://');
+  return uri.startsWith("palace://");
 }
 
 /**
  * Extract repository information from a Palace URI
  */
 export function extractRepositoryFromUri(uri: PalaceURI): {
-  type: 'local' | 'github' | 'other';
+  type: "local" | "github" | "other";
   path?: string;
   owner?: string;
   repo?: string;
@@ -185,11 +194,11 @@ export function extractRepositoryFromUri(uri: PalaceURI): {
   const { host, query } = uri;
 
   // Check if it's a GitHub URI
-  if (host.startsWith('github.com/')) {
-    const parts = host.substring('github.com/'.length).split('/');
+  if (host.startsWith("github.com/")) {
+    const parts = host.substring("github.com/".length).split("/");
     if (parts.length >= 2) {
       return {
-        type: 'github',
+        type: "github",
         owner: parts[0],
         repo: parts[1],
         branch: query?.branch,
@@ -198,31 +207,31 @@ export function extractRepositoryFromUri(uri: PalaceURI): {
   }
 
   // Check if it's an absolute path (starts with /)
-  if (host.startsWith('/')) {
+  if (host.startsWith("/")) {
     return {
-      type: 'local',
+      type: "local",
       path: host,
     };
   }
 
   // Check if it's explicitly local
-  if (host === 'local') {
+  if (host === "local") {
     return {
-      type: 'local',
-      path: '.',
+      type: "local",
+      path: ".",
     };
   }
 
-  if (host.startsWith('local/')) {
+  if (host.startsWith("local/")) {
     return {
-      type: 'local',
-      path: host.substring('local/'.length),
+      type: "local",
+      path: host.substring("local/".length),
     };
   }
 
   // Other types (GitLab, Bitbucket, etc.)
   return {
-    type: 'other',
+    type: "other",
     path: host,
   };
 }

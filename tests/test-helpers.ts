@@ -2,15 +2,15 @@
  * Test helper functions
  */
 
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 /**
  * Create basic .alexandria directory structure for testing
  */
 export function createTestRepositoryStructure(repositoryPath: string): void {
   // Create the .alexandria directory structure
-  const alexandriaDir = path.join(repositoryPath, '.alexandria');
+  const alexandriaDir = path.join(repositoryPath, ".alexandria");
   fs.mkdirSync(alexandriaDir, { recursive: true });
 
   // Create a basic note-guidance.md file
@@ -25,26 +25,32 @@ This is test guidance for ${repositoryPath}.
 
 This guidance was created for testing purposes.`;
 
-  fs.writeFileSync(path.join(alexandriaDir, 'note-guidance.md'), guidanceContent);
+  fs.writeFileSync(
+    path.join(alexandriaDir, "note-guidance.md"),
+    guidanceContent,
+  );
 }
 
 /**
  * Create a default test view for testing
  */
-export function createTestView(repositoryPath: string, viewId: string = 'test-view'): void {
-  const viewsDir = path.join(repositoryPath, '.alexandria', 'views');
+export function createTestView(
+  repositoryPath: string,
+  viewId: string = "test-view",
+): void {
+  const viewsDir = path.join(repositoryPath, ".alexandria", "views");
   fs.mkdirSync(viewsDir, { recursive: true });
 
   const testView = {
     id: viewId,
-    version: '1.0.0',
-    name: 'Test View',
-    description: 'Default view for testing',
+    version: "1.0.0",
+    name: "Test View",
+    description: "Default view for testing",
     rows: 2,
     cols: 2,
     referenceGroups: {
       main: {
-        files: ['src/index.ts', 'README.md'],
+        files: ["src/index.ts", "README.md"],
         coordinates: [0, 0] as [number, number],
         priority: 0,
       },
@@ -52,5 +58,8 @@ export function createTestView(repositoryPath: string, viewId: string = 'test-vi
     timestamp: new Date().toISOString(),
   };
 
-  fs.writeFileSync(path.join(viewsDir, `${viewId}.json`), JSON.stringify(testView, null, 2));
+  fs.writeFileSync(
+    path.join(viewsDir, `${viewId}.json`),
+    JSON.stringify(testView, null, 2),
+  );
 }

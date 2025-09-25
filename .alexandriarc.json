@@ -14,9 +14,7 @@
     "maxDepth": 10,
     "followSymlinks": false,
     "patterns": {
-      "exclude": [
-        ".alexandria/**"
-      ],
+      "exclude": [".alexandria/**"],
       "priority": [
         {
           "pattern": "**/src/**/*.ts",
@@ -52,7 +50,12 @@
         "enabled": true,
         "options": {
           "documentFolders": ["docs"],
-          "rootExceptions": ["README.md", "CHANGELOG.md", "LICENSE", "AGENTS.md"],
+          "rootExceptions": [
+            "README.md",
+            "CHANGELOG.md",
+            "LICENSE",
+            "AGENTS.md"
+          ],
           "checkNested": true
         }
       },

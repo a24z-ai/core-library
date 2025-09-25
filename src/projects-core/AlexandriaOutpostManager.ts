@@ -1,21 +1,25 @@
-import { ProjectRegistryStore } from './ProjectRegistryStore.js';
-import { MemoryPalace } from '../MemoryPalace.js';
-import type { AlexandriaRepository, AlexandriaEntry, GithubRepository } from '../pure-core/types/repository.js';
-import type { CodebaseViewSummary } from '../pure-core/types/summary.js';
-import { extractCodebaseViewSummary } from '../pure-core/types/summary.js';
-import type { ValidatedRepositoryPath } from '../pure-core/types/index.js';
-import { homedir } from 'os';
-import { ConfigLoader } from '../config/loader.js';
+import { ProjectRegistryStore } from "./ProjectRegistryStore.js";
+import { MemoryPalace } from "../MemoryPalace.js";
+import type {
+  AlexandriaRepository,
+  AlexandriaEntry,
+  GithubRepository,
+} from "../pure-core/types/repository.js";
+import type { CodebaseViewSummary } from "../pure-core/types/summary.js";
+import { extractCodebaseViewSummary } from "../pure-core/types/summary.js";
+import type { ValidatedRepositoryPath } from "../pure-core/types/index.js";
+import { homedir } from "os";
+import { ConfigLoader } from "../config/loader.js";
 
-import { FileSystemAdapter } from '../pure-core/abstractions/filesystem.js';
-import { GlobAdapter } from '../pure-core/abstractions/glob.js';
+import { FileSystemAdapter } from "../pure-core/abstractions/filesystem.js";
+import { GlobAdapter } from "../pure-core/abstractions/glob.js";
 
 export class AlexandriaOutpostManager {
   private readonly projectRegistry: ProjectRegistryStore;
 
   constructor(
     private readonly fsAdapter: FileSystemAdapter,
-    private readonly globAdapter: GlobAdapter
+    private readonly globAdapter: GlobAdapter,
   ) {
     // Create the ProjectRegistryStore internally with the user's home directory
     this.projectRegistry = new ProjectRegistryStore(fsAdapter, homedir());
@@ -24,25 +28,35 @@ export class AlexandriaOutpostManager {
   async getAllRepositories(): Promise<AlexandriaRepository[]> {
     // Get all registered projects from existing registry
     const entries = this.projectRegistry.listProjects();
-    
+
     // Transform each to API format
     const repositories = await Promise.all(
-      entries.map(entry => this.transformToRepository(entry))
+      entries.map((entry) => this.transformToRepository(entry)),
     );
-    
-    return repositories.filter(repo => repo !== null) as AlexandriaRepository[];
+
+    return repositories.filter(
+      (repo) => repo !== null,
+    ) as AlexandriaRepository[];
   }
 
   async getRepository(name: string): Promise<AlexandriaRepository | null> {
     const entry = this.projectRegistry.getProject(name);
     if (!entry) return null;
-    
+
     return this.transformToRepository(entry);
   }
 
-  async registerRepository(name: string, path: string, remoteUrl?: string): Promise<AlexandriaRepository> {
+  async registerRepository(
+    name: string,
+    path: string,
+    remoteUrl?: string,
+  ): Promise<AlexandriaRepository> {
     // Use existing registry's register method
-    this.projectRegistry.registerProject(name, path as ValidatedRepositoryPath, remoteUrl);
+    this.projectRegistry.registerProject(
+      name,
+      path as ValidatedRepositoryPath,
+      remoteUrl,
+    );
 
     // Return the transformed repository
     const entry = this.projectRegistry.getProject(name);
@@ -52,11 +66,13 @@ export class AlexandriaOutpostManager {
     return this.transformToRepository(entry);
   }
 
-  async getRepositoryByPath(path: string): Promise<AlexandriaRepository | null> {
+  async getRepositoryByPath(
+    path: string,
+  ): Promise<AlexandriaRepository | null> {
     // Find repository by path
     const entries = this.projectRegistry.listProjects();
-    const entry = entries.find(e => e.path === path);
-    
+    const entry = entries.find((e) => e.path === path);
+
     if (!entry) return null;
     return this.transformToRepository(entry);
   }
@@ -81,7 +97,9 @@ export class AlexandriaOutpostManager {
 
       // Get all views and extract their overview paths
       const views = memoryPalace.listViews();
-      return views.map(v => v.overviewPath).filter(path => path && path.length > 0);
+      return views
+        .map((v) => v.overviewPath)
+        .filter((path) => path && path.length > 0);
     } catch (error) {
       console.debug(`Could not load views for ${entry.name}:`, error);
       return [];
@@ -112,13 +130,20 @@ export class AlexandriaOutpostManager {
       const config = configPath ? configLoader.loadConfig(configPath) : null;
 
       // Find the require-references rule configuration
-      const requireReferencesRule = config?.context?.rules?.find(rule => rule.id === 'require-references');
+      const requireReferencesRule = config?.context?.rules?.find(
+        (rule) => rule.id === "require-references",
+      );
 
       // Return the excludeFiles list if it exists
-      const excludeFiles = (requireReferencesRule?.options as Record<string, unknown>)?.excludeFiles;
+      const excludeFiles = (
+        requireReferencesRule?.options as Record<string, unknown>
+      )?.excludeFiles;
       return Array.isArray(excludeFiles) ? excludeFiles : [];
     } catch (error) {
-      console.debug(`Could not load Alexandria config for ${entry.name}:`, error);
+      console.debug(
+        `Could not load Alexandria config for ${entry.name}:`,
+        error,
+      );
       return [];
     }
   }
@@ -129,15 +154,21 @@ export class AlexandriaOutpostManager {
    * @param useGitignore - Whether to respect .gitignore files (default: true)
    * @returns Array of all markdown file paths relative to repository root
    */
-  async getAllDocs(entry: AlexandriaEntry, useGitignore: boolean = true): Promise<string[]> {
+  async getAllDocs(
+    entry: AlexandriaEntry,
+    useGitignore: boolean = true,
+  ): Promise<string[]> {
     try {
       // Find all markdown files in the repository
-      const markdownFiles = await this.globAdapter.findFiles(['**/*.md', '**/*.mdx'], {
-        cwd: entry.path,
-        gitignore: useGitignore,
-        dot: false,
-        onlyFiles: true,
-      });
+      const markdownFiles = await this.globAdapter.findFiles(
+        ["**/*.md", "**/*.mdx"],
+        {
+          cwd: entry.path,
+          gitignore: useGitignore,
+          dot: false,
+          onlyFiles: true,
+        },
+      );
 
       return markdownFiles;
     } catch (error) {
@@ -154,7 +185,10 @@ export class AlexandriaOutpostManager {
    * @param useGitignore - Whether to respect .gitignore files (default: true)
    * @returns Array of untracked markdown file paths relative to repository root
    */
-  async getUntrackedDocs(entry: AlexandriaEntry, useGitignore: boolean = true): Promise<string[]> {
+  async getUntrackedDocs(
+    entry: AlexandriaEntry,
+    useGitignore: boolean = true,
+  ): Promise<string[]> {
     // Get all markdown files
     const allDocs = await this.getAllDocs(entry, useGitignore);
 
@@ -169,7 +203,7 @@ export class AlexandriaOutpostManager {
     const excludedSet = new Set(excludedDocs);
 
     // Filter out tracked and excluded docs, and Alexandria's own files
-    return allDocs.filter(doc => {
+    return allDocs.filter((doc) => {
       // Skip if tracked
       if (trackedSet.has(doc)) return false;
 
@@ -177,7 +211,7 @@ export class AlexandriaOutpostManager {
       if (excludedSet.has(doc)) return false;
 
       // Skip Alexandria's own files
-      if (doc.startsWith('.alexandria/')) return false;
+      if (doc.startsWith(".alexandria/")) return false;
 
       return true;
     });
@@ -192,7 +226,7 @@ export class AlexandriaOutpostManager {
    */
   async updateRepository(
     name: string,
-    updates: Partial<Omit<AlexandriaEntry, 'name' | 'registeredAt'>>
+    updates: Partial<Omit<AlexandriaEntry, "name" | "registeredAt">>,
   ): Promise<AlexandriaEntry> {
     const entry = this.projectRegistry.getProject(name);
     if (!entry) {
@@ -220,7 +254,7 @@ export class AlexandriaOutpostManager {
    */
   async updateGitHubMetadata(
     name: string,
-    github: Partial<GithubRepository>
+    github: Partial<GithubRepository>,
   ): Promise<AlexandriaEntry> {
     const entry = this.projectRegistry.getProject(name);
     if (!entry) {
@@ -230,21 +264,21 @@ export class AlexandriaOutpostManager {
     // Merge with existing GitHub data if present
     const updatedGithub: GithubRepository = {
       ...(entry.github || {
-        id: `${github.owner || 'unknown'}/${github.name || name}`,
-        owner: github.owner || 'unknown',
+        id: `${github.owner || "unknown"}/${github.name || name}`,
+        owner: github.owner || "unknown",
         name: github.name || name,
         stars: 0,
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
       }),
       ...github,
       // Always update the lastUpdated timestamp
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     };
 
     // Update the repository with new GitHub data and lastChecked timestamp
     return this.updateRepository(name, {
       github: updatedGithub,
-      lastChecked: new Date().toISOString()
+      lastChecked: new Date().toISOString(),
     });
   }
 
@@ -265,24 +299,33 @@ export class AlexandriaOutpostManager {
     }
 
     // Extract owner and repo name from remote URL
-    const match = entry.remoteUrl.match(/github\.com[:/]([^/]+)\/([^/.]+)(\.git)?$/);
+    const match = entry.remoteUrl.match(
+      /github\.com[:/]([^/]+)\/([^/.]+)(\.git)?$/,
+    );
     if (!match) {
-      throw new Error(`Could not parse GitHub URL from remote: ${entry.remoteUrl}`);
+      throw new Error(
+        `Could not parse GitHub URL from remote: ${entry.remoteUrl}`,
+      );
     }
 
     const [, owner, repoName] = match;
 
     try {
       // Fetch repository data from GitHub API
-      const response = await fetch(`https://api.github.com/repos/${owner}/${repoName}`, {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'Alexandria-Library'
-        }
-      });
+      const response = await fetch(
+        `https://api.github.com/repos/${owner}/${repoName}`,
+        {
+          headers: {
+            Accept: "application/vnd.github.v3+json",
+            "User-Agent": "Alexandria-Library",
+          },
+        },
+      );
 
       if (!response.ok) {
-        throw new Error(`GitHub API returned ${response.status}: ${response.statusText}`);
+        throw new Error(
+          `GitHub API returned ${response.status}: ${response.statusText}`,
+        );
       }
 
       const githubData = await response.json();
@@ -297,10 +340,10 @@ export class AlexandriaOutpostManager {
         primaryLanguage: githubData.language || undefined,
         topics: githubData.topics || [],
         license: githubData.license?.spdx_id || undefined,
-        defaultBranch: githubData.default_branch || 'main',
+        defaultBranch: githubData.default_branch || "main",
         isPublic: !githubData.private,
         lastCommit: githubData.pushed_at || githubData.updated_at,
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
       };
 
       // Update the repository with fresh GitHub data
@@ -310,7 +353,7 @@ export class AlexandriaOutpostManager {
       const basicGithub: Partial<GithubRepository> = {
         id: `${owner}/${repoName}`,
         owner,
-        name: repoName
+        name: repoName,
       };
 
       return this.updateGitHubMetadata(name, basicGithub);
@@ -335,14 +378,14 @@ export class AlexandriaOutpostManager {
 
       // Get fresh view data
       const views = memoryPalace.listViews();
-      const viewSummaries = views.map(v => extractCodebaseViewSummary(v));
+      const viewSummaries = views.map((v) => extractCodebaseViewSummary(v));
 
       // Update the repository with fresh view data
       return this.updateRepository(name, {
         hasViews: viewSummaries.length > 0,
         viewCount: viewSummaries.length,
         views: viewSummaries,
-        lastChecked: new Date().toISOString()
+        lastChecked: new Date().toISOString(),
       });
     } catch (error) {
       console.debug(`Failed to refresh views for ${name}:`, error);
@@ -352,7 +395,7 @@ export class AlexandriaOutpostManager {
         hasViews: false,
         viewCount: 0,
         views: [],
-        lastChecked: new Date().toISOString()
+        lastChecked: new Date().toISOString(),
       });
     }
   }
@@ -385,7 +428,10 @@ export class AlexandriaOutpostManager {
           try {
             updatedEntry = await this.refreshGitHubMetadata(entry.name);
           } catch (error) {
-            console.debug(`Failed to refresh GitHub metadata for ${entry.name}:`, error);
+            console.debug(
+              `Failed to refresh GitHub metadata for ${entry.name}:`,
+              error,
+            );
           }
         }
 
@@ -403,27 +449,31 @@ export class AlexandriaOutpostManager {
     return results;
   }
 
-  private async transformToRepository(entry: AlexandriaEntry): Promise<AlexandriaRepository> {
+  private async transformToRepository(
+    entry: AlexandriaEntry,
+  ): Promise<AlexandriaRepository> {
     // Load views if not already loaded
     let views: CodebaseViewSummary[] = entry.views || [];
-    
+
     if (views.length === 0) {
       try {
         // Use protected method to create MemoryPalace
         const memoryPalace = this.createMemoryPalace(entry.path);
 
         // Get views from the memory palace
-        views = memoryPalace.listViews().map(v => extractCodebaseViewSummary(v));
+        views = memoryPalace
+          .listViews()
+          .map((v) => extractCodebaseViewSummary(v));
       } catch (error) {
         // If we can't load views, continue with empty array
         console.debug(`Could not load views for ${entry.name}:`, error);
         views = [];
       }
     }
-    
+
     // Extract owner from remote URL if available
     const owner = this.extractOwner(entry.remoteUrl);
-    
+
     // Build the repository data according to AlexandriaRepository type
     const repo: AlexandriaRepository = {
       name: entry.name,
@@ -433,15 +483,19 @@ export class AlexandriaOutpostManager {
       viewCount: views.length,
       views,
       // Only include github if we have github data or can construct it
-      github: entry.github || (owner ? {
-        id: `${owner}/${entry.name}`,
-        owner: owner,
-        name: entry.name,
-        stars: 0,
-        lastUpdated: new Date().toISOString()
-      } : undefined)
+      github:
+        entry.github ||
+        (owner
+          ? {
+              id: `${owner}/${entry.name}`,
+              owner: owner,
+              name: entry.name,
+              stars: 0,
+              lastUpdated: new Date().toISOString(),
+            }
+          : undefined),
     };
-    
+
     return repo;
   }
 

@@ -1,30 +1,30 @@
 # Alexandria Registry GitHub Action
-# 
+#
 # This workflow automatically registers and updates your Alexandria documentation
 # when codebase views are added or modified.
 #
 
-name: Update Alexandria Documentation 
+name: Update Alexandria Documentation
 
 on:
   # Trigger on pull requests that modify views
   pull_request:
     paths:
-      - '.alexandria/views/**'
+      - ".alexandria/views/**"
     types: [opened, synchronize, reopened]
-  
+
   # Trigger on pushes to the default branch
   push:
     branches:
       - main
     paths:
-      - '.alexandria/views/**'
+      - ".alexandria/views/**"
 
 jobs:
   register-alexandria:
     runs-on: ubuntu-latest
     name: Update Alexandria Documentation
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,7 +37,7 @@ jobs:
         run: |
           # Get the default branch name
           DEFAULT_BRANCH="${{ github.event.repository.default_branch }}"
-          
+
           # Determine current branch
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             CURRENT_BRANCH="${{ github.event.pull_request.head.ref }}"
@@ -46,19 +46,19 @@ jobs:
             CURRENT_BRANCH="${{ github.ref_name }}"
             UPDATE_CONTEXT="push"
           fi
-          
+
           # Check if we're on the default branch
           if [ "$CURRENT_BRANCH" = "$DEFAULT_BRANCH" ]; then
             IS_DEFAULT="true"
           else
             IS_DEFAULT="false"
           fi
-          
+
           echo "current_branch=$CURRENT_BRANCH" >> $GITHUB_OUTPUT
           echo "is_default=$IS_DEFAULT" >> $GITHUB_OUTPUT
           echo "update_context=$UPDATE_CONTEXT" >> $GITHUB_OUTPUT
           echo "default_branch=$DEFAULT_BRANCH" >> $GITHUB_OUTPUT
-          
+
           # Debug output
           echo "📊 Branch Context:"
           echo "  - Event: ${{ github.event_name }}"
@@ -87,7 +87,7 @@ jobs:
           ALEXANDRIA_API_URL: https://git-gallery.com/api/alexandria
         run: |
           echo "🚀 Registering with Alexandria..."
-          
+
           # Prepare request body
           REQUEST_BODY=$(cat <<EOF
           {
@@ -99,23 +99,23 @@ jobs:
           }
           EOF
           )
-          
+
           echo "📝 Request body:"
           echo "$REQUEST_BODY" | jq .
-          
+
           # Make the API call
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
             -H "Content-Type: application/json" \
             -d "$REQUEST_BODY" \
             "$ALEXANDRIA_API_URL/repos")
-          
+
           # Extract status code and body
           HTTP_CODE=$(echo "$RESPONSE" | tail -n 1)
           BODY=$(echo "$RESPONSE" | head -n -1)
-          
+
           echo "📨 Response (HTTP $HTTP_CODE):"
           echo "$BODY" | jq . || echo "$BODY"
-          
+
           # Check if successful
           if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
             echo "✅ Successfully registered with Alexandria!"
@@ -150,9 +150,9 @@ jobs:
             const status = '${{ steps.register.outputs.status }}';
             const viewCount = '${{ steps.register.outputs.view_count }}';
             const branch = '${{ steps.branch-context.outputs.current_branch }}';
-            
+
             let message = '### 📚 Alexandria Registry Update\n\n';
-            
+
             if (status === 'registered') {
               message += `✅ Repository successfully registered with Alexandria!\n\n`;
               message += `- **Branch**: \`${branch}\`\n`;
@@ -164,19 +164,19 @@ jobs:
               message += `- **Codebase Views**: ${viewCount}\n\n`;
               message += `View your codebase at [Alexandria](https://a24z-ai.github.io/alexandria).`;
             }
-            
+
             // Check if we already commented
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
-            
+
             const botComment = comments.find(comment => 
               comment.user.type === 'Bot' && 
               comment.body.includes('Alexandria Registry Update')
             );
-            
+
             if (botComment) {
               // Update existing comment
               await github.rest.issues.updateComment({

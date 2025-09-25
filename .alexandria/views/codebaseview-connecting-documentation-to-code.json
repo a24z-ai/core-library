@@ -22,9 +22,7 @@
     },
     "validation": {
       "coordinates": [0, 2],
-      "files": [
-        "src/pure-core/validation/CodebaseViewValidator.ts"
-      ]
+      "files": ["src/pure-core/validation/CodebaseViewValidator.ts"]
     },
     "rules": {
       "coordinates": [1, 0],

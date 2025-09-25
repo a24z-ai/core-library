@@ -5,15 +5,21 @@
  * No Node.js dependencies - can run in browsers, Deno, Bun, or anywhere JavaScript runs
  */
 
-import { FileSystemAdapter } from '../abstractions/filesystem';
-import { CodebaseView, ValidatedRepositoryPath, CodebaseViewCell } from '../types';
-import { ValidatedAlexandriaPath } from '../types/repository';
+import { FileSystemAdapter } from "../abstractions/filesystem";
+import {
+  CodebaseView,
+  ValidatedRepositoryPath,
+  CodebaseViewCell,
+} from "../types";
+import { ValidatedAlexandriaPath } from "../types/repository";
 
 /**
  * Compute grid dimensions from reference group coordinates.
  * Returns the minimum grid size needed to contain all reference groups.
  */
-export function computeGridDimensions(referenceGroups: Record<string, CodebaseViewCell>): {
+export function computeGridDimensions(
+  referenceGroups: Record<string, CodebaseViewCell>,
+): {
   rows: number;
   cols: number;
 } {
@@ -38,10 +44,13 @@ export class CodebaseViewsStore {
   private alexandriaPath: ValidatedAlexandriaPath;
   private viewsDir: string;
 
-  constructor(fileSystemAdapter: FileSystemAdapter, alexandriaPath: ValidatedAlexandriaPath) {
+  constructor(
+    fileSystemAdapter: FileSystemAdapter,
+    alexandriaPath: ValidatedAlexandriaPath,
+  ) {
     this.fs = fileSystemAdapter;
     this.alexandriaPath = alexandriaPath;
-    this.viewsDir = this.fs.join(alexandriaPath, 'views');
+    this.viewsDir = this.fs.join(alexandriaPath, "views");
     // Ensure views directory exists
     this.fs.createDir(this.viewsDir);
   }
@@ -70,7 +79,10 @@ export class CodebaseViewsStore {
   /**
    * Get the file path for a specific view.
    */
-  private getViewFilePath(repositoryRootPath: ValidatedRepositoryPath, viewId: string): string {
+  private getViewFilePath(
+    repositoryRootPath: ValidatedRepositoryPath,
+    viewId: string,
+  ): string {
     return this.fs.join(this.getViewsDirectory(), `${viewId}.json`);
   }
 
@@ -83,7 +95,7 @@ export class CodebaseViewsStore {
    */
   private getNextDisplayOrder(
     repositoryRootPath: ValidatedRepositoryPath,
-    category: string
+    category: string,
   ): number {
     const views = this.listViews(repositoryRootPath);
     const categoryViews = views.filter((v) => v.category === category);
@@ -99,7 +111,10 @@ export class CodebaseViewsStore {
   /**
    * Save a view configuration to storage.
    */
-  saveView(repositoryRootPath: ValidatedRepositoryPath, view: CodebaseView): void {
+  saveView(
+    repositoryRootPath: ValidatedRepositoryPath,
+    view: CodebaseView,
+  ): void {
     this.ensureViewsDirectory();
 
     const filePath = this.getViewFilePath(repositoryRootPath, view.id);
@@ -107,13 +122,16 @@ export class CodebaseViewsStore {
     // Auto-assign displayOrder if not provided
     let displayOrder = view.displayOrder;
     if (displayOrder === undefined || displayOrder === null) {
-      displayOrder = this.getNextDisplayOrder(repositoryRootPath, view.category || 'other');
+      displayOrder = this.getNextDisplayOrder(
+        repositoryRootPath,
+        view.category || "other",
+      );
     }
 
     // Add defaults for required fields if not present
     const viewToSave = {
       ...view,
-      version: view.version || '1.0.0', // Default to 1.0.0 if not specified
+      version: view.version || "1.0.0", // Default to 1.0.0 if not specified
       timestamp: view.timestamp || new Date().toISOString(),
       displayOrder,
     };
@@ -124,7 +142,10 @@ export class CodebaseViewsStore {
   /**
    * Retrieve a view configuration by ID.
    */
-  getView(repositoryRootPath: ValidatedRepositoryPath, viewId: string): CodebaseView | null {
+  getView(
+    repositoryRootPath: ValidatedRepositoryPath,
+    viewId: string,
+  ): CodebaseView | null {
     const filePath = this.getViewFilePath(repositoryRootPath, viewId);
 
     if (!this.fs.exists(filePath)) {
@@ -150,11 +171,11 @@ export class CodebaseViewsStore {
       return [];
     }
 
-    const files = this.fs.readDir(viewsDir).filter((f) => f.endsWith('.json'));
+    const files = this.fs.readDir(viewsDir).filter((f) => f.endsWith(".json"));
     const views: CodebaseView[] = [];
 
     for (const file of files) {
-      const viewId = file.replace(/\.json$/, ''); // Remove .json extension
+      const viewId = file.replace(/\.json$/, ""); // Remove .json extension
       const view = this.getView(repositoryRootPath, viewId);
 
       if (view) {
@@ -164,8 +185,8 @@ export class CodebaseViewsStore {
 
     // Sort by category first, then by displayOrder, then by name as fallback
     return views.sort((a, b) => {
-      const catA = a.category || 'other';
-      const catB = b.category || 'other';
+      const catA = a.category || "other";
+      const catB = b.category || "other";
 
       if (catA !== catB) {
         return catA.localeCompare(catB);
@@ -185,7 +206,10 @@ export class CodebaseViewsStore {
   /**
    * Delete a view configuration.
    */
-  deleteView(repositoryRootPath: ValidatedRepositoryPath, viewId: string): boolean {
+  deleteView(
+    repositoryRootPath: ValidatedRepositoryPath,
+    viewId: string,
+  ): boolean {
     const filePath = this.getViewFilePath(repositoryRootPath, viewId);
 
     if (this.fs.exists(filePath)) {
@@ -202,7 +226,7 @@ export class CodebaseViewsStore {
   updateView(
     repositoryRootPath: ValidatedRepositoryPath,
     viewId: string,
-    updates: Partial<CodebaseView>
+    updates: Partial<CodebaseView>,
   ): boolean {
     const existingView = this.getView(repositoryRootPath, viewId);
 
@@ -217,7 +241,10 @@ export class CodebaseViewsStore {
       updates.category !== existingView.category &&
       displayOrder === undefined
     ) {
-      displayOrder = this.getNextDisplayOrder(repositoryRootPath, updates.category);
+      displayOrder = this.getNextDisplayOrder(
+        repositoryRootPath,
+        updates.category,
+      );
     }
 
     const updatedView: CodebaseView = {
@@ -238,7 +265,10 @@ export class CodebaseViewsStore {
   /**
    * Check if a view exists.
    */
-  viewExists(repositoryRootPath: ValidatedRepositoryPath, viewId: string): boolean {
+  viewExists(
+    repositoryRootPath: ValidatedRepositoryPath,
+    viewId: string,
+  ): boolean {
     const filePath = this.getViewFilePath(repositoryRootPath, viewId);
     return this.fs.exists(filePath);
   }
@@ -246,14 +276,19 @@ export class CodebaseViewsStore {
   /**
    * Get the default view for a repository, if it exists.
    */
-  getDefaultView(repositoryRootPath: ValidatedRepositoryPath): CodebaseView | null {
-    return this.getView(repositoryRootPath, 'default');
+  getDefaultView(
+    repositoryRootPath: ValidatedRepositoryPath,
+  ): CodebaseView | null {
+    return this.getView(repositoryRootPath, "default");
   }
 
   /**
    * Set a view as the default view.
    */
-  setDefaultView(repositoryRootPath: ValidatedRepositoryPath, viewId: string): boolean {
+  setDefaultView(
+    repositoryRootPath: ValidatedRepositoryPath,
+    viewId: string,
+  ): boolean {
     const view = this.getView(repositoryRootPath, viewId);
     if (!view) {
       return false;
@@ -262,7 +297,7 @@ export class CodebaseViewsStore {
     // Copy the view to 'default.json'
     const defaultView: CodebaseView = {
       ...view,
-      id: 'default',
+      id: "default",
       name: view.name,
       description: view.description || `Default view based on ${viewId}`,
     };
@@ -287,7 +322,7 @@ export class CodebaseViewsStore {
 export function generateViewIdFromName(name: string): string {
   return name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric chars with hyphens
-    .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
+    .replace(/[^a-z0-9]+/g, "-") // Replace non-alphanumeric chars with hyphens
+    .replace(/^-+|-+$/g, "") // Remove leading/trailing hyphens
     .substring(0, 50); // Limit length for filesystem safety
 }

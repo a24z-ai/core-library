@@ -1,5 +1,5 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from "fs";
+import { join } from "path";
 
 /**
  * Find the line number of a specific property or value in a JSON file
@@ -7,14 +7,20 @@ import { join } from 'path';
  * @param searchTerm - The term to search for (property name or value)
  * @returns Line number (1-indexed) or undefined if not found
  */
-export function findLineNumberInJSON(filePath: string, searchTerm: string): number | undefined {
+export function findLineNumberInJSON(
+  filePath: string,
+  searchTerm: string,
+): number | undefined {
   try {
-    const content = readFileSync(filePath, 'utf-8');
-    const lines = content.split('\n');
+    const content = readFileSync(filePath, "utf-8");
+    const lines = content.split("\n");
 
     // Search for the term in each line
     for (let i = 0; i < lines.length; i++) {
-      if (lines[i].includes(`"${searchTerm}"`) || lines[i].includes(searchTerm)) {
+      if (
+        lines[i].includes(`"${searchTerm}"`) ||
+        lines[i].includes(searchTerm)
+      ) {
         return i + 1; // Return 1-indexed line number
       }
     }
@@ -36,9 +42,9 @@ export function findLineNumberInJSON(filePath: string, searchTerm: string): numb
 export function findCellLineNumber(
   projectRoot: string,
   viewName: string,
-  cellName: string
+  cellName: string,
 ): number | undefined {
-  const viewPath = join(projectRoot, 'views', `${viewName}.json`);
+  const viewPath = join(projectRoot, "views", `${viewName}.json`);
   return findLineNumberInJSON(viewPath, cellName);
 }
 
@@ -50,7 +56,7 @@ export function findCellLineNumber(
  */
 export function findFileReferenceLineNumber(
   filePath: string,
-  referencedFile: string
+  referencedFile: string,
 ): number | undefined {
   return findLineNumberInJSON(filePath, referencedFile);
 }

@@ -1,11 +1,13 @@
 # Excalidraw Support Design Document
 
 ## Overview
+
 This document outlines the technical design for adding Excalidraw file support to the Alexandria Memory Palace system. The primary challenge is extending our text-only file system to handle binary data while maintaining backward compatibility.
 
 ## Understanding Excalidraw Files
 
 ### File Format Characteristics
+
 Excalidraw files (`.excalidraw`) are **NOT purely binary files** - they're JSON documents with a specific structure:
 
 ```json
@@ -44,6 +46,7 @@ Excalidraw files (`.excalidraw`) are **NOT purely binary files** - they're JSON 
 ```
 
 ### Key Insights
+
 1. **Hybrid Format**: Excalidraw files are text-based JSON that can contain embedded binary data (images) as base64 strings
 2. **Searchable Content**: Text elements, labels, and annotations are directly accessible in the JSON structure
 3. **File Size Considerations**: Files with embedded images can become large (several MB)
@@ -54,32 +57,39 @@ Excalidraw files (`.excalidraw`) are **NOT purely binary files** - they're JSON 
 While Excalidraw files are JSON, we need binary support for several reasons:
 
 ### 1. Performance Optimization
+
 ```typescript
 // Current approach (text-only) - INEFFICIENT for large files
-const content = fs.readFileSync(path, 'utf-8');  // Forces UTF-8 decoding
-const data = JSON.parse(content);                 // Additional parsing step
+const content = fs.readFileSync(path, "utf-8"); // Forces UTF-8 decoding
+const data = JSON.parse(content); // Additional parsing step
 
 // Binary approach - MORE EFFICIENT
-const buffer = fs.readFileSync(path);             // Raw bytes, no decoding
-const content = buffer.toString('utf-8');         // Decode only when needed
-const data = JSON.parse(content);                 // Parse
+const buffer = fs.readFileSync(path); // Raw bytes, no decoding
+const content = buffer.toString("utf-8"); // Decode only when needed
+const data = JSON.parse(content); // Parse
 ```
 
 ### 2. Export Formats
+
 Excalidraw can export to truly binary formats:
+
 - **PNG exports**: Raster images of drawings
 - **SVG exports**: While text-based, often treated as binary for consistency
 - **PDF exports**: Binary document format
 
 ### 3. Future Extensibility
+
 Supporting binary operations enables:
+
 - Image attachments in notes
 - PDF documentation storage
 - Audio/video annotations
 - Compressed file formats
 
 ### 4. Data Integrity
+
 Binary operations preserve exact byte sequences, important for:
+
 - Cryptographic signatures
 - Checksums
 - Compressed data
@@ -88,22 +98,26 @@ Binary operations preserve exact byte sequences, important for:
 ## Current System Limitations
 
 ### FileSystemAdapter Interface
+
 ```typescript
 // CURRENT - Text only
 interface FileSystemAdapter {
-  readFile(path: string): string;              // Always returns string
-  writeFile(path: string, content: string): void;  // Only accepts string
+  readFile(path: string): string; // Always returns string
+  writeFile(path: string, content: string): void; // Only accepts string
 }
 ```
 
 **Problems:**
+
 - Forces UTF-8 encoding on all data
 - Cannot handle raw bytes
 - Inefficient for large files
 - Cannot store non-text formats
 
 ### Storage Assumptions
+
 The system assumes all stored content is:
+
 - UTF-8 encoded text
 - Human-readable
 - Suitable for string operations
@@ -112,6 +126,7 @@ The system assumes all stored content is:
 ## Proposed Solution
 
 ### 1. Extended FileSystemAdapter
+
 ```typescript
 interface FileSystemAdapter {
   // Existing text methods (backward compatible)
@@ -132,6 +147,7 @@ interface FileSystemAdapter {
 ```
 
 ### 2. Excalidraw-Specific Handler
+
 ```typescript
 class ExcalidrawHandler {
   private fs: FileSystemAdapter;
@@ -155,21 +171,22 @@ class ExcalidrawHandler {
 
     // Try binary read first (more general)
     const buffer = await this.fs.readBinaryFile(path);
-    const json = buffer.toString('utf-8');
+    const json = buffer.toString("utf-8");
     return JSON.parse(json);
   }
 
   extractSearchableText(drawing: ExcalidrawData): string {
     // Extract all text elements for search indexing
     return drawing.elements
-      .filter(el => el.type === 'text')
-      .map(el => el.text)
-      .join(' ');
+      .filter((el) => el.type === "text")
+      .map((el) => el.text)
+      .join(" ");
   }
 }
 ```
 
 ### 3. Storage Organization
+
 ```
 .alexandria/
 ├── notes/              # Text notes (existing)
@@ -187,10 +204,11 @@ class ExcalidrawHandler {
 ```
 
 ### 4. Metadata Integration
+
 ```typescript
 interface AttachmentMetadata {
   id: string;
-  type: 'excalidraw' | 'image' | 'document';
+  type: "excalidraw" | "image" | "document";
   filename: string;
   mimeType: string;
   size: number;
@@ -201,7 +219,7 @@ interface AttachmentMetadata {
     version: number;
     elementCount: number;
     hasEmbeddedImages: boolean;
-    textContent: string[];  // Extracted text for search
+    textContent: string[]; // Extracted text for search
   };
 }
 
@@ -257,21 +275,25 @@ We implemented a standalone drawing storage system that keeps things simple whil
 ## Technical Considerations
 
 ### Performance
+
 - **Large Files**: Excalidraw files with embedded images can be several MB
 - **Solution**: Stream processing for files > 1MB
 - **Caching**: Consider memory cache for frequently accessed drawings
 
 ### Search Integration
+
 - **Text Extraction**: Parse Excalidraw JSON to extract text elements
 - **Indexing**: Store extracted text in note metadata for full-text search
 - **Labels**: Support searching drawing labels and annotations
 
 ### Version Control
+
 - **Git Compatibility**: Large embedded images may bloat repository
 - **Solution**: Option to store images separately or use Git LFS
 - **Diff-Friendly**: Pretty-print JSON for better diffs
 
 ### Security
+
 - **Input Validation**: Validate Excalidraw JSON structure
 - **Size Limits**: Implement configurable file size limits
 - **Sanitization**: Sanitize embedded data URLs
@@ -279,11 +301,13 @@ We implemented a standalone drawing storage system that keeps things simple whil
 ## Migration Path
 
 ### For Existing Users
+
 1. **No Action Required**: Existing notes continue working unchanged
 2. **Opt-in Feature**: Excalidraw support activated when first drawing is saved
 3. **Automatic Structure**: Attachment directories created on-demand
 
 ### For Developers
+
 1. **Update Dependencies**: Ensure FileSystemAdapter implementation supports binary
 2. **API Additions**: New methods are additive, no breaking changes
 3. **Testing**: Run migration tests before upgrading
@@ -300,31 +324,40 @@ We implemented a standalone drawing storage system that keeps things simple whil
 ## Alternatives Considered
 
 ### Alternative 1: Store as Pure JSON
+
 **Pros:**
+
 - No binary support needed
 - Simple implementation
 
 **Cons:**
+
 - Inefficient for large embedded images
 - Doesn't support other binary formats
 - Limited extensibility
 
 ### Alternative 2: External Storage
+
 **Pros:**
+
 - Keeps core library simple
 - Delegates to specialized service
 
 **Cons:**
+
 - Additional dependency
 - Complex deployment
 - Synchronization challenges
 
 ### Alternative 3: Base64 Everything
+
 **Pros:**
+
 - Everything stays as text
 - Works with current system
 
 **Cons:**
+
 - 33% size overhead
 - Performance impact
 - Not suitable for large files
@@ -334,4 +367,5 @@ We implemented a standalone drawing storage system that keeps things simple whil
 Adding Excalidraw support requires extending the FileSystemAdapter to handle binary data, even though Excalidraw files themselves are JSON. This extension provides the foundation for supporting not just Excalidraw drawings, but also exported images, PDFs, and future binary formats. The implementation maintains full backward compatibility while enabling rich visual documentation capabilities in the memory palace system.
 
 ---
-*Last reviewed: 2025-09-25 - Document remains accurate; PalaceRoom additions to MemoryPalace.ts don't affect drawing support design.*
+
+_Last reviewed: 2025-09-25 - Document remains accurate; PalaceRoom additions to MemoryPalace.ts don't affect drawing support design._

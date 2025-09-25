@@ -3,7 +3,7 @@
  * Lightweight representations for listing and preview purposes
  */
 
-import type { CodebaseView } from './index';
+import type { CodebaseView } from "./index";
 
 /**
  * Lightweight summary of a CodebaseView
@@ -40,14 +40,19 @@ export interface CodebaseViewSummary {
  * Extract a summary from a full CodebaseView
  * Calculates grid dimensions and cell count
  */
-export function extractCodebaseViewSummary(view: CodebaseView): CodebaseViewSummary {
+export function extractCodebaseViewSummary(
+  view: CodebaseView,
+): CodebaseViewSummary {
   let maxRow = 0;
   let maxCol = 0;
   const referenceGroupCount = Object.keys(view.referenceGroups).length;
 
   // Calculate grid dimensions from reference group coordinates
   for (const referenceGroup of Object.values(view.referenceGroups)) {
-    if (referenceGroup.coordinates && Array.isArray(referenceGroup.coordinates)) {
+    if (
+      referenceGroup.coordinates &&
+      Array.isArray(referenceGroup.coordinates)
+    ) {
       const [row, col] = referenceGroup.coordinates;
       maxRow = Math.max(maxRow, row);
       maxCol = Math.max(maxCol, col);
@@ -57,11 +62,11 @@ export function extractCodebaseViewSummary(view: CodebaseView): CodebaseViewSumm
   return {
     id: view.id,
     name: view.name,
-    description: view.description || '',
+    description: view.description || "",
     referenceGroupCount,
     gridSize: [maxRow + 1, maxCol + 1], // +1 because coordinates are 0-indexed
-    overviewPath: view.overviewPath || '',
-    category: view.category || 'other', // Default to 'other' for backward compatibility
+    overviewPath: view.overviewPath || "",
+    category: view.category || "other", // Default to 'other' for backward compatibility
     displayOrder: view.displayOrder || 0, // Default to 0 for backward compatibility
   };
 }
@@ -69,6 +74,8 @@ export function extractCodebaseViewSummary(view: CodebaseView): CodebaseViewSumm
 /**
  * Create summaries for multiple views
  */
-export function extractCodebaseViewSummaries(views: CodebaseView[]): CodebaseViewSummary[] {
+export function extractCodebaseViewSummaries(
+  views: CodebaseView[],
+): CodebaseViewSummary[] {
   return views.map(extractCodebaseViewSummary);
 }

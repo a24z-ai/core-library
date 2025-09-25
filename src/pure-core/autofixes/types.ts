@@ -3,8 +3,8 @@
  * These types define the structure of auto-fix operations
  */
 
-export type AutoFixSeverity = 'safe' | 'moderate' | 'dangerous';
-export type AutoFixStatus = 'pending' | 'applied' | 'skipped' | 'failed';
+export type AutoFixSeverity = "safe" | "moderate" | "dangerous";
+export type AutoFixStatus = "pending" | "applied" | "skipped" | "failed";
 
 export interface AutoFixIssue {
   /** Unique identifier for this type of issue */
@@ -47,7 +47,7 @@ export interface AutoFixResult {
 
 export interface AutoFixChange {
   /** Type of change made */
-  type: 'file_moved' | 'file_created' | 'file_updated' | 'property_updated';
+  type: "file_moved" | "file_created" | "file_updated" | "property_updated";
   /** Original state before the change */
   before?: string | Record<string, unknown>;
   /** New state after the change */

@@ -3,19 +3,19 @@
  * This demonstrates that the store now works without any Node.js dependencies
  */
 
-import { describe, it, expect, beforeEach } from 'bun:test';
-import { AnchoredNotesStore } from '../../../src/pure-core/stores/AnchoredNotesStore';
-import { InMemoryFileSystemAdapter } from '../../../src/test-adapters/InMemoryFileSystemAdapter';
-import { MemoryPalace } from '../../../src/MemoryPalace';
+import { describe, it, expect, beforeEach } from "bun:test";
+import { AnchoredNotesStore } from "../../../src/pure-core/stores/AnchoredNotesStore";
+import { InMemoryFileSystemAdapter } from "../../../src/test-adapters/InMemoryFileSystemAdapter";
+import { MemoryPalace } from "../../../src/MemoryPalace";
 import type {
   ValidatedRepositoryPath,
   ValidatedAlexandriaPath,
-} from '../../../src/pure-core/types';
+} from "../../../src/pure-core/types";
 
-describe('Pure AnchoredNotesStore', () => {
+describe("Pure AnchoredNotesStore", () => {
   let store: AnchoredNotesStore;
   let fs: InMemoryFileSystemAdapter;
-  const testRepoPath = '/test-repo';
+  const testRepoPath = "/test-repo";
   let validatedRepoPath: ValidatedRepositoryPath;
   let alexandriaPath: ValidatedAlexandriaPath;
 
@@ -33,8 +33,8 @@ describe('Pure AnchoredNotesStore', () => {
     store = new AnchoredNotesStore(fs, alexandriaPath);
   });
 
-  describe('Configuration Management', () => {
-    it('should return default config when none exists', () => {
+  describe("Configuration Management", () => {
+    it("should return default config when none exists", () => {
       const config = store.getConfiguration();
 
       expect(config.version).toBe(1);
@@ -43,7 +43,7 @@ describe('Pure AnchoredNotesStore', () => {
       expect(config.storage.compressionEnabled).toBe(false);
     });
 
-    it('should save and load custom configuration', () => {
+    it("should save and load custom configuration", () => {
       const updates = {
         limits: {
           noteMaxLength: 5000,
@@ -69,25 +69,25 @@ describe('Pure AnchoredNotesStore', () => {
     });
   });
 
-  describe('Note CRUD Operations', () => {
-    it('should save and retrieve notes', () => {
+  describe("Note CRUD Operations", () => {
+    it("should save and retrieve notes", () => {
       const noteInput = {
-        note: 'This is a test note',
-        anchors: ['src/test.ts'],
-        tags: ['test', 'example'],
-        codebaseViewId: 'test-view',
-        metadata: { priority: 'high' },
+        note: "This is a test note",
+        anchors: ["src/test.ts"],
+        tags: ["test", "example"],
+        codebaseViewId: "test-view",
+        metadata: { priority: "high" },
         directoryPath: validatedRepoPath,
       };
 
       // Save the note
       const saved = store.saveNote(noteInput);
 
-      expect(saved.note.note).toBe('This is a test note');
-      expect(saved.note.anchors).toEqual(['src/test.ts']);
-      expect(saved.note.tags).toEqual(['test', 'example']);
-      expect(saved.note.codebaseViewId).toBe('test-view');
-      expect(saved.note.metadata).toEqual({ priority: 'high' });
+      expect(saved.note.note).toBe("This is a test note");
+      expect(saved.note.anchors).toEqual(["src/test.ts"]);
+      expect(saved.note.tags).toEqual(["test", "example"]);
+      expect(saved.note.codebaseViewId).toBe("test-view");
+      expect(saved.note.metadata).toEqual({ priority: "high" });
       expect(saved.note.id).toBeTruthy();
       expect(saved.note.timestamp).toBeTruthy();
 
@@ -96,12 +96,12 @@ describe('Pure AnchoredNotesStore', () => {
       expect(retrieved).toEqual(saved.note);
     });
 
-    it('should delete notes', () => {
+    it("should delete notes", () => {
       const noteInput = {
-        note: 'Note to delete',
-        anchors: ['src/delete-me.ts'],
-        tags: ['temporary'],
-        codebaseViewId: 'test-view',
+        note: "Note to delete",
+        anchors: ["src/delete-me.ts"],
+        tags: ["temporary"],
+        codebaseViewId: "test-view",
         metadata: {},
         directoryPath: validatedRepoPath,
       };
@@ -117,106 +117,114 @@ describe('Pure AnchoredNotesStore', () => {
       expect(retrieved).toBe(null);
     });
 
-    it('should return null for non-existent notes', () => {
-      const result = store.getNoteById(validatedRepoPath, 'non-existent-id');
+    it("should return null for non-existent notes", () => {
+      const result = store.getNoteById(validatedRepoPath, "non-existent-id");
       expect(result).toBe(null);
     });
 
-    it('should return false when deleting non-existent notes', () => {
-      const result = store.deleteNoteById(validatedRepoPath, 'non-existent-id');
+    it("should return false when deleting non-existent notes", () => {
+      const result = store.deleteNoteById(validatedRepoPath, "non-existent-id");
       expect(result).toBe(false);
     });
   });
 
-  describe('Validation', () => {
-    it('should validate note length', () => {
+  describe("Validation", () => {
+    it("should validate note length", () => {
       // Create a very long note
-      const longNote = 'x'.repeat(11000);
+      const longNote = "x".repeat(11000);
 
       const noteInput = {
         note: longNote,
-        anchors: ['src/test.ts'],
-        tags: ['test'],
-        codebaseViewId: 'test-view',
+        anchors: ["src/test.ts"],
+        tags: ["test"],
+        codebaseViewId: "test-view",
         metadata: {},
         directoryPath: validatedRepoPath,
       };
 
-      expect(() => store.saveNote(noteInput)).toThrow('Note is too long');
+      expect(() => store.saveNote(noteInput)).toThrow("Note is too long");
     });
 
-    it('should validate anchor count', () => {
+    it("should validate anchor count", () => {
       const noteInput = {
-        note: 'Test note',
+        note: "Test note",
         anchors: [], // No anchors
-        tags: ['test'],
-        codebaseViewId: 'test-view',
+        tags: ["test"],
+        codebaseViewId: "test-view",
         metadata: {},
         directoryPath: validatedRepoPath,
       };
 
-      expect(() => store.saveNote(noteInput)).toThrow('Notes must have at least one anchor');
+      expect(() => store.saveNote(noteInput)).toThrow(
+        "Notes must have at least one anchor",
+      );
     });
 
-    it('should validate tag count', () => {
+    it("should validate tag count", () => {
       const noteInput = {
-        note: 'Test note',
-        anchors: ['src/test.ts'],
-        tags: Array(12).fill('tag'), // Too many tags
-        codebaseViewId: 'test-view',
+        note: "Test note",
+        anchors: ["src/test.ts"],
+        tags: Array(12).fill("tag"), // Too many tags
+        codebaseViewId: "test-view",
         metadata: {},
         directoryPath: validatedRepoPath,
       };
 
-      expect(() => store.saveNote(noteInput)).toThrow('Too many tags');
+      expect(() => store.saveNote(noteInput)).toThrow("Too many tags");
     });
 
-    it('should reject anchors with glob patterns', () => {
+    it("should reject anchors with glob patterns", () => {
       const noteInput = {
-        note: 'Test note',
-        anchors: ['src/**/*.ts'], // Glob pattern
-        tags: ['test'],
-        codebaseViewId: 'test-view',
+        note: "Test note",
+        anchors: ["src/**/*.ts"], // Glob pattern
+        tags: ["test"],
+        codebaseViewId: "test-view",
         metadata: {},
         directoryPath: validatedRepoPath,
       };
 
-      expect(() => store.saveNote(noteInput)).toThrow('Invalid anchor paths detected');
-      expect(() => store.saveNote(noteInput)).toThrow('glob patterns');
+      expect(() => store.saveNote(noteInput)).toThrow(
+        "Invalid anchor paths detected",
+      );
+      expect(() => store.saveNote(noteInput)).toThrow("glob patterns");
     });
 
-    it('should reject anchors with wildcard characters', () => {
+    it("should reject anchors with wildcard characters", () => {
       const noteInput = {
-        note: 'Test note',
-        anchors: ['src/*.ts', 'test/file?.js', 'config/[abc].json'],
-        tags: ['test'],
-        codebaseViewId: 'test-view',
+        note: "Test note",
+        anchors: ["src/*.ts", "test/file?.js", "config/[abc].json"],
+        tags: ["test"],
+        codebaseViewId: "test-view",
         metadata: {},
         directoryPath: validatedRepoPath,
       };
 
-      expect(() => store.saveNote(noteInput)).toThrow('Invalid anchor paths detected');
+      expect(() => store.saveNote(noteInput)).toThrow(
+        "Invalid anchor paths detected",
+      );
     });
 
-    it('should reject absolute paths in anchors', () => {
+    it("should reject absolute paths in anchors", () => {
       const noteInput = {
-        note: 'Test note',
-        anchors: ['/absolute/path/file.ts'],
-        tags: ['test'],
-        codebaseViewId: 'test-view',
+        note: "Test note",
+        anchors: ["/absolute/path/file.ts"],
+        tags: ["test"],
+        codebaseViewId: "test-view",
         metadata: {},
         directoryPath: validatedRepoPath,
       };
 
-      expect(() => store.saveNote(noteInput)).toThrow('Invalid anchor paths detected');
+      expect(() => store.saveNote(noteInput)).toThrow(
+        "Invalid anchor paths detected",
+      );
     });
 
-    it('should accept valid relative paths without glob patterns', () => {
+    it("should accept valid relative paths without glob patterns", () => {
       const noteInput = {
-        note: 'Test note',
-        anchors: ['src/test.ts', 'lib/utils.js', 'config/app.json'],
-        tags: ['test'],
-        codebaseViewId: 'test-view',
+        note: "Test note",
+        anchors: ["src/test.ts", "lib/utils.js", "config/app.json"],
+        tags: ["test"],
+        codebaseViewId: "test-view",
         metadata: {},
         directoryPath: validatedRepoPath,
       };
@@ -225,13 +233,13 @@ describe('Pure AnchoredNotesStore', () => {
     });
   });
 
-  describe('File System Usage', () => {
-    it('should use the provided file system adapter', () => {
+  describe("File System Usage", () => {
+    it("should use the provided file system adapter", () => {
       const noteInput = {
-        note: 'Testing filesystem usage',
-        anchors: ['src/test.ts'],
-        tags: ['test'],
-        codebaseViewId: 'test-view',
+        note: "Testing filesystem usage",
+        anchors: ["src/test.ts"],
+        tags: ["test"],
+        codebaseViewId: "test-view",
         metadata: {},
         directoryPath: validatedRepoPath,
       };
@@ -240,9 +248,11 @@ describe('Pure AnchoredNotesStore', () => {
 
       // Check that files were created in our in-memory filesystem
       const files = fs.getFiles();
-      const configExists = Array.from(files.keys()).some((key) => key.includes('config.json'));
+      const configExists = Array.from(files.keys()).some((key) =>
+        key.includes("config.json"),
+      );
       const noteExists = Array.from(files.keys()).some(
-        (key) => key.includes('.json') && key.includes('note-')
+        (key) => key.includes(".json") && key.includes("note-"),
       );
 
       expect(configExists).toBe(false); // No config was created (using defaults)

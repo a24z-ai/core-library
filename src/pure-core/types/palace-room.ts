@@ -3,7 +3,7 @@
  * PalaceRooms provide organizational spaces to group related drawings, codebase views, and notes
  */
 
-import type { PalacePortal } from './palace-portal';
+import type { PalacePortal } from "./palace-portal";
 
 /**
  * Represents a PalaceRoom in the memory palace

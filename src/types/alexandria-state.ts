@@ -9,13 +9,13 @@
  */
 export interface AlexandriaBookmark {
   id: string;
-  volumeId: string;                  // Repository ID (owner/name) - required for querying
-  chapterId: string;                 // View/document ID - required for querying
-  label?: string;                    // User's note about this bookmark
-  chapterTitle?: string;             // The section/heading where bookmark was placed
-  createdAt: number;                 // When the bookmark was created
-  lastVisited?: number;              // Last time user returned to this bookmark
-  context?: string;                  // Brief text excerpt for context
+  volumeId: string; // Repository ID (owner/name) - required for querying
+  chapterId: string; // View/document ID - required for querying
+  label?: string; // User's note about this bookmark
+  chapterTitle?: string; // The section/heading where bookmark was placed
+  createdAt: number; // When the bookmark was created
+  lastVisited?: number; // Last time user returned to this bookmark
+  context?: string; // Brief text excerpt for context
 }
 
 /**
@@ -23,12 +23,12 @@ export interface AlexandriaBookmark {
  * Like tracking which printing or revision of a book you're reading
  */
 export interface AlexandriaDocumentVersion {
-  gitHash: string;                   // Git commit hash identifying this version
-  publishedAt: string;               // When this version was committed
-  branch: string;                    // Which branch (main, dev, etc.)
-  commitMessage?: string;            // Description of what changed
-  author?: string;                   // Who made the changes
-  documentPath: string;              // Path to the document in the repo
+  gitHash: string; // Git commit hash identifying this version
+  publishedAt: string; // When this version was committed
+  branch: string; // Which branch (main, dev, etc.)
+  commitMessage?: string; // Description of what changed
+  author?: string; // Who made the changes
+  documentPath: string; // Path to the document in the repo
 }
 
 /**
@@ -37,24 +37,24 @@ export interface AlexandriaDocumentVersion {
  */
 export interface AlexandriaVisit {
   id: string;
-  volumeId: string;                  // Repository ID (owner/name)
-  chapterId: string;                 // View/document ID
+  volumeId: string; // Repository ID (owner/name)
+  chapterId: string; // View/document ID
   documentVersion: AlexandriaDocumentVersion; // Which version was being read
-  
+
   // Visit timeline
-  startedAt: number;                 // When user started reading
-  lastActiveAt: number;              // Last interaction timestamp
-  endedAt?: number;                  // When visit ended (if ended)
-  readingDuration?: number;          // Total active reading time (milliseconds)
-  
+  startedAt: number; // When user started reading
+  lastActiveAt: number; // Last interaction timestamp
+  endedAt?: number; // When visit ended (if ended)
+  readingDuration?: number; // Total active reading time (milliseconds)
+
   // Bookmarks and notes from this visit
-  bookmarks: AlexandriaBookmark[];   // Saved positions during this visit
+  bookmarks: AlexandriaBookmark[]; // Saved positions during this visit
   annotations?: AlexandriaAnnotation[]; // Future: highlights and margin notes
-  
+
   // Visit metadata
-  isActive: boolean;                 // Currently active visit
-  device?: string;                   // Device identifier for sync
-  referrer?: string;                 // How user arrived at this document
+  isActive: boolean; // Currently active visit
+  device?: string; // Device identifier for sync
+  referrer?: string; // How user arrived at this document
 }
 
 /**
@@ -63,9 +63,9 @@ export interface AlexandriaVisit {
  */
 export interface AlexandriaAnnotation {
   id: string;
-  text: string;                      // The highlighted text
-  note?: string;                     // User's note about the highlight
-  color?: 'gold' | 'terracotta' | 'teal' | 'ochre'; // Theme-based colors
+  text: string; // The highlighted text
+  note?: string; // User's note about the highlight
+  color?: "gold" | "terracotta" | "teal" | "ochre"; // Theme-based colors
   createdAt: number;
 }
 
@@ -74,9 +74,9 @@ export interface AlexandriaAnnotation {
  * Like a personal library card with reading history
  */
 export interface AlexandriaLibraryCard {
-  id: string;                        // User identifier (local or authenticated)
+  id: string; // User identifier (local or authenticated)
   activeVisits: Map<string, AlexandriaVisit>; // Currently active visits by document
-  visitHistory: AlexandriaVisit[];            // Past visits
+  visitHistory: AlexandriaVisit[]; // Past visits
   preferences: AlexandriaReadingPreferences;
 }
 
@@ -84,10 +84,10 @@ export interface AlexandriaLibraryCard {
  * User's reading preferences
  */
 export interface AlexandriaReadingPreferences {
-  autoBookmark: boolean;             // Auto-save reading position
-  bookmarkInterval: number;          // How often to auto-bookmark (ms)
-  showEditionChanges: boolean;       // Notify when document is updated
-  preserveAnnotations: boolean;      // Keep annotations across editions
+  autoBookmark: boolean; // Auto-save reading position
+  bookmarkInterval: number; // How often to auto-bookmark (ms)
+  showEditionChanges: boolean; // Notify when document is updated
+  preserveAnnotations: boolean; // Keep annotations across editions
 }
 
 /**
@@ -97,8 +97,8 @@ export interface AlexandriaReadingPreferences {
 export interface AlexandriaVersionUpdate {
   previousVersion: AlexandriaDocumentVersion;
   currentVersion: AlexandriaDocumentVersion;
-  changesPreview?: string;           // Brief description of changes
-  bookmarksAffected: boolean;        // Whether bookmarks may be outdated
+  changesPreview?: string; // Brief description of changes
+  bookmarksAffected: boolean; // Whether bookmarks may be outdated
 }
 
 /**
@@ -106,14 +106,14 @@ export interface AlexandriaVersionUpdate {
  * Like a book you've marked for later reference in your personal collection
  */
 export interface AlexandriaBookmarkedDocument {
-  visitId: string;                   // The visit where bookmarks were created
-  volumeId: string;                  // Repository ID (owner/name)
-  chapterId: string;                 // View/document ID
-  title?: string;                    // Document title if available
-  savedAt: Date;                     // When first bookmarked
-  lastVisited: Date;                 // Most recent access
-  bookmarkCount: number;             // Number of bookmarks in this document
-  documentPath?: string;             // Path to the document in the repo
+  visitId: string; // The visit where bookmarks were created
+  volumeId: string; // Repository ID (owner/name)
+  chapterId: string; // View/document ID
+  title?: string; // Document title if available
+  savedAt: Date; // When first bookmarked
+  lastVisited: Date; // Most recent access
+  bookmarkCount: number; // Number of bookmarks in this document
+  documentPath?: string; // Path to the document in the repo
   documentVersion?: AlexandriaDocumentVersion; // Version info when bookmarked
 }
 
@@ -122,9 +122,9 @@ export interface AlexandriaBookmarkedDocument {
  * Like a reading list or study notes you can share
  */
 export interface AlexandriaReadingExport {
-  version: '1.0';
+  version: "1.0";
   exportedAt: number;
-  library: string;                   // API URL or library identifier
+  library: string; // API URL or library identifier
   visits: AlexandriaVisit[];
   preferences?: AlexandriaReadingPreferences;
 }

@@ -1,9 +1,17 @@
-import { ValidatedRepositoryPath, CodebaseView, AnchoredNoteWithPath } from '../pure-core/types';
-import { AlexandriaConfig, RuleOptions } from '../config/types';
-import { GlobAdapter } from '../pure-core/abstractions/glob';
+import {
+  ValidatedRepositoryPath,
+  CodebaseView,
+  AnchoredNoteWithPath,
+} from "../pure-core/types";
+import { AlexandriaConfig, RuleOptions } from "../config/types";
+import { GlobAdapter } from "../pure-core/abstractions/glob";
 
-export type LibraryRuleSeverity = 'error' | 'warning' | 'info';
-export type LibraryRuleCategory = 'critical' | 'quality' | 'performance' | 'structure';
+export type LibraryRuleSeverity = "error" | "warning" | "info";
+export type LibraryRuleCategory =
+  | "critical"
+  | "quality"
+  | "performance"
+  | "structure";
 
 export interface LibraryRuleViolation {
   ruleId: string;
@@ -53,7 +61,10 @@ export interface LibraryRule {
   enabled: boolean;
   options?: RuleOptions; // Default options for the rule
   check: (context: LibraryRuleContext) => Promise<LibraryRuleViolation[]>;
-  fix?: (violation: LibraryRuleViolation, context: LibraryRuleContext) => Promise<void>;
+  fix?: (
+    violation: LibraryRuleViolation,
+    context: LibraryRuleContext,
+  ) => Promise<void>;
 }
 
 export interface LibraryRuleSet {

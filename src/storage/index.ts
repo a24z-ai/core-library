@@ -4,11 +4,11 @@
  */
 
 // Core storage manager
-export { ReadingRecordManager } from './ReadingRecordManager';
+export { ReadingRecordManager } from "./ReadingRecordManager";
 
 // Storage adapters
-export { MemoryReadingRecordAdapter } from './adapters/memory';
-export { LocalStorageReadingRecordAdapter } from './adapters/localStorage';
+export { MemoryReadingRecordAdapter } from "./adapters/memory";
+export { LocalStorageReadingRecordAdapter } from "./adapters/localStorage";
 
 // Types and interfaces
 export type {
@@ -20,7 +20,7 @@ export type {
   StorageEvents,
   VisitQuery,
   BookmarkQuery,
-} from './types';
+} from "./types";
 
 // Re-export core types for convenience
 export type {
@@ -29,4 +29,4 @@ export type {
   AlexandriaLibraryCard,
   AlexandriaDocumentVersion,
   AlexandriaBookmarkedDocument,
-} from '../types/alexandria-state';
+} from "../types/alexandria-state";

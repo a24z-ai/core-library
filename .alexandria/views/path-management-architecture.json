@@ -9,10 +9,7 @@
     "0,0": {
       "label": "Core Path Management",
       "coordinates": [0, 0],
-      "files": [
-        "src/MemoryPalace.ts",
-        "src/utils/alexandria-paths.ts"
-      ]
+      "files": ["src/MemoryPalace.ts", "src/utils/alexandria-paths.ts"]
     },
     "0,1": {
       "label": "FileSystem Abstraction",
@@ -25,9 +22,7 @@
     "1,0": {
       "label": "Path Types & Constants",
       "coordinates": [1, 0],
-      "files": [
-        "src/constants/paths.ts"
-      ]
+      "files": ["src/constants/paths.ts"]
     },
     "1,1": {
       "label": "Testing Support",

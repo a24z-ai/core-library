@@ -1,14 +1,14 @@
-import { describe, it, expect, beforeEach } from 'bun:test';
-import { LibraryRulesEngine } from '../../src/rules/engine';
-import { InMemoryFileSystemAdapter } from '../test-adapters/InMemoryFileSystemAdapter';
-import { InMemoryGlobAdapter } from '../test-adapters/InMemoryGlobAdapter';
-import { AlexandriaConfig } from '../../src/config/types';
+import { describe, it, expect, beforeEach } from "bun:test";
+import { LibraryRulesEngine } from "../../src/rules/engine";
+import { InMemoryFileSystemAdapter } from "../test-adapters/InMemoryFileSystemAdapter";
+import { InMemoryGlobAdapter } from "../test-adapters/InMemoryGlobAdapter";
+import { AlexandriaConfig } from "../../src/config/types";
 
-describe('LibraryRulesEngine', () => {
+describe("LibraryRulesEngine", () => {
   let engine: LibraryRulesEngine;
   let globAdapter: InMemoryGlobAdapter;
   let fs: InMemoryFileSystemAdapter;
-  const testDir = '/test-repo';
+  const testDir = "/test-repo";
 
   beforeEach(() => {
     // Create in-memory filesystem adapter
@@ -28,8 +28,8 @@ describe('LibraryRulesEngine', () => {
     fs.createDir(`${testDir}/dist`);
 
     // Create minimal Alexandria files
-    fs.writeFile(`${testDir}/.alexandria/views.json`, '[]');
-    fs.writeFile(`${testDir}/.alexandria/anchored-notes.json`, '[]');
+    fs.writeFile(`${testDir}/.alexandria/views.json`, "[]");
+    fs.writeFile(`${testDir}/.alexandria/anchored-notes.json`, "[]");
 
     // Create in-memory glob adapter with the filesystem
     globAdapter = new InMemoryGlobAdapter(fs);
@@ -38,15 +38,18 @@ describe('LibraryRulesEngine', () => {
     engine = new LibraryRulesEngine(fs, globAdapter);
   });
 
-  describe('scanFiles with GlobAdapter', () => {
-    it('should use GlobAdapter to find all files', async () => {
+  describe("scanFiles with GlobAdapter", () => {
+    it("should use GlobAdapter to find all files", async () => {
       // Set up test files in the filesystem
-      fs.writeFile(`${testDir}/src/index.ts`, 'export {}');
-      fs.writeFile(`${testDir}/src/utils/helper.ts`, 'export {}');
-      fs.writeFile(`${testDir}/docs/README.md`, '# README');
-      fs.writeFile(`${testDir}/docs/api/guide.md`, '# Guide');
-      fs.writeFile(`${testDir}/.git/config`, '[core]');
-      fs.writeFile(`${testDir}/node_modules/package/index.js`, 'module.exports = {}');
+      fs.writeFile(`${testDir}/src/index.ts`, "export {}");
+      fs.writeFile(`${testDir}/src/utils/helper.ts`, "export {}");
+      fs.writeFile(`${testDir}/docs/README.md`, "# README");
+      fs.writeFile(`${testDir}/docs/api/guide.md`, "# Guide");
+      fs.writeFile(`${testDir}/.git/config`, "[core]");
+      fs.writeFile(
+        `${testDir}/node_modules/package/index.js`,
+        "module.exports = {}",
+      );
 
       // Track glob adapter calls
       const originalFindFiles = globAdapter.findFiles.bind(globAdapter);
@@ -58,17 +61,17 @@ describe('LibraryRulesEngine', () => {
       };
 
       const result = await engine.lint(testDir, {
-        enabledRules: ['require-references'],
+        enabledRules: ["require-references"],
       });
 
       // Should have called findFiles for all files and markdown files
       expect(findFilesCalls.length).toBeGreaterThan(0);
 
-      const allFilesCall = findFilesCalls.find(c =>
-        c.patterns.includes('**/*')
+      const allFilesCall = findFilesCalls.find((c) =>
+        c.patterns.includes("**/*"),
       );
-      const markdownCall = findFilesCalls.find(c =>
-        c.patterns.some(p => p.includes('*.md'))
+      const markdownCall = findFilesCalls.find((c) =>
+        c.patterns.some((p) => p.includes("*.md")),
       );
 
       expect(allFilesCall).toBeDefined();
@@ -78,12 +81,12 @@ describe('LibraryRulesEngine', () => {
       expect(result.violations.length).toBeGreaterThanOrEqual(0);
     });
 
-    it('should respect useGitignore configuration', async () => {
+    it("should respect useGitignore configuration", async () => {
       // Set up test files
-      fs.writeFile(`${testDir}/README.md`, '# README');
-      fs.writeFile(`${testDir}/dist/output.md`, '# Output');
-      fs.writeFile(`${testDir}/node_modules/pkg/README.md`, '# Package');
-      fs.writeFile(`${testDir}/docs/guide.md`, '# Guide');
+      fs.writeFile(`${testDir}/README.md`, "# README");
+      fs.writeFile(`${testDir}/dist/output.md`, "# Output");
+      fs.writeFile(`${testDir}/node_modules/pkg/README.md`, "# Package");
+      fs.writeFile(`${testDir}/docs/guide.md`, "# Guide");
 
       // Track glob adapter calls
       let findFilesCalls: { patterns: string[]; options?: unknown }[] = [];
@@ -99,7 +102,7 @@ describe('LibraryRulesEngine', () => {
         enabledRules: [],
       });
 
-      const firstCall = findFilesCalls.find(c => c.patterns.includes('**/*'));
+      const firstCall = findFilesCalls.find((c) => c.patterns.includes("**/*"));
       // Should have gitignore: true by default
       expect(firstCall?.options?.gitignore).toBe(true);
 
@@ -119,13 +122,15 @@ describe('LibraryRulesEngine', () => {
         enabledRules: [],
       });
 
-      const secondCall = findFilesCalls.find(c => c.patterns.includes('**/*'));
+      const secondCall = findFilesCalls.find((c) =>
+        c.patterns.includes("**/*"),
+      );
       // Should have gitignore: false when disabled
       expect(secondCall?.options?.gitignore).toBe(false);
     });
 
-    it('should pass global exclusion patterns to the glob adapter', async () => {
-      const excludePattern = 'tests/fixtures/markdown/**';
+    it("should pass global exclusion patterns to the glob adapter", async () => {
+      const excludePattern = "tests/fixtures/markdown/**";
 
       let findFilesCalls: { patterns: string[]; options?: unknown }[] = [];
       const originalFindFiles = globAdapter.findFiles.bind(globAdapter);
@@ -149,23 +154,23 @@ describe('LibraryRulesEngine', () => {
         enabledRules: [],
       });
 
-      const callWithIgnore = findFilesCalls.find(c =>
-        Array.isArray((c.options as { ignore?: string[] })?.ignore)
+      const callWithIgnore = findFilesCalls.find((c) =>
+        Array.isArray((c.options as { ignore?: string[] })?.ignore),
       ) as { options?: { ignore?: string[] } } | undefined;
 
       expect(callWithIgnore?.options?.ignore).toContain(excludePattern);
     });
 
-    it('should not use Node.js dependencies for file operations', async () => {
+    it("should not use Node.js dependencies for file operations", async () => {
       // This test verifies we're not using Node.js fs.statSync or path.join
       // The test passes if the engine works with our in-memory adapters
 
-      fs.writeFile(`${testDir}/test.md`, '# Test');
-      fs.writeFile(`${testDir}/src/code.ts`, 'export {}');
+      fs.writeFile(`${testDir}/test.md`, "# Test");
+      fs.writeFile(`${testDir}/src/code.ts`, "export {}");
 
       // Should complete without errors, using only the adapters
       const result = await engine.lint(testDir, {
-        enabledRules: ['require-references'],
+        enabledRules: ["require-references"],
       });
 
       // Should have found the markdown file
@@ -174,12 +179,12 @@ describe('LibraryRulesEngine', () => {
     });
   });
 
-  describe('document-organization rule integration', () => {
-    it('should use context files instead of re-scanning', async () => {
+  describe("document-organization rule integration", () => {
+    it("should use context files instead of re-scanning", async () => {
       // Set up files that would violate document organization
-      fs.writeFile(`${testDir}/random-doc.md`, '# Random');  // Not in docs folder
-      fs.writeFile(`${testDir}/docs/proper.md`, '# Proper');  // Properly organized
-      fs.writeFile(`${testDir}/README.md`, '# README');  // Allowed exception
+      fs.writeFile(`${testDir}/random-doc.md`, "# Random"); // Not in docs folder
+      fs.writeFile(`${testDir}/docs/proper.md`, "# Proper"); // Properly organized
+      fs.writeFile(`${testDir}/README.md`, "# README"); // Allowed exception
 
       // Track glob adapter calls
       let findFilesCalls: { patterns: string[]; options?: unknown }[] = [];
@@ -191,21 +196,23 @@ describe('LibraryRulesEngine', () => {
       };
 
       const result = await engine.lint(testDir, {
-        enabledRules: ['document-organization'],
+        enabledRules: ["document-organization"],
       });
 
       // Should find violation for random-doc.md
       const violations = result.violations.filter(
-        v => v.ruleId === 'document-organization'
+        (v) => v.ruleId === "document-organization",
       );
 
       expect(violations.length).toBeGreaterThan(0);
-      expect(violations.some(v => v.file.includes('random-doc.md'))).toBe(true);
+      expect(violations.some((v) => v.file.includes("random-doc.md"))).toBe(
+        true,
+      );
 
       // Check that document-organization did NOT re-scan
       // Should only have calls from engine's scanFiles
-      const markdownPatternCalls = findFilesCalls.filter(c =>
-        c.patterns.some(p => p.includes('*.md'))
+      const markdownPatternCalls = findFilesCalls.filter((c) =>
+        c.patterns.some((p) => p.includes("*.md")),
       );
 
       // Should be exactly 1 call for markdown files (from engine)
@@ -214,25 +221,28 @@ describe('LibraryRulesEngine', () => {
     });
   });
 
-  describe('exclusion handling', () => {
-    it('should suppress violations for files matched by global exclusions', async () => {
+  describe("exclusion handling", () => {
+    it("should suppress violations for files matched by global exclusions", async () => {
       fs.createDir(`${testDir}/tests`);
       fs.createDir(`${testDir}/tests/fixtures`);
       fs.createDir(`${testDir}/tests/fixtures/markdown`);
-      fs.writeFile(`${testDir}/tests/fixtures/markdown/fixture.md`, '# Fixture');
+      fs.writeFile(
+        `${testDir}/tests/fixtures/markdown/fixture.md`,
+        "# Fixture",
+      );
 
       const config: AlexandriaConfig = {
         context: {
           patterns: {
-            exclude: ['tests/fixtures/markdown/**'],
+            exclude: ["tests/fixtures/markdown/**"],
           },
           rules: [
             {
-              id: 'require-references',
+              id: "require-references",
               enabled: true,
             },
             {
-              id: 'document-organization',
+              id: "document-organization",
               enabled: true,
             },
           ],
@@ -241,28 +251,28 @@ describe('LibraryRulesEngine', () => {
 
       const result = await engine.lint(testDir, {
         config,
-        enabledRules: ['require-references', 'document-organization'],
+        enabledRules: ["require-references", "document-organization"],
       });
 
-      const hasFixtureViolation = result.violations.some(v =>
-        v.file === 'tests/fixtures/markdown/fixture.md'
+      const hasFixtureViolation = result.violations.some(
+        (v) => v.file === "tests/fixtures/markdown/fixture.md",
       );
 
       expect(hasFixtureViolation).toBe(false);
     });
 
-    it('should honor require-references excludeFiles glob patterns', async () => {
-      fs.writeFile(`${testDir}/docs/overview.md`, '# Overview');
-      fs.writeFile(`${testDir}/docs/orphan.md`, '# Orphan');
+    it("should honor require-references excludeFiles glob patterns", async () => {
+      fs.writeFile(`${testDir}/docs/overview.md`, "# Overview");
+      fs.writeFile(`${testDir}/docs/orphan.md`, "# Orphan");
 
       const config: AlexandriaConfig = {
         context: {
           rules: [
             {
-              id: 'require-references',
+              id: "require-references",
               enabled: true,
               options: {
-                excludeFiles: ['docs/**'],
+                excludeFiles: ["docs/**"],
               },
             },
           ],
@@ -271,28 +281,30 @@ describe('LibraryRulesEngine', () => {
 
       const result = await engine.lint(testDir, {
         config,
-        enabledRules: ['require-references'],
+        enabledRules: ["require-references"],
       });
 
-      const violations = result.violations.filter(v => v.ruleId === 'require-references');
+      const violations = result.violations.filter(
+        (v) => v.ruleId === "require-references",
+      );
       expect(violations).toHaveLength(0);
     });
   });
 
-  describe('rule configuration', () => {
-    it('should load and apply rule configurations', async () => {
-      fs.writeFile(`${testDir}/test.md`, '# Test');
+  describe("rule configuration", () => {
+    it("should load and apply rule configurations", async () => {
+      fs.writeFile(`${testDir}/test.md`, "# Test");
 
       const config: AlexandriaConfig = {
         context: {
           rules: [
             {
-              id: 'require-references',
+              id: "require-references",
               enabled: false,
             },
             {
-              id: 'document-organization',
-              severity: 'warning',
+              id: "document-organization",
+              severity: "warning",
               enabled: true,
             },
           ],
@@ -301,22 +313,22 @@ describe('LibraryRulesEngine', () => {
 
       const result = await engine.lint(testDir, {
         config,
-        enabledRules: ['require-references', 'document-organization'],
+        enabledRules: ["require-references", "document-organization"],
       });
 
       // require-references should be disabled
       const requireRefsViolations = result.violations.filter(
-        v => v.ruleId === 'require-references'
+        (v) => v.ruleId === "require-references",
       );
       expect(requireRefsViolations.length).toBe(0);
 
       // document-organization should have warning severity
       const docOrgViolations = result.violations.filter(
-        v => v.ruleId === 'document-organization'
+        (v) => v.ruleId === "document-organization",
       );
 
       if (docOrgViolations.length > 0) {
-        expect(docOrgViolations[0].severity).toBe('warning');
+        expect(docOrgViolations[0].severity).toBe("warning");
       }
     });
   });

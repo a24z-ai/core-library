@@ -13,6 +13,7 @@ Previously, each project in the ecosystem had its own repository metadata types:
 - **alexandria**: `Repository` - nested structure with metadata object
 
 This fragmentation led to:
+
 - Inconsistent data structures between projects
 - Difficulty passing repository data between services
 - Duplicated type definitions
@@ -28,7 +29,7 @@ Pure GitHub metadata from the GitHub API:
 
 ```typescript
 interface GithubRepository {
-  id: string;                // owner/name format
+  id: string; // owner/name format
   owner: string;
   name: string;
   description?: string;
@@ -54,7 +55,7 @@ interface AlexandriaRepository {
   name: string;
   remoteUrl?: string;
   registeredAt: string;
-  github?: GithubRepository;  // Optional GitHub metadata
+  github?: GithubRepository; // Optional GitHub metadata
   hasViews: boolean;
   viewCount: number;
   views: CodebaseViewSummary[]; // Required array of view summaries
@@ -63,6 +64,7 @@ interface AlexandriaRepository {
 ```
 
 This type is used for:
+
 - Remote repositories in code-city-landing's S3 storage
 - Repository listings in alexandria UI
 - Any repository that may or may not have local presence
@@ -73,11 +75,12 @@ Local project registry entry extending AlexandriaRepository:
 
 ```typescript
 interface AlexandriaEntry extends AlexandriaRepository {
-  path: ValidatedRepositoryPath;  // Required local path
+  path: ValidatedRepositoryPath; // Required local path
 }
 ```
 
 This replaces the old `ProjectEntry` and is used in:
+
 - `/src/projects-core/ProjectRegistryStore.ts` - local project registry
 - `/src/projects-core/types.ts` - registry data structures
 
@@ -86,6 +89,7 @@ This replaces the old `ProjectEntry` and is used in:
 ### For Alexandria Core Library
 
 The migration is complete:
+
 - `ProjectEntry` has been replaced with `AlexandriaEntry`
 - `ProjectRegistryStore` now uses `AlexandriaEntry`
 - New entries automatically get Alexandria fields initialized
@@ -95,15 +99,18 @@ The migration is complete:
 To adopt the new types:
 
 1. Import types from the core library:
+
 ```typescript
-import { GithubRepository, AlexandriaRepository } from '@a24z/core-library';
+import { GithubRepository, AlexandriaRepository } from "@a24z/core-library";
 ```
 
 2. Update `/src/lib/s3-alexandria-store.ts`:
+
 - Replace local `AlexandriaRepository` interface with imported type
 - Ensure field mappings are correct
 
 3. Update `/src/lib/github-alexandria.ts`:
+
 - Map `GitHubRepoInfo` to `GithubRepository`
 - Return `AlexandriaRepository` from methods
 
@@ -112,27 +119,32 @@ import { GithubRepository, AlexandriaRepository } from '@a24z/core-library';
 To adopt the new types:
 
 1. Import from a24z-memory:
+
 ```typescript
-import { AlexandriaRepository } from 'a24z-memory';
+import { AlexandriaRepository } from "a24z-memory";
 ```
 
 2. Update `/src/lib/alexandria-api.ts`:
+
 - Replace `Repository` interface with `AlexandriaRepository`
 - Access GitHub fields via `repository.github.*` instead of `repository.metadata.*`
 
 ## Benefits of Standardization
 
 ### Type Safety
+
 - Single source of truth for repository types
 - TypeScript ensures compatibility across projects
 - Compile-time checking prevents data structure mismatches
 
 ### Maintainability
+
 - Changes to repository structure only need to happen in one place
 - Clear separation between GitHub metadata and Alexandria features
 - Extensible hierarchy for future needs
 
 ### Interoperability
+
 - Projects can share repository data without transformation
 - Consistent JSON structure in storage and APIs
 - Clear contract between services
@@ -142,16 +154,19 @@ import { AlexandriaRepository } from 'a24z-memory';
 ### Field Decisions
 
 **Why `views` is required in AlexandriaRepository:**
+
 - Alexandria's primary purpose is managing codebase views
 - Empty array is valid for repositories without views
 - Prevents null checking throughout the codebase
 
 **Why `github` is optional:**
+
 - Not all repositories have GitHub metadata (private/local repos)
 - Allows gradual population of GitHub data
 - Supports offline/disconnected scenarios
 
 **Why path is only in AlexandriaEntry:**
+
 - Remote repositories don't have local paths
 - Clear distinction between local and remote repos
 - Prevents confusion about path availability
@@ -159,6 +174,7 @@ import { AlexandriaRepository } from 'a24z-memory';
 ### Storage Implications
 
 The new types maintain backward compatibility with existing storage:
+
 - JSON structure remains the same
 - Field names unchanged
 - Only the TypeScript types are unified
@@ -168,14 +184,14 @@ The new types maintain backward compatibility with existing storage:
 ### Creating a Local Project Entry
 
 ```typescript
-import { AlexandriaEntry } from 'a24z-memory';
+import { AlexandriaEntry } from "a24z-memory";
 
 const entry: AlexandriaEntry = {
-  name: 'my-project',
+  name: "my-project",
   path: validatedPath,
-  remoteUrl: 'https://github.com/user/my-project',
+  remoteUrl: "https://github.com/user/my-project",
   registeredAt: new Date().toISOString(),
-  github: undefined,  // Will be populated later
+  github: undefined, // Will be populated later
   hasViews: false,
   viewCount: 0,
   views: [],
@@ -185,7 +201,7 @@ const entry: AlexandriaEntry = {
 ### Working with GitHub Metadata
 
 ```typescript
-import { GithubRepository, AlexandriaRepository } from 'a24z-memory';
+import { GithubRepository, AlexandriaRepository } from "a24z-memory";
 
 // Fetch from GitHub API
 const githubData: GithubRepository = await fetchGitHubMetadata(owner, name);
@@ -206,7 +222,7 @@ const repo: AlexandriaRepository = {
 
 ```typescript
 function isLocalEntry(repo: AlexandriaRepository): repo is AlexandriaEntry {
-  return 'path' in repo && repo.path !== undefined;
+  return "path" in repo && repo.path !== undefined;
 }
 
 function hasGitHubMetadata(repo: AlexandriaRepository): boolean {
@@ -226,6 +242,7 @@ function hasGitHubMetadata(repo: AlexandriaRepository): boolean {
 ### Versioning Strategy
 
 If breaking changes are needed:
+
 1. Create new version interfaces (`AlexandriaRepositoryV2`)
 2. Provide migration utilities
 3. Support both versions during transition

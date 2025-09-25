@@ -1,16 +1,22 @@
-import { LibraryRule, LibraryRuleViolation, LibraryRuleContext } from '../types';
-import { execSync } from 'child_process';
-import { join } from 'path';
-import { getNotesDir } from '../../utils/alexandria-paths';
-import { statSync, existsSync } from 'fs';
+import {
+  LibraryRule,
+  LibraryRuleViolation,
+  LibraryRuleContext,
+} from "../types";
+import { execSync } from "child_process";
+import { join } from "path";
+import { getNotesDir } from "../../utils/alexandria-paths";
+import { statSync, existsSync } from "fs";
 
 export const staleReferences: LibraryRule = {
-  id: 'stale-references',
-  name: 'Stale References',
-  severity: 'warning',
-  category: 'quality',
-  description: 'Context documentation has not been updated since referenced files changed',
-  impact: 'AI agents may use outdated patterns and assumptions from stale documentation',
+  id: "stale-references",
+  name: "Stale References",
+  severity: "warning",
+  category: "quality",
+  description:
+    "Context documentation has not been updated since referenced files changed",
+  impact:
+    "AI agents may use outdated patterns and assumptions from stale documentation",
   fixable: false,
   enabled: true,
 
@@ -34,9 +40,9 @@ export const staleReferences: LibraryRule = {
         // Fallback to git modification time if file doesn't exist on filesystem
         // (This can happen if we're checking git history)
         try {
-          const relativePath = filePath.replace(projectRoot + '/', '');
+          const relativePath = filePath.replace(projectRoot + "/", "");
           const gitCommand = `cd "${projectRoot}" && git log -1 --format=%at -- "${relativePath}" 2>/dev/null`;
-          const timestamp = execSync(gitCommand, { encoding: 'utf-8' }).trim();
+          const timestamp = execSync(gitCommand, { encoding: "utf-8" }).trim();
           if (timestamp) {
             return new Date(parseInt(timestamp) * 1000);
           }
@@ -64,13 +70,17 @@ export const staleReferences: LibraryRule = {
           for (const groupName in view.referenceGroups) {
             const referenceGroup = view.referenceGroups[groupName];
             // Check if it's a file reference group (has 'files' property)
-            if ('files' in referenceGroup && Array.isArray(referenceGroup.files)) {
+            if (
+              "files" in referenceGroup &&
+              Array.isArray(referenceGroup.files)
+            ) {
               for (const file of referenceGroup.files) {
                 const filePath = join(projectRoot, file);
                 const fileModified = getLastModified(filePath);
                 if (
                   fileModified &&
-                  (!newestFileModification || fileModified > newestFileModification)
+                  (!newestFileModification ||
+                    fileModified > newestFileModification)
                 ) {
                   newestFileModification = fileModified;
                   newestFile = file;
@@ -80,31 +90,38 @@ export const staleReferences: LibraryRule = {
           }
         }
 
-        if (newestFileModification && newestFileModification > overviewLastModified) {
+        if (
+          newestFileModification &&
+          newestFileModification > overviewLastModified
+        ) {
           const hoursSinceUpdate = Math.floor(
-            (newestFileModification.getTime() - overviewLastModified.getTime()) / (1000 * 60 * 60)
+            (newestFileModification.getTime() -
+              overviewLastModified.getTime()) /
+              (1000 * 60 * 60),
           );
 
           let timeMessage: string;
           if (hoursSinceUpdate < 24) {
             if (hoursSinceUpdate === 0) {
               const minutesSinceUpdate = Math.floor(
-                (newestFileModification.getTime() - overviewLastModified.getTime()) / (1000 * 60)
+                (newestFileModification.getTime() -
+                  overviewLastModified.getTime()) /
+                  (1000 * 60),
               );
               if (minutesSinceUpdate <= 1) {
-                timeMessage = 'was modified just after';
+                timeMessage = "was modified just after";
               } else {
                 timeMessage = `was modified ${minutesSinceUpdate} minutes after`;
               }
             } else if (hoursSinceUpdate === 1) {
-              timeMessage = 'has not been updated for 1 hour since';
+              timeMessage = "has not been updated for 1 hour since";
             } else {
               timeMessage = `has not been updated for ${hoursSinceUpdate} hours since`;
             }
           } else {
             const daysSinceUpdate = Math.floor(hoursSinceUpdate / 24);
             if (daysSinceUpdate === 1) {
-              timeMessage = 'has not been updated for 1 day since';
+              timeMessage = "has not been updated for 1 day since";
             } else {
               timeMessage = `has not been updated for ${daysSinceUpdate} days since`;
             }
@@ -123,9 +140,16 @@ export const staleReferences: LibraryRule = {
 
       // Check notes with file references
       for (const noteWithPath of notes) {
-        if (!noteWithPath.note.anchors || noteWithPath.note.anchors.length === 0) continue;
+        if (
+          !noteWithPath.note.anchors ||
+          noteWithPath.note.anchors.length === 0
+        )
+          continue;
 
-        const notePath = join(getNotesDir(projectRoot), `${noteWithPath.note.id}.json`);
+        const notePath = join(
+          getNotesDir(projectRoot),
+          `${noteWithPath.note.id}.json`,
+        );
         const noteLastModified = getLastModified(notePath);
 
         if (!noteLastModified) continue;
@@ -136,37 +160,46 @@ export const staleReferences: LibraryRule = {
         for (const anchorPath of noteWithPath.note.anchors) {
           const filePath = join(projectRoot, anchorPath);
           const fileModified = getLastModified(filePath);
-          if (fileModified && (!newestFileModification || fileModified > newestFileModification)) {
+          if (
+            fileModified &&
+            (!newestFileModification || fileModified > newestFileModification)
+          ) {
             newestFileModification = fileModified;
             newestFile = anchorPath;
           }
         }
 
-        if (newestFileModification && newestFileModification > noteLastModified) {
+        if (
+          newestFileModification &&
+          newestFileModification > noteLastModified
+        ) {
           const hoursSinceUpdate = Math.floor(
-            (newestFileModification.getTime() - noteLastModified.getTime()) / (1000 * 60 * 60)
+            (newestFileModification.getTime() - noteLastModified.getTime()) /
+              (1000 * 60 * 60),
           );
 
           let timeMessage: string;
           if (hoursSinceUpdate < 24) {
             if (hoursSinceUpdate === 0) {
               const minutesSinceUpdate = Math.floor(
-                (newestFileModification.getTime() - noteLastModified.getTime()) / (1000 * 60)
+                (newestFileModification.getTime() -
+                  noteLastModified.getTime()) /
+                  (1000 * 60),
               );
               if (minutesSinceUpdate <= 1) {
-                timeMessage = 'was modified just after';
+                timeMessage = "was modified just after";
               } else {
                 timeMessage = `was modified ${minutesSinceUpdate} minutes after`;
               }
             } else if (hoursSinceUpdate === 1) {
-              timeMessage = 'has not been updated for 1 hour since';
+              timeMessage = "has not been updated for 1 hour since";
             } else {
               timeMessage = `has not been updated for ${hoursSinceUpdate} hours since`;
             }
           } else {
             const daysSinceUpdate = Math.floor(hoursSinceUpdate / 24);
             if (daysSinceUpdate === 1) {
-              timeMessage = 'has not been updated for 1 day since';
+              timeMessage = "has not been updated for 1 day since";
             } else {
               timeMessage = `has not been updated for ${daysSinceUpdate} days since`;
             }
@@ -184,7 +217,7 @@ export const staleReferences: LibraryRule = {
       }
     } catch (error) {
       // If git is not available or other errors, skip this rule
-      console.warn('Stale context rule skipped:', error);
+      console.warn("Stale context rule skipped:", error);
     }
 
     return violations;

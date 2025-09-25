@@ -1,5 +1,5 @@
-import { FileSystemAdapter } from '../pure-core/abstractions/filesystem';
-import { ALEXANDRIA_DIRS } from '../constants/paths';
+import { FileSystemAdapter } from "../pure-core/abstractions/filesystem";
+import { ALEXANDRIA_DIRS } from "../constants/paths";
 
 /**
  * Check if a project has the Alexandria workflow installed
@@ -7,8 +7,16 @@ import { ALEXANDRIA_DIRS } from '../constants/paths';
  * @param projectPath - The path to the git repository
  * @returns True if the workflow exists
  */
-export function hasAlexandriaWorkflow(fs: FileSystemAdapter, projectPath: string): boolean {
-  const workflowPath = fs.join(projectPath, '.github', 'workflows', 'alexandria.yml');
+export function hasAlexandriaWorkflow(
+  fs: FileSystemAdapter,
+  projectPath: string,
+): boolean {
+  const workflowPath = fs.join(
+    projectPath,
+    ".github",
+    "workflows",
+    "alexandria.yml",
+  );
   return fs.exists(workflowPath);
 }
 
@@ -18,7 +26,14 @@ export function hasAlexandriaWorkflow(fs: FileSystemAdapter, projectPath: string
  * @param projectPath - The path to the git repository
  * @returns True if alexandria directory exists with notes
  */
-export function hasMemoryNotes(fs: FileSystemAdapter, projectPath: string): boolean {
-  const notesPath = fs.join(projectPath, ALEXANDRIA_DIRS.PRIMARY, ALEXANDRIA_DIRS.NOTES);
+export function hasMemoryNotes(
+  fs: FileSystemAdapter,
+  projectPath: string,
+): boolean {
+  const notesPath = fs.join(
+    projectPath,
+    ALEXANDRIA_DIRS.PRIMARY,
+    ALEXANDRIA_DIRS.NOTES,
+  );
   return fs.exists(notesPath);
 }

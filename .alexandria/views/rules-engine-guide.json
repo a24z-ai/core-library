@@ -7,13 +7,8 @@
   "cols": 1,
   "referenceGroups": {
     "Implementation": {
-      "coordinates": [
-        0,
-        0
-      ],
-      "files": [
-        "src/rules/engine.ts"
-      ],
+      "coordinates": [0, 0],
+      "files": ["src/rules/engine.ts"],
       "priority": 0
     }
   },

@@ -5,25 +5,29 @@ This document provides complete documentation for all rules available in the Ale
 ## document-organization
 
 ### Purpose
+
 Ensures documentation files are properly organized in designated folders rather than scattered throughout the codebase. This improves discoverability and maintainability by keeping documentation in predictable locations.
 
 ### How It Works
+
 1. Scans for all markdown files (`.md` and `.mdx`) in the repository
 2. Checks if documentation files are in approved locations
 3. Reports violations when documentation is found outside approved locations
 
 ### Default Severity
+
 `warning`
 
 ### Configuration Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `documentFolders` | `string[]` | `['docs', 'documentation', 'doc']` | Folder names where documentation should be stored |
-| `rootExceptions` | `string[]` | `['README.md', 'LICENSE.md', 'CONTRIBUTING.md', 'CHANGELOG.md', 'CODE_OF_CONDUCT.md', 'SECURITY.md', 'AUTHORS.md', 'CONTRIBUTORS.md', 'ACKNOWLEDGMENTS.md', 'HISTORY.md', 'NOTICE.md', 'SUPPORT.md']` | Filenames allowed in the root directory |
-| `checkNested` | `boolean` | `true` | Whether to check parent directories for doc folders |
+| Option            | Type       | Default                                                                                                                                                                                               | Description                                         |
+| ----------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `documentFolders` | `string[]` | `['docs', 'documentation', 'doc']`                                                                                                                                                                    | Folder names where documentation should be stored   |
+| `rootExceptions`  | `string[]` | `['README.md', 'LICENSE.md', 'CONTRIBUTING.md', 'CHANGELOG.md', 'CODE_OF_CONDUCT.md', 'SECURITY.md', 'AUTHORS.md', 'CONTRIBUTORS.md', 'ACKNOWLEDGMENTS.md', 'HISTORY.md', 'NOTICE.md', 'SUPPORT.md']` | Filenames allowed in the root directory             |
+| `checkNested`     | `boolean`  | `true`                                                                                                                                                                                                | Whether to check parent directories for doc folders |
 
 ### Approved Locations
+
 - Designated documentation folders (as configured)
 - Root directory (for files in `rootExceptions`)
 - Special directories: `.github`, `templates`, `examples`
@@ -43,6 +47,7 @@ lib/utils/helper-guide.md
 ```
 
 ### How to Fix
+
 1. Move documentation files to a designated documentation folder
 2. Update any references to the moved files
 3. Add files to `rootExceptions` if they should remain in root
@@ -74,39 +79,42 @@ lib/utils/helper-guide.md
 ## filename-convention
 
 ### Purpose
+
 Enforces consistent filename conventions for documentation files. Consistent naming makes files easier to locate, reference, and maintain, while also presenting a more professional appearance.
 
 ### How It Works
+
 1. Scans documentation files in the repository
 2. Validates filenames against specified naming conventions
 3. Can optionally auto-fix violations by renaming files
 
 ### Default Severity
+
 `warning`
 
 ### Configuration Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `style` | `'snake_case' \| 'kebab-case' \| 'camelCase' \| 'PascalCase' \| 'lowercase' \| 'UPPERCASE'` | `'kebab-case'` | Naming style to enforce |
-| `separator` | `'_' \| '-' \| ' ' \| '.'` | Based on style | Custom separator character (overrides style) |
-| `caseStyle` | `'lower' \| 'upper' \| 'mixed'` | Based on style | Additional case enforcement |
-| `extensions` | `string[]` | `['.md', '.mdx']` | File extensions to check |
-| `exclude` | `string[]` | `[]` | Glob patterns or specific paths to exclude from checking |
-| `exceptions` | `string[]` | `['README.md', 'LICENSE.md', 'CONTRIBUTING.md', 'CHANGELOG.md', 'CODE_OF_CONDUCT.md']` | Exact filenames to allow as exceptions |
-| `documentFoldersOnly` | `boolean` | `false` | Only check files in documentation folders |
-| `autoFix` | `boolean` | `false` | Enable auto-fix by renaming files |
+| Option                | Type                                                                                        | Default                                                                                | Description                                              |
+| --------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `style`               | `'snake_case' \| 'kebab-case' \| 'camelCase' \| 'PascalCase' \| 'lowercase' \| 'UPPERCASE'` | `'kebab-case'`                                                                         | Naming style to enforce                                  |
+| `separator`           | `'_' \| '-' \| ' ' \| '.'`                                                                  | Based on style                                                                         | Custom separator character (overrides style)             |
+| `caseStyle`           | `'lower' \| 'upper' \| 'mixed'`                                                             | Based on style                                                                         | Additional case enforcement                              |
+| `extensions`          | `string[]`                                                                                  | `['.md', '.mdx']`                                                                      | File extensions to check                                 |
+| `exclude`             | `string[]`                                                                                  | `[]`                                                                                   | Glob patterns or specific paths to exclude from checking |
+| `exceptions`          | `string[]`                                                                                  | `['README.md', 'LICENSE.md', 'CONTRIBUTING.md', 'CHANGELOG.md', 'CODE_OF_CONDUCT.md']` | Exact filenames to allow as exceptions                   |
+| `documentFoldersOnly` | `boolean`                                                                                   | `false`                                                                                | Only check files in documentation folders                |
+| `autoFix`             | `boolean`                                                                                   | `false`                                                                                | Enable auto-fix by renaming files                        |
 
 ### Naming Styles
 
-| Style | Example | Description |
-|-------|---------|-------------|
-| `kebab-case` | `api-reference.md` | Lowercase with hyphens (recommended) |
-| `snake_case` | `api_reference.md` | Lowercase with underscores |
-| `camelCase` | `apiReference.md` | First word lowercase, subsequent words capitalized |
-| `PascalCase` | `ApiReference.md` | All words capitalized |
-| `lowercase` | `apireference.md` | All lowercase, no separators |
-| `UPPERCASE` | `APIREFERENCE.md` | All uppercase, no separators |
+| Style        | Example            | Description                                        |
+| ------------ | ------------------ | -------------------------------------------------- |
+| `kebab-case` | `api-reference.md` | Lowercase with hyphens (recommended)               |
+| `snake_case` | `api_reference.md` | Lowercase with underscores                         |
+| `camelCase`  | `apiReference.md`  | First word lowercase, subsequent words capitalized |
+| `PascalCase` | `ApiReference.md`  | All words capitalized                              |
+| `lowercase`  | `apireference.md`  | All lowercase, no separators                       |
+| `UPPERCASE`  | `APIREFERENCE.md`  | All uppercase, no separators                       |
 
 ### Example Violations
 
@@ -122,6 +130,7 @@ docs/userGuide.md
 ```
 
 ### How to Fix
+
 1. Rename files to match the specified convention
 2. Add files to the `exceptions` list if they should keep their current names
 3. Enable `autoFix: true` for automatic renaming (use with caution)
@@ -130,6 +139,7 @@ docs/userGuide.md
 ### Configuration Examples
 
 Strict kebab-case for all markdown:
+
 ```json
 {
   "id": "filename-convention",
@@ -143,6 +153,7 @@ Strict kebab-case for all markdown:
 ```
 
 Snake case for documentation folders only:
+
 ```json
 {
   "id": "filename-convention",
@@ -160,26 +171,31 @@ Snake case for documentation folders only:
 ## require-references
 
 ### Purpose
+
 Ensures that every markdown documentation file is used as an overview in at least one CodebaseView. This creates explicit connections between documentation and code, enabling AI agents to understand the context and relationships.
 
 ### How It Works
+
 1. Scans for all markdown files in the repository (respecting gitignore)
 2. Checks if each markdown file is used as an `overviewPath` in any CodebaseView
 3. Reports documentation files that are not used as view overviews
 
 ### Default Severity
+
 `error`
 
 ### Configuration Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `excludeFiles` | `string[]` | `[]` | Glob patterns or specific paths to exclude from the requirement |
+| Option         | Type       | Default | Description                                                     |
+| -------------- | ---------- | ------- | --------------------------------------------------------------- |
+| `excludeFiles` | `string[]` | `[]`    | Glob patterns or specific paths to exclude from the requirement |
 
 > **Note**: Glob patterns follow standard shell-style matching (e.g., `docs/archive/**`). Negated patterns (those starting with `!`) are not supported for rule options or `context.patterns.exclude`.
 
 ### What Makes a Valid Reference
+
 A markdown file is considered properly referenced when:
+
 - It is used as the `overviewPath` in at least one CodebaseView
 - The path is not in the configured `excludeFiles` list
 - The path is not in the `.alexandria/` directory
@@ -199,6 +215,7 @@ docs/api/users.md
 ```
 
 ### How to Fix
+
 1. Run `alexandria add-doc docs/authentication.md` to create a CodebaseView
 2. Manually create a view file in `.alexandria/views/`
 3. Add the file to `excludeFiles` if it doesn't need a view
@@ -215,11 +232,7 @@ docs/api/users.md
         "severity": "error",
         "enabled": true,
         "options": {
-          "excludeFiles": [
-            "CHANGELOG.md",
-            "README.md",
-            "docs/archive/**/*.md"
-          ]
+          "excludeFiles": ["CHANGELOG.md", "README.md", "docs/archive/**/*.md"]
         }
       }
     ]
@@ -228,7 +241,9 @@ docs/api/users.md
 ```
 
 ### Impact
+
 Without CodebaseView associations:
+
 - AI agents cannot understand which code files relate to documentation
 - Documentation becomes disconnected from implementation
 - File references cannot be validated
@@ -239,22 +254,25 @@ Without CodebaseView associations:
 ## stale-references
 
 ### Purpose
+
 Detects outdated or broken file references in CodebaseViews. This ensures that documentation remains accurate and that all file references point to existing code.
 
 ### How It Works
+
 1. Loads all CodebaseView files from `.alexandria/views/`
 2. Checks each referenced file path for existence
 3. Optionally checks the age of references
 4. Reports missing files and stale references
 
 ### Default Severity
+
 `warning`
 
 ### Configuration Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `maxAgeDays` | `number` | `90` | Maximum age in days before a reference is considered stale |
+| Option       | Type     | Default | Description                                                |
+| ------------ | -------- | ------- | ---------------------------------------------------------- |
+| `maxAgeDays` | `number` | `90`    | Maximum age in days before a reference is considered stale |
 
 ### Types of Issues Detected
 
@@ -277,6 +295,7 @@ View "user-api" (user-api.json)
 ```
 
 ### How to Fix
+
 1. Remove references to deleted files from CodebaseViews
 2. Update file paths if files were moved/renamed
 3. Review and update stale references
@@ -303,6 +322,7 @@ View "user-api" (user-api.json)
 ```
 
 ### Best Practices
+
 - Run this rule regularly in CI/CD to catch broken references early
 - Set `maxAgeDays` based on your team's refactoring frequency
 - Use version control to track when references were last validated
@@ -313,7 +333,9 @@ View "user-api" (user-api.json)
 ## Rule Priority and Execution
 
 ### Execution Order
+
 Rules are executed in the following order:
+
 1. `document-organization` - Structural organization
 2. `filename-convention` - Naming standards
 3. `require-references` - Documentation completeness
@@ -321,11 +343,11 @@ Rules are executed in the following order:
 
 ### Severity Levels
 
-| Level | Description | Behavior |
-|-------|-------------|----------|
-| `error` | Critical issues that must be fixed | Blocks operations, exits with error code |
+| Level     | Description                               | Behavior                                 |
+| --------- | ----------------------------------------- | ---------------------------------------- |
+| `error`   | Critical issues that must be fixed        | Blocks operations, exits with error code |
 | `warning` | Important issues that should be addressed | Logged, may block based on configuration |
-| `info` | Suggestions for improvement | Logged only, never blocks |
+| `info`    | Suggestions for improvement               | Logged only, never blocks                |
 
 ### Disabling Rules
 
@@ -352,10 +374,10 @@ When using the API, you can run specific rules:
 const rulesEngine = new LibraryRulesEngine();
 
 // Run only document-organization
-const results = await rulesEngine.runRule('document-organization', repoPath);
+const results = await rulesEngine.runRule("document-organization", repoPath);
 
 // Run multiple specific rules
-const rules = ['require-references', 'stale-references'];
+const rules = ["require-references", "stale-references"];
 for (const ruleId of rules) {
   const result = await rulesEngine.runRule(ruleId);
   console.log(`${ruleId}: ${result.violations.length} issues`);
@@ -371,9 +393,11 @@ All rules are implemented in the core library:
 - **Implementations**: [src/rules/implementations/](src/rules/implementations/)
 
 Each rule extends the base `Rule` interface and implements:
+
 - `run()` - Main validation logic
 - `getDefaultSeverity()` - Default severity level
 - `getDescription()` - Human-readable description
 
 ---
-*Last reviewed: 2025-09-24 - Document confirmed to be up-to-date with current implementation.*
+
+_Last reviewed: 2025-09-24 - Document confirmed to be up-to-date with current implementation._

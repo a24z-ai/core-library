@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* eslint-env node */
-import { readdir, readFile, writeFile, stat } from 'fs/promises';
-import { join, dirname } from 'path';
+import { readdir, readFile, writeFile, stat } from "fs/promises";
+import { join, dirname } from "path";
 
 async function fileExists(path) {
   try {
@@ -20,9 +20,9 @@ async function fixImports(dir) {
 
     if (file.isDirectory()) {
       await fixImports(fullPath);
-    } else if (file.name.endsWith('.js') && file.name !== 'cli.js') {
+    } else if (file.name.endsWith(".js") && file.name !== "cli.js") {
       // Skip cli.js as it's bundled
-      let content = await readFile(fullPath, 'utf8');
+      let content = await readFile(fullPath, "utf8");
       let modified = false;
 
       // Find all relative imports
@@ -35,13 +35,13 @@ async function fixImports(dir) {
         const basePath = join(dirname(fullPath), path);
 
         let replacement = path;
-        if (await fileExists(basePath + '.js')) {
-          replacement = path + '.js';
-        } else if (await fileExists(join(basePath, 'index.js'))) {
-          replacement = path + '/index.js';
+        if (await fileExists(basePath + ".js")) {
+          replacement = path + ".js";
+        } else if (await fileExists(join(basePath, "index.js"))) {
+          replacement = path + "/index.js";
         } else {
           // Default: add .js
-          replacement = path + '.js';
+          replacement = path + ".js";
         }
 
         if (replacement !== path) {
@@ -54,7 +54,7 @@ async function fixImports(dir) {
       // Find all relative exports
       const exportMatches = [
         ...content.matchAll(
-          /export\s+(?:\*|\{[^}]+\})\s+from\s+['"](\.[^'"]+?)(?<!\.js)(?<!\.json)['"]/g
+          /export\s+(?:\*|\{[^}]+\})\s+from\s+['"](\.[^'"]+?)(?<!\.js)(?<!\.json)['"]/g,
         ),
       ];
 
@@ -63,12 +63,12 @@ async function fixImports(dir) {
         const basePath = join(dirname(fullPath), path);
 
         let replacement = path;
-        if (await fileExists(basePath + '.js')) {
-          replacement = path + '.js';
-        } else if (await fileExists(join(basePath, 'index.js'))) {
-          replacement = path + '/index.js';
+        if (await fileExists(basePath + ".js")) {
+          replacement = path + ".js";
+        } else if (await fileExists(join(basePath, "index.js"))) {
+          replacement = path + "/index.js";
         } else {
-          replacement = path + '.js';
+          replacement = path + ".js";
         }
 
         if (replacement !== path) {
@@ -86,6 +86,6 @@ async function fixImports(dir) {
   }
 }
 
-console.log('Fixing ESM imports in dist directory...');
-await fixImports('dist');
-console.log('✅ All imports fixed');
+console.log("Fixing ESM imports in dist directory...");
+await fixImports("dist");
+console.log("✅ All imports fixed");

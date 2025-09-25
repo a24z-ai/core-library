@@ -7,10 +7,7 @@
   "cols": 1,
   "referenceGroups": {
     "Full API": {
-      "coordinates": [
-        0,
-        0
-      ],
+      "coordinates": [0, 0],
       "files": [
         "src/projects-core/AlexandriaOutpostManager.ts",
         "src/pure-core/types/repository.ts"

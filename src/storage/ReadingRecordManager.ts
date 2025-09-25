@@ -3,28 +3,28 @@
  * Uses adapter pattern to abstract storage implementation
  */
 
-import type { 
-  AlexandriaVisit, 
-  AlexandriaBookmark, 
-  AlexandriaLibraryCard 
-} from '../types/alexandria-state';
+import type {
+  AlexandriaVisit,
+  AlexandriaBookmark,
+  AlexandriaLibraryCard,
+} from "../types/alexandria-state";
 
 import type {
   ReadingRecordAdapter,
   StorageConfig,
   VisitQuery,
-  StorageStats
-} from './types';
+  StorageStats,
+} from "./types";
 
-import { LocalStorageReadingRecordAdapter } from './adapters/localStorage';
-import { MemoryReadingRecordAdapter } from './adapters/memory';
+import { LocalStorageReadingRecordAdapter } from "./adapters/localStorage";
+import { MemoryReadingRecordAdapter } from "./adapters/memory";
 
 export class ReadingRecordManager {
   private adapter: ReadingRecordAdapter | null = null;
   private config: StorageConfig;
   private initPromise: Promise<void> | null = null;
 
-  constructor(config: StorageConfig = { adapter: 'localStorage' }) {
+  constructor(config: StorageConfig = { adapter: "localStorage" }) {
     this.config = config;
   }
 
@@ -44,18 +44,20 @@ export class ReadingRecordManager {
 
   private async initializeAdapter(): Promise<void> {
     switch (this.config.adapter) {
-      case 'localStorage':
-        this.adapter = new LocalStorageReadingRecordAdapter(this.config.options);
+      case "localStorage":
+        this.adapter = new LocalStorageReadingRecordAdapter(
+          this.config.options,
+        );
         break;
-      
-      case 'indexedDB':
+
+      case "indexedDB":
         // To be implemented later
-        throw new Error('IndexedDB adapter not yet implemented');
-      
-      case 'memory':
+        throw new Error("IndexedDB adapter not yet implemented");
+
+      case "memory":
         this.adapter = new MemoryReadingRecordAdapter();
         break;
-      
+
       default:
         throw new Error(`Unknown adapter type: ${this.config.adapter}`);
     }
@@ -68,7 +70,9 @@ export class ReadingRecordManager {
    */
   private ensureInitialized(): void {
     if (!this.adapter || !this.adapter.isReady()) {
-      throw new Error('ReadingRecordManager not initialized. Call initialize() first.');
+      throw new Error(
+        "ReadingRecordManager not initialized. Call initialize() first.",
+      );
     }
   }
 
@@ -83,7 +87,10 @@ export class ReadingRecordManager {
    * Switch to a different storage adapter
    * Optionally migrate data from old adapter
    */
-  async switchAdapter(newConfig: StorageConfig, migrateData: boolean = false): Promise<void> {
+  async switchAdapter(
+    newConfig: StorageConfig,
+    migrateData: boolean = false,
+  ): Promise<void> {
     const oldAdapter = this.adapter;
     let exportedData: string | undefined;
 
@@ -114,9 +121,9 @@ export class ReadingRecordManager {
 
   async getOrCreateLibraryCard(userId: string): Promise<AlexandriaLibraryCard> {
     this.ensureInitialized();
-    
+
     const result = await this.adapter!.getLibraryCard(userId);
-    
+
     if (result.success && result.data) {
       return result.data;
     }
@@ -130,8 +137,8 @@ export class ReadingRecordManager {
         autoBookmark: false,
         bookmarkInterval: 5 * 60 * 1000, // 5 minutes
         showEditionChanges: true,
-        preserveAnnotations: true
-      }
+        preserveAnnotations: true,
+      },
     };
 
     await this.adapter!.saveLibraryCard(newCard);
@@ -139,17 +146,17 @@ export class ReadingRecordManager {
   }
 
   async updatePreferences(
-    userId: string, 
-    preferences: Partial<AlexandriaLibraryCard['preferences']>
+    userId: string,
+    preferences: Partial<AlexandriaLibraryCard["preferences"]>,
   ): Promise<void> {
     this.ensureInitialized();
-    
+
     const card = await this.getOrCreateLibraryCard(userId);
     card.preferences = { ...card.preferences, ...preferences };
-    
+
     const result = await this.adapter!.saveLibraryCard(card);
     if (!result.success) {
-      throw new Error(result.error || 'Failed to update preferences');
+      throw new Error(result.error || "Failed to update preferences");
     }
   }
 
@@ -159,7 +166,7 @@ export class ReadingRecordManager {
     userId: string,
     volumeId: string,
     chapterId: string,
-    documentVersion: AlexandriaVisit['documentVersion']
+    documentVersion: AlexandriaVisit["documentVersion"],
   ): Promise<AlexandriaVisit> {
     this.ensureInitialized();
 
@@ -167,15 +174,19 @@ export class ReadingRecordManager {
     const existingVisits = await this.adapter!.queryVisits({
       volumeId,
       chapterId,
-      isActive: true
+      isActive: true,
     });
 
-    if (existingVisits.success && existingVisits.data && existingVisits.data.length > 0) {
+    if (
+      existingVisits.success &&
+      existingVisits.data &&
+      existingVisits.data.length > 0
+    ) {
       // Resume existing visit
       const visit = existingVisits.data[0];
       await this.adapter!.updateVisit(visit.id, {
         lastActiveAt: Date.now(),
-        documentVersion
+        documentVersion,
       });
       return visit;
     }
@@ -189,12 +200,12 @@ export class ReadingRecordManager {
       startedAt: Date.now(),
       lastActiveAt: Date.now(),
       bookmarks: [],
-      isActive: true
+      isActive: true,
     };
 
     const result = await this.adapter!.createVisit(visit);
     if (!result.success) {
-      throw new Error(result.error || 'Failed to create visit');
+      throw new Error(result.error || "Failed to create visit");
     }
 
     // Update library card
@@ -210,9 +221,9 @@ export class ReadingRecordManager {
 
     const now = Date.now();
     const visitResult = await this.adapter!.getVisit(visitId);
-    
+
     if (!visitResult.success || !visitResult.data) {
-      throw new Error('Visit not found');
+      throw new Error("Visit not found");
     }
 
     const visit = visitResult.data;
@@ -222,21 +233,21 @@ export class ReadingRecordManager {
       isActive: false,
       endedAt: now,
       lastActiveAt: now,
-      readingDuration: duration
+      readingDuration: duration,
     });
   }
 
   async updateVisitActivity(visitId: string): Promise<void> {
     this.ensureInitialized();
-    
+
     await this.adapter!.updateVisit(visitId, {
-      lastActiveAt: Date.now()
+      lastActiveAt: Date.now(),
     });
   }
 
   async getRecentVisits(
     volumeId?: string,
-    limit: number = 10
+    limit: number = 10,
   ): Promise<AlexandriaVisit[]> {
     this.ensureInitialized();
 
@@ -254,14 +265,14 @@ export class ReadingRecordManager {
   async createBookmark(
     visitId: string,
     label?: string,
-    context?: string
+    context?: string,
   ): Promise<AlexandriaBookmark> {
     this.ensureInitialized();
 
     // Get the visit to get volumeId and chapterId
     const visitResult = await this.adapter!.getVisit(visitId);
     if (!visitResult.success || !visitResult.data) {
-      throw new Error('Visit not found');
+      throw new Error("Visit not found");
     }
     const visit = visitResult.data;
 
@@ -271,12 +282,12 @@ export class ReadingRecordManager {
       chapterId: visit.chapterId,
       label,
       context,
-      createdAt: Date.now()
+      createdAt: Date.now(),
     };
 
     const result = await this.adapter!.createBookmark(visitId, bookmark);
     if (!result.success) {
-      throw new Error(result.error || 'Failed to create bookmark');
+      throw new Error(result.error || "Failed to create bookmark");
     }
 
     return result.data!;
@@ -286,21 +297,21 @@ export class ReadingRecordManager {
     this.ensureInitialized();
 
     await this.adapter!.updateBookmark(bookmarkId, {
-      lastVisited: Date.now()
+      lastVisited: Date.now(),
     });
   }
 
   async getBookmarksForDocument(
     volumeId: string,
     chapterId: string,
-    limit: number = 100
+    limit: number = 100,
   ): Promise<AlexandriaBookmark[]> {
     this.ensureInitialized();
 
     const result = await this.adapter!.queryBookmarks({
       volumeId,
       chapterId,
-      limit
+      limit,
     });
 
     return result.success && result.data ? result.data : [];
@@ -311,7 +322,7 @@ export class ReadingRecordManager {
 
     const result = await this.adapter!.deleteBookmark(bookmarkId);
     if (!result.success) {
-      throw new Error(result.error || 'Failed to delete bookmark');
+      throw new Error(result.error || "Failed to delete bookmark");
     }
   }
 
@@ -322,7 +333,7 @@ export class ReadingRecordManager {
 
     const cutoffDate = new Date(Date.now() - daysOld * 24 * 60 * 60 * 1000);
     const result = await this.adapter!.cleanup(cutoffDate);
-    
+
     return result.success && result.data ? result.data : 0;
   }
 
@@ -331,7 +342,7 @@ export class ReadingRecordManager {
 
     const result = await this.adapter!.getStats();
     if (!result.success || !result.data) {
-      throw new Error(result.error || 'Failed to get storage stats');
+      throw new Error(result.error || "Failed to get storage stats");
     }
 
     return result.data;
@@ -342,7 +353,7 @@ export class ReadingRecordManager {
 
     const result = await this.adapter!.export();
     if (!result.success || !result.data) {
-      throw new Error(result.error || 'Failed to export data');
+      throw new Error(result.error || "Failed to export data");
     }
 
     return result.data;
@@ -353,7 +364,7 @@ export class ReadingRecordManager {
 
     const result = await this.adapter!.import(jsonData);
     if (!result.success) {
-      throw new Error(result.error || 'Failed to import data');
+      throw new Error(result.error || "Failed to import data");
     }
   }
 }

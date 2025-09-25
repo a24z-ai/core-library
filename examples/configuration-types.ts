@@ -8,7 +8,7 @@ import type {
   NoteType,
   ValidationError,
   StaleNote,
-} from '../src/lib';
+} from "../src/lib";
 
 // The complete configuration structure
 const exampleConfig: RepositoryConfiguration = {
@@ -25,40 +25,40 @@ const exampleConfig: RepositoryConfiguration = {
   },
   tags: {
     enforceAllowedTags: true,
-    allowedTags: ['feature', 'bugfix', 'documentation'],
+    allowedTags: ["feature", "bugfix", "documentation"],
   },
 };
 
 // A stored note structure
 const exampleNote: StoredNote = {
-  id: 'note-1234567890-abc123',
-  note: 'This is the note content',
-  anchors: ['src/file.ts', 'docs/readme.md'],
-  tags: ['feature', 'documentation'],
-  type: 'explanation',
+  id: "note-1234567890-abc123",
+  note: "This is the note content",
+  anchors: ["src/file.ts", "docs/readme.md"],
+  tags: ["feature", "documentation"],
+  type: "explanation",
   metadata: {
-    author: 'user@example.com',
+    author: "user@example.com",
     pr: 123,
-    customField: 'value',
+    customField: "value",
   },
   timestamp: Date.now(),
 };
 
 // Note types - now supports any string value
 const noteTypes: NoteType[] = [
-  'decision',
-  'pattern',
-  'gotcha',
-  'explanation',
-  'incident',
-  'research',
-  'custom-type',
+  "decision",
+  "pattern",
+  "gotcha",
+  "explanation",
+  "incident",
+  "research",
+  "custom-type",
 ];
 
 // Validation error structure
 const exampleError: ValidationError = {
-  field: 'tags',
-  message: 'The following tags are not in the allowed tags list: invalid-tag',
+  field: "tags",
+  message: "The following tags are not in the allowed tags list: invalid-tag",
   limit: 10, // optional
   actual: 12, // optional
 };
@@ -66,8 +66,8 @@ const exampleError: ValidationError = {
 // Stale note structure (for checking obsolete anchors)
 const exampleStaleNote: StaleNote = {
   note: exampleNote,
-  staleAnchors: ['src/deleted-file.ts'],
-  validAnchors: ['src/file.ts', 'docs/readme.md'],
+  staleAnchors: ["src/deleted-file.ts"],
+  validAnchors: ["src/file.ts", "docs/readme.md"],
 };
 
 // Example UI state interface using these types
@@ -75,7 +75,7 @@ interface TagManagementUIState {
   configuration: RepositoryConfiguration;
   allowedTags: string[];
   enforced: boolean;
-  pendingNote: Omit<StoredNote, 'id' | 'timestamp'>;
+  pendingNote: Omit<StoredNote, "id" | "timestamp">;
   validationErrors: ValidationError[];
   staleNotes: StaleNote[];
 }
@@ -92,7 +92,7 @@ export class ConfigurationManager {
   static setTagRestrictions(
     repoPath: string,
     tags: string[],
-    enforce: boolean
+    enforce: boolean,
   ): RepositoryConfiguration {
     // Implementation would call updateRepositoryConfiguration
     return {} as RepositoryConfiguration;
@@ -100,8 +100,8 @@ export class ConfigurationManager {
 
   // Validate a note before allowing user to save
   static validateNote(
-    note: Omit<StoredNote, 'id' | 'timestamp'>,
-    repoPath: string
+    note: Omit<StoredNote, "id" | "timestamp">,
+    repoPath: string,
   ): ValidationError[] {
     // Implementation would call validateNoteAgainstConfig
     return [];
@@ -126,7 +126,7 @@ interface TagSelectorProps {
 // Example configuration update payload
 interface ConfigurationUpdateRequest {
   version?: number;
-  limits?: Partial<RepositoryConfiguration['limits']>;
-  storage?: Partial<RepositoryConfiguration['storage']>;
-  tags?: Partial<RepositoryConfiguration['tags']>;
+  limits?: Partial<RepositoryConfiguration["limits"]>;
+  storage?: Partial<RepositoryConfiguration["storage"]>;
+  tags?: Partial<RepositoryConfiguration["tags"]>;
 }

@@ -4,34 +4,34 @@
  */
 
 // Import types that portals can reference
-import type { PalaceRoom } from './palace-room';
-import type { CodebaseView, StoredAnchoredNote } from './index';
-import type { DrawingMetadata } from '../stores/DrawingStore';
+import type { PalaceRoom } from "./palace-room";
+import type { CodebaseView, StoredAnchoredNote } from "./index";
+import type { DrawingMetadata } from "../stores/DrawingStore";
 
 /**
  * Types of repository references
  */
-export type PortalTargetType = 'local' | 'git' | 'url';
+export type PortalTargetType = "local" | "git" | "url";
 
 /**
  * How the portal content should be displayed
  */
-export type PortalDisplayMode = 'linked' | 'embedded' | 'mirror';
+export type PortalDisplayMode = "linked" | "embedded" | "mirror";
 
 /**
  * Synchronization strategy for portal content
  */
-export type PortalSyncStrategy = 'manual' | 'auto' | 'on-demand';
+export type PortalSyncStrategy = "manual" | "auto" | "on-demand";
 
 /**
  * Reference type for what to include from the target palace
  */
-export type PortalReferenceType = 'full' | 'selective';
+export type PortalReferenceType = "full" | "selective";
 
 /**
  * Status of a portal connection
  */
-export type PortalStatus = 'active' | 'broken' | 'pending' | 'unauthorized';
+export type PortalStatus = "active" | "broken" | "pending" | "unauthorized";
 
 /**
  * Target repository configuration for a portal
@@ -266,7 +266,7 @@ export interface PortalContent {
 /**
  * Resource types for palace URIs
  */
-export type PalaceResourceType = 'room' | 'view' | 'note' | 'drawing';
+export type PalaceResourceType = "room" | "view" | "note" | "drawing";
 
 /**
  * Cross-palace URI components
@@ -275,7 +275,7 @@ export interface PalaceURI {
   /**
    * Protocol (always 'palace')
    */
-  protocol: 'palace';
+  protocol: "palace";
 
   /**
    * Host/repository identifier
@@ -307,7 +307,7 @@ export interface PalaceURI {
 /**
  * Reference status for cross-palace references
  */
-export type ReferenceStatus = 'active' | 'broken' | 'pending';
+export type ReferenceStatus = "active" | "broken" | "pending";
 
 /**
  * Cross-palace reference

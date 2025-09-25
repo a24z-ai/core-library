@@ -4,14 +4,17 @@
  * This adapter uses the globby library for pattern matching.
  * It should only be imported in Node.js environments where globby is available.
  */
-import { globby, globbySync, type Options } from 'globby';
-import { GlobAdapter, GlobOptions } from '../pure-core/abstractions/glob';
+import { globby, globbySync, type Options } from "globby";
+import { GlobAdapter, GlobOptions } from "../pure-core/abstractions/glob";
 
 /**
  * Node.js implementation using globby library
  */
 export class NodeGlobAdapter implements GlobAdapter {
-  async findFiles(patterns: string[], options?: GlobOptions): Promise<string[]> {
+  async findFiles(
+    patterns: string[],
+    options?: GlobOptions,
+  ): Promise<string[]> {
     const globbyOptions: Options = {
       ...(options?.cwd && { cwd: options.cwd }),
       ...(options?.ignore && { ignore: options.ignore }),
@@ -48,18 +51,18 @@ export class NodeGlobAdapter implements GlobAdapter {
 
 function globToRegex(pattern: string): RegExp {
   let regex = pattern
-    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-    .replace(/\*\*/g, '___DOUBLE_STAR___')
-    .replace(/\*/g, '[^/]*')
-    .replace(/\?/g, '[^/]')
-    .replace(/___DOUBLE_STAR___\//g, '(.*\\/)?')
-    .replace(/\/___DOUBLE_STAR___/g, '(\\/.*)?')
-    .replace(/___DOUBLE_STAR___/g, '.*');
+    .replace(/[.+^${}()|[\]\\]/g, "\\$&")
+    .replace(/\*\*/g, "___DOUBLE_STAR___")
+    .replace(/\*/g, "[^/]*")
+    .replace(/\?/g, "[^/]")
+    .replace(/___DOUBLE_STAR___\//g, "(.*\\/)?")
+    .replace(/\/___DOUBLE_STAR___/g, "(\\/.*)?")
+    .replace(/___DOUBLE_STAR___/g, ".*");
 
   regex = regex.replace(/\{([^}]+)\}/g, (_match, group) => {
-    const options = group.split(',');
-    return '(' + options.join('|') + ')';
+    const options = group.split(",");
+    return "(" + options.join("|") + ")";
   });
 
-  return new RegExp('^' + regex + '$');
+  return new RegExp("^" + regex + "$");
 }

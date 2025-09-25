@@ -4,10 +4,10 @@
  * This adapter uses Node.js built-in fs and path modules.
  * It should only be imported in Node.js environments.
  */
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import * as fs from "node:fs";
+import * as path from "node:path";
 
-import { FileSystemAdapter } from '../pure-core/abstractions/filesystem';
+import { FileSystemAdapter } from "../pure-core/abstractions/filesystem";
 
 /**
  * Node.js implementation using built-in fs and path modules
@@ -20,7 +20,7 @@ export class NodeFileSystemAdapter implements FileSystemAdapter {
   }
 
   readFile(path: string): string {
-    return fs.readFileSync(path, 'utf8');
+    return fs.readFileSync(path, "utf8");
   }
 
   writeFile(path: string, content: string): void {
@@ -32,7 +32,7 @@ export class NodeFileSystemAdapter implements FileSystemAdapter {
 
     // Write to temp file first, then rename (atomic write)
     const tmp = `${path}.tmp`;
-    fs.writeFileSync(tmp, content, { encoding: 'utf8' });
+    fs.writeFileSync(tmp, content, { encoding: "utf8" });
     fs.renameSync(tmp, path);
   }
 
@@ -124,7 +124,7 @@ export class NodeFileSystemAdapter implements FileSystemAdapter {
 
   getRepositoryName(repositoryPath: string): string {
     const segments = repositoryPath.split(path.sep).filter((s) => s);
-    return segments[segments.length - 1] || 'root';
+    return segments[segments.length - 1] || "root";
   }
 }
 
@@ -137,7 +137,7 @@ export function findGitRoot(startPath: string): string | null {
   }
 
   while (current !== path.dirname(current)) {
-    if (fs.existsSync(path.join(current, '.git'))) {
+    if (fs.existsSync(path.join(current, ".git"))) {
       return current;
     }
     current = path.dirname(current);
@@ -152,7 +152,7 @@ export function normalizeRepositoryPath(inputPath: string): string {
   // 1. Try to find git root from the input path
   const gitRoot = findGitRoot(inputPath);
   if (!gitRoot) {
-    throw Error('Unable to find Git Root For Path' + inputPath);
+    throw Error("Unable to find Git Root For Path" + inputPath);
   }
   return gitRoot;
 }

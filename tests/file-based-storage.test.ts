@@ -1,19 +1,19 @@
-import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
-import { AnchoredNotesStore } from '../src/pure-core/stores/AnchoredNotesStore';
-import { InMemoryFileSystemAdapter } from './test-adapters/InMemoryFileSystemAdapter';
-import { CodebaseViewsStore } from '../src/pure-core/stores/CodebaseViewsStore';
-import { MemoryPalace } from '../src/MemoryPalace';
+import { describe, it, expect, beforeEach, afterEach } from "bun:test";
+import { AnchoredNotesStore } from "../src/pure-core/stores/AnchoredNotesStore";
+import { InMemoryFileSystemAdapter } from "./test-adapters/InMemoryFileSystemAdapter";
+import { CodebaseViewsStore } from "../src/pure-core/stores/CodebaseViewsStore";
+import { MemoryPalace } from "../src/MemoryPalace";
 import type {
   ValidatedRepositoryPath,
   CodebaseView,
   ValidatedAlexandriaPath,
-} from '../src/pure-core/types';
+} from "../src/pure-core/types";
 
-describe('File-based note storage', () => {
+describe("File-based note storage", () => {
   let fs: InMemoryFileSystemAdapter;
   let store: AnchoredNotesStore;
   let codebaseViewsStore: CodebaseViewsStore;
-  const testRepoPath = '/test-repo';
+  const testRepoPath = "/test-repo";
   let validatedRepoPath: ValidatedRepositoryPath;
   let alexandriaPath: ValidatedAlexandriaPath;
 
@@ -31,11 +31,11 @@ describe('File-based note storage', () => {
 
     // Create a test view
     const testView: CodebaseView = {
-      id: 'test-view',
-      version: '1.0.0',
-      name: 'Test View',
-      description: 'Test view for testing',
-      overviewPath: 'README.md',
+      id: "test-view",
+      version: "1.0.0",
+      name: "Test View",
+      description: "Test view for testing",
+      overviewPath: "README.md",
       referenceGroups: {},
       timestamp: new Date().toISOString(),
     };
@@ -46,12 +46,12 @@ describe('File-based note storage', () => {
     // Clean up is handled automatically by InMemoryFileSystemAdapter
   });
 
-  it('should save notes as individual files', () => {
+  it("should save notes as individual files", () => {
     const note = {
-      note: 'Test note content',
-      anchors: ['src/test.ts'],
-      tags: ['testing'],
-      codebaseViewId: 'test-view',
+      note: "Test note content",
+      anchors: ["src/test.ts"],
+      tags: ["testing"],
+      codebaseViewId: "test-view",
       metadata: {},
       directoryPath: validatedRepoPath,
     };
@@ -66,40 +66,40 @@ describe('File-based note storage', () => {
     // Check that the file exists in the correct location with date-based directories
     const date = new Date(savedNote.timestamp);
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
     const notePath = fs.join(
       testRepoPath,
-      '.alexandria',
-      'notes',
+      ".alexandria",
+      "notes",
       year.toString(),
       month,
-      `${savedNote.id}.json`
+      `${savedNote.id}.json`,
     );
 
     expect(fs.exists(notePath)).toBe(true);
 
     // Read the file and verify its contents
     const fileContent = JSON.parse(fs.readFile(notePath));
-    expect(fileContent.note).toBe('Test note content');
+    expect(fileContent.note).toBe("Test note content");
     expect(fileContent.id).toBe(savedNote.id);
   });
 
-  it('should save multiple notes as individual files', () => {
+  it("should save multiple notes as individual files", () => {
     // Save multiple notes
     const note1 = store.saveNote({
-      note: 'First note',
-      anchors: ['file1.ts'],
-      tags: ['tag1'],
-      codebaseViewId: 'test-view',
+      note: "First note",
+      anchors: ["file1.ts"],
+      tags: ["tag1"],
+      codebaseViewId: "test-view",
       metadata: {},
       directoryPath: validatedRepoPath,
     });
 
     const note2 = store.saveNote({
-      note: 'Second note',
-      anchors: ['file2.ts'],
-      tags: ['tag2'],
-      codebaseViewId: 'test-view',
+      note: "Second note",
+      anchors: ["file2.ts"],
+      tags: ["tag2"],
+      codebaseViewId: "test-view",
       metadata: {},
       directoryPath: validatedRepoPath,
     });
@@ -108,23 +108,23 @@ describe('File-based note storage', () => {
     const retrieved1 = store.getNoteById(validatedRepoPath, note1.note.id);
     const retrieved2 = store.getNoteById(validatedRepoPath, note2.note.id);
 
-    expect(retrieved1?.note).toBe('First note');
-    expect(retrieved2?.note).toBe('Second note');
+    expect(retrieved1?.note).toBe("First note");
+    expect(retrieved2?.note).toBe("Second note");
   });
 
-  it('should handle concurrent note creation without conflicts', async () => {
+  it("should handle concurrent note creation without conflicts", async () => {
     // Simulate concurrent note creation
     const promises = Array.from({ length: 5 }, (_, i) =>
       Promise.resolve(
         store.saveNote({
           note: `Concurrent note ${i}`,
           anchors: [`file${i}.ts`],
-          tags: ['concurrent'],
-          codebaseViewId: 'test-view',
+          tags: ["concurrent"],
+          codebaseViewId: "test-view",
           metadata: {},
           directoryPath: validatedRepoPath,
-        })
-      )
+        }),
+      ),
     );
 
     const savedNotes = await Promise.all(promises);

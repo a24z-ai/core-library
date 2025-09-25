@@ -4,18 +4,24 @@
  * This adapter provides pattern matching without external dependencies,
  * using the FileSystemAdapter to traverse the file system.
  */
-import { GlobAdapter, GlobOptions } from '../../src/pure-core/abstractions/glob';
-import { FileSystemAdapter } from '../../src/pure-core/abstractions/filesystem';
+import {
+  GlobAdapter,
+  GlobOptions,
+} from "../../src/pure-core/abstractions/glob";
+import { FileSystemAdapter } from "../../src/pure-core/abstractions/filesystem";
 
 export class InMemoryGlobAdapter implements GlobAdapter {
   constructor(private fs: FileSystemAdapter) {}
 
-  async findFiles(patterns: string[], options?: GlobOptions): Promise<string[]> {
+  async findFiles(
+    patterns: string[],
+    options?: GlobOptions,
+  ): Promise<string[]> {
     return this.findFilesSync(patterns, options);
   }
 
   findFilesSync(patterns: string[], options?: GlobOptions): string[] {
-    const cwd = options?.cwd || '/';
+    const cwd = options?.cwd || "/";
     const ignore = options?.ignore || [];
     const onlyFiles = options?.onlyFiles !== false;
     const dot = options?.dot || false;
@@ -60,7 +66,9 @@ export class InMemoryGlobAdapter implements GlobAdapter {
       return false;
     }
 
-    return patterns.some((pattern) => this.globToRegex(pattern).test(candidate));
+    return patterns.some((pattern) =>
+      this.globToRegex(pattern).test(candidate),
+    );
   }
 
   private getAllPaths(dir: string): string[] {
@@ -85,32 +93,34 @@ export class InMemoryGlobAdapter implements GlobAdapter {
   }
 
   private isDotfile(path: string): boolean {
-    const segments = path.split('/');
-    return segments.some((segment) => segment.startsWith('.') && segment !== '.');
+    const segments = path.split("/");
+    return segments.some(
+      (segment) => segment.startsWith(".") && segment !== ".",
+    );
   }
 
   private globToRegex(pattern: string): RegExp {
     // Simple glob to regex conversion
     let regex = pattern
       // Escape special regex characters except * and ?
-      .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+      .replace(/[.+^${}()|[\]\\]/g, "\\$&")
       // Convert ** to match any depth (including zero depth)
-      .replace(/\*\*/g, '___DOUBLE_STAR___')
+      .replace(/\*\*/g, "___DOUBLE_STAR___")
       // Convert * to match anything except /
-      .replace(/\*/g, '[^/]*')
+      .replace(/\*/g, "[^/]*")
       // Convert ? to match single character
-      .replace(/\?/g, '[^/]')
+      .replace(/\?/g, "[^/]")
       // Restore ** pattern - match any number of path segments including none
-      .replace(/___DOUBLE_STAR___\//g, '(.*\\/)?')
-      .replace(/\/___DOUBLE_STAR___/g, '(\\/.*)?')
-      .replace(/___DOUBLE_STAR___/g, '.*');
+      .replace(/___DOUBLE_STAR___\//g, "(.*\\/)?")
+      .replace(/\/___DOUBLE_STAR___/g, "(\\/.*)?")
+      .replace(/___DOUBLE_STAR___/g, ".*");
 
     // Handle extensions like *.md or *.{md,mdx}
     regex = regex.replace(/\{([^}]+)\}/g, (match, group) => {
-      const options = group.split(',');
-      return '(' + options.join('|') + ')';
+      const options = group.split(",");
+      return "(" + options.join("|") + ")";
     });
 
-    return new RegExp('^' + regex + '$');
+    return new RegExp("^" + regex + "$");
   }
 }

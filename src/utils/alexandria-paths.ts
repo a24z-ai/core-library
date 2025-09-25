@@ -1,6 +1,6 @@
-import { join } from 'path';
-import { ALEXANDRIA_DIRS } from '../constants/paths';
-import { ValidatedRepositoryPath } from '../pure-core/types';
+import { join } from "path";
+import { ALEXANDRIA_DIRS } from "../constants/paths";
+import { ValidatedRepositoryPath } from "../pure-core/types";
 
 /**
  * Gets the Alexandria data directory for a project
@@ -12,7 +12,10 @@ export function getAlexandriaDir(projectRoot: ValidatedRepositoryPath): string {
 /**
  * Gets a specific subdirectory within the Alexandria directory
  */
-export function getAlexandriaSubdir(projectRoot: ValidatedRepositoryPath, subdir: string): string {
+export function getAlexandriaSubdir(
+  projectRoot: ValidatedRepositoryPath,
+  subdir: string,
+): string {
   return join(getAlexandriaDir(projectRoot), subdir);
 }
 

@@ -7,14 +7,8 @@
   "cols": 1,
   "referenceGroups": {
     "Full API": {
-      "coordinates": [
-        0,
-        0
-      ],
-      "files": [
-        "src/MemoryPalace.ts",
-        "src/pure-core/types/index.ts"
-      ],
+      "coordinates": [0, 0],
+      "files": ["src/MemoryPalace.ts", "src/pure-core/types/index.ts"],
       "priority": 0
     }
   },
