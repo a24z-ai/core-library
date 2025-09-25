@@ -70,11 +70,6 @@ export interface PalaceRoom {
   displayOrder?: number;
 
   /**
-   * Whether this is the default palace room (cannot be deleted)
-   */
-  isDefault?: boolean;
-
-  /**
    * Portals to other palaces
    */
   portals: PalacePortal[];

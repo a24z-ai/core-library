@@ -9,7 +9,6 @@ This document captures ideas for improving the Alexandria core library and docum
 ✅ **Implemented**: Organizational system for memory palace content
 
 - PalaceRooms provide workspaces to group related drawings, views, and notes
-- Default "Main Palace" room that cannot be deleted
 - PalacePortals enable cross-repository references
 - Palace URI scheme (palace://host/resourceType/resourceId) for linking
 - Full CRUD operations with safety checks (can't delete rooms with content)

@@ -141,9 +141,6 @@ Organize your memory palace content into rooms/workspaces for better management:
 // List all palace rooms
 const rooms = palace.listPalaceRooms();
 
-// Get the default room (always exists, cannot be deleted)
-const defaultRoom = palace.getDefaultPalaceRoom();
-
 // Create a new palace room
 const result = palace.createPalaceRoom({
   name: "Feature Development",

@@ -22,30 +22,6 @@ describe("PalaceRoomStore", () => {
       expect(fs.exists(palaceRoomsPath)).toBe(false);
     });
 
-    test("should create default room on first access", () => {
-      // Directory should not exist initially
-      const palaceRoomsPath = fs.join(alexandriaPath, "palace-rooms");
-      expect(fs.exists(palaceRoomsPath)).toBe(false);
-
-      // Getting default room should trigger creation
-      const defaultRoom = store.getDefaultRoom();
-      expect(fs.exists(palaceRoomsPath)).toBe(true);
-      expect(defaultRoom).toBeTruthy();
-      expect(defaultRoom?.name).toBe("Main Palace");
-      expect(defaultRoom?.isDefault).toBe(true);
-      expect(defaultRoom?.id).toBe("default");
-    });
-
-    test("should not duplicate default room on re-init", () => {
-      // First access creates default room
-      store.getDefaultRoom();
-
-      // Create another store instance
-      const store2 = new PalaceRoomStore(fs, alexandriaPath);
-      const rooms = store2.listRooms();
-      const defaultRooms = rooms.filter((r) => r.isDefault);
-      expect(defaultRooms.length).toBe(1);
-    });
   });
 
   describe("createRoom", () => {
@@ -65,7 +41,6 @@ describe("PalaceRoomStore", () => {
       expect(result.palaceRoom?.color).toBe("#ff0000");
       expect(result.palaceRoom?.icon).toBe("🎯");
       expect(result.palaceRoom?.displayOrder).toBe(1);
-      expect(result.palaceRoom?.isDefault).toBe(false);
       expect(result.palaceRoom?.drawingIds).toEqual([]);
       expect(result.palaceRoom?.codebaseViewIds).toEqual([]);
       expect(result.palaceRoom?.noteIds).toEqual([]);
@@ -86,12 +61,11 @@ describe("PalaceRoomStore", () => {
       store.createRoom({ name: "Room 3" }); // No displayOrder
 
       const rooms = store.listRooms();
-      expect(rooms.length).toBe(4); // Including default room
+      expect(rooms.length).toBe(3);
 
       // Check sorting by displayOrder
-      expect(rooms[0].name).toBe("Main Palace"); // Default with displayOrder 0
-      expect(rooms[1].displayOrder).toBe(1);
-      expect(rooms[2].displayOrder).toBe(2);
+      expect(rooms[0].displayOrder).toBe(1);
+      expect(rooms[1].displayOrder).toBe(2);
     });
 
     test("should handle empty palace rooms directory", () => {
@@ -149,24 +123,6 @@ describe("PalaceRoomStore", () => {
       expect(room?.name).toBe("Updated Name");
     });
 
-    test("should not allow renaming default room", () => {
-      // Ensure default room exists first
-      store.getDefaultRoom();
-      const result = store.updateRoom("default", { name: "New Name" });
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("Cannot rename the default palace room");
-    });
-
-    test("should allow updating default room description", () => {
-      // Ensure default room exists first
-      store.getDefaultRoom();
-      const result = store.updateRoom("default", {
-        description: "Updated description",
-      });
-      expect(result.success).toBe(true);
-      expect(result.palaceRoom?.description).toBe("Updated description");
-    });
-
     test("should fail to update non-existent room", () => {
       const result = store.updateRoom("non-existent", { name: "New Name" });
       expect(result.success).toBe(false);
@@ -187,17 +143,6 @@ describe("PalaceRoomStore", () => {
 
       const room = store.getRoom(roomId);
       expect(room).toBeNull();
-    });
-
-    test("should not delete default room", () => {
-      // Ensure default room exists first
-      store.getDefaultRoom();
-
-      const deleted = store.deleteRoom("default");
-      expect(deleted).toBe(false);
-
-      const room = store.getRoom("default");
-      expect(room).toBeTruthy();
     });
 
     test("should not delete room with content", () => {
@@ -356,32 +301,6 @@ describe("PalaceRoomStore", () => {
         const room2 = store.getRoom(roomId);
         expect(room2?.updatedAt).not.toBe(originalUpdatedAt);
       }, 10);
-    });
-  });
-
-  describe("getDefaultRoom", () => {
-    test("should return the default room", () => {
-      const defaultRoom = store.getDefaultRoom();
-      expect(defaultRoom).toBeTruthy();
-      expect(defaultRoom.id).toBe("default");
-      expect(defaultRoom.isDefault).toBe(true);
-    });
-
-    test("should recreate default room if deleted somehow", () => {
-      // Manually delete the default room file
-      const defaultRoomPath = fs.join(
-        alexandriaPath,
-        "palace-rooms",
-        "default.json",
-      );
-      fs.deleteFile(defaultRoomPath);
-
-      const defaultRoom = store.getDefaultRoom();
-      expect(defaultRoom).toBeTruthy();
-      expect(defaultRoom.id).toBe("default");
-
-      // Verify it was recreated
-      expect(fs.exists(defaultRoomPath)).toBe(true);
     });
   });
 });

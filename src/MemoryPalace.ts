@@ -596,12 +596,6 @@ export class MemoryPalace {
     return this.palaceRoomStore.deleteRoom(roomId);
   }
 
-  /**
-   * Get the default palace room
-   */
-  getDefaultPalaceRoom(): PalaceRoom {
-    return this.palaceRoomStore.getDefaultRoom();
-  }
 
   /**
    * Add a drawing to a palace room

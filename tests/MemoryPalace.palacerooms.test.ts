@@ -16,29 +16,20 @@ describe("MemoryPalace - PalaceRoom Integration", () => {
   });
 
   describe("palace room management", () => {
-    test("should list palace rooms including default", () => {
-      // First list should be empty (lazy initialization)
+    test("should list palace rooms (initially empty)", () => {
+      // List should be empty initially
       let rooms = palace.listPalaceRooms();
       expect(rooms.length).toBe(0);
 
-      // Getting default room triggers creation
-      palace.getDefaultPalaceRoom();
+      // Create a room
+      palace.createPalaceRoom({ name: "First Room" });
 
-      // Now list should include the default room
+      // Now list should include the created room
       rooms = palace.listPalaceRooms();
       expect(rooms.length).toBe(1);
-
-      const defaultRoom = rooms.find((r) => r.isDefault);
-      expect(defaultRoom).toBeTruthy();
-      expect(defaultRoom?.name).toBe("Main Palace");
+      expect(rooms[0].name).toBe("First Room");
     });
 
-    test("should get default palace room", () => {
-      const defaultRoom = palace.getDefaultPalaceRoom();
-      expect(defaultRoom).toBeTruthy();
-      expect(defaultRoom.id).toBe("default");
-      expect(defaultRoom.isDefault).toBe(true);
-    });
 
     test("should create a new palace room", () => {
       const result = palace.createPalaceRoom({
@@ -88,13 +79,6 @@ describe("MemoryPalace - PalaceRoom Integration", () => {
       expect(room).toBeNull();
     });
 
-    test("should not delete default room", () => {
-      const deleted = palace.deletePalaceRoom("default");
-      expect(deleted).toBe(false);
-
-      const defaultRoom = palace.getDefaultPalaceRoom();
-      expect(defaultRoom).toBeTruthy();
-    });
   });
 
   describe("content association with palace rooms", () => {
