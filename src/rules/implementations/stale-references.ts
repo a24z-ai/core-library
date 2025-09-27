@@ -94,10 +94,15 @@ export const staleReferences: LibraryRule = {
           newestFileModification &&
           newestFileModification > overviewLastModified
         ) {
+          const timeDifferenceMs = newestFileModification.getTime() - overviewLastModified.getTime();
+
+          // Ignore differences less than 5 seconds (formatting/build tool delays)
+          if (timeDifferenceMs < 5000) {
+            continue;
+          }
+
           const hoursSinceUpdate = Math.floor(
-            (newestFileModification.getTime() -
-              overviewLastModified.getTime()) /
-              (1000 * 60 * 60),
+            timeDifferenceMs / (1000 * 60 * 60),
           );
 
           let timeMessage: string;
@@ -173,9 +178,15 @@ export const staleReferences: LibraryRule = {
           newestFileModification &&
           newestFileModification > noteLastModified
         ) {
+          const timeDifferenceMs = newestFileModification.getTime() - noteLastModified.getTime();
+
+          // Ignore differences less than 5 seconds (formatting/build tool delays)
+          if (timeDifferenceMs < 5000) {
+            continue;
+          }
+
           const hoursSinceUpdate = Math.floor(
-            (newestFileModification.getTime() - noteLastModified.getTime()) /
-              (1000 * 60 * 60),
+            timeDifferenceMs / (1000 * 60 * 60),
           );
 
           let timeMessage: string;

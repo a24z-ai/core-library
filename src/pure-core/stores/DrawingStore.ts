@@ -7,6 +7,8 @@
 
 import { FileSystemAdapter } from "../abstractions/filesystem";
 import { ValidatedAlexandriaPath } from "../types/repository";
+import { ExcalidrawData, RoomDrawingMetadata } from "../types/drawing";
+import { generateId } from "../utils/idGenerator";
 
 export interface DrawingMetadata {
   id: string;
@@ -222,5 +224,151 @@ export class DrawingStore {
       return `${name}.excalidraw`;
     }
     return name;
+  }
+
+  // ============================================================================
+  // Room-Aware Drawing Management
+  // ============================================================================
+
+  /**
+   * Save an Excalidraw drawing and automatically extract the name
+   */
+  saveExcalidrawDrawing(data: ExcalidrawData): string {
+    this.ensureDrawingsDirectory();
+
+    const drawingId = generateId();
+    const fileName = `${drawingId}.excalidraw`;
+    const filePath = this.fs.join(this.drawingsDir, fileName);
+
+    // Save the drawing
+    this.fs.writeFile(filePath, JSON.stringify(data, null, 2));
+
+    return drawingId;
+  }
+
+  /**
+   * Load an Excalidraw drawing and parse it
+   */
+  loadExcalidrawDrawing(drawingId: string): ExcalidrawData | null {
+    const fileName = `${drawingId}.excalidraw`;
+    const filePath = this.fs.join(this.drawingsDir, fileName);
+
+    if (!this.fs.exists(filePath)) {
+      return null;
+    }
+
+    try {
+      const content = this.fs.readFile(filePath);
+      return JSON.parse(content) as ExcalidrawData;
+    } catch (error) {
+      console.error(`Error loading Excalidraw drawing ${drawingId}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Get drawing metadata including the extracted name from appState
+   */
+  getDrawingMetadata(drawingId: string): RoomDrawingMetadata | null {
+    const fileName = `${drawingId}.excalidraw`;
+    const filePath = this.fs.join(this.drawingsDir, fileName);
+
+    if (!this.fs.exists(filePath)) {
+      return null;
+    }
+
+    try {
+      const content = this.fs.readFile(filePath);
+      const data = JSON.parse(content) as ExcalidrawData;
+
+      // Get file stats if available (would need to add to FileSystemAdapter)
+      const stats = {
+        created: new Date().toISOString(),
+        modified: new Date().toISOString(),
+        size: content.length
+      };
+
+      return {
+        id: drawingId,
+        name: data.appState?.name || drawingId,
+        fileName: fileName,
+        format: "excalidraw",
+        roomIds: [], // Will be populated by room store
+        created: stats.created,
+        modified: stats.modified,
+        fileSize: stats.size
+      };
+    } catch (error) {
+      console.error(`Error getting metadata for drawing ${drawingId}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Update the name of a drawing without loading the entire content
+   */
+  updateDrawingName(drawingId: string, newName: string): boolean {
+    const fileName = `${drawingId}.excalidraw`;
+    const filePath = this.fs.join(this.drawingsDir, fileName);
+
+    if (!this.fs.exists(filePath)) {
+      return false;
+    }
+
+    try {
+      const content = this.fs.readFile(filePath);
+      const data = JSON.parse(content) as ExcalidrawData;
+
+      // Update the name in appState
+      data.appState = data.appState || {};
+      data.appState.name = newName;
+
+      // Save the updated drawing
+      this.fs.writeFile(filePath, JSON.stringify(data, null, 2));
+      return true;
+    } catch (error) {
+      console.error(`Error updating drawing name for ${drawingId}:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * List all drawings with their metadata (including extracted names)
+   */
+  listDrawingsWithExtractedNames(): RoomDrawingMetadata[] {
+    const drawings: RoomDrawingMetadata[] = [];
+
+    if (!this.fs.exists(this.drawingsDir)) {
+      return drawings;
+    }
+
+    const files = this.fs.readDir(this.drawingsDir);
+
+    for (const fileName of files) {
+      if (fileName.endsWith(".excalidraw")) {
+        const drawingId = fileName.replace(".excalidraw", "");
+        const metadata = this.getDrawingMetadata(drawingId);
+        if (metadata) {
+          drawings.push(metadata);
+        }
+      }
+    }
+
+    return drawings;
+  }
+
+  /**
+   * Delete a drawing by ID
+   */
+  deleteDrawingById(drawingId: string): boolean {
+    const fileName = `${drawingId}.excalidraw`;
+    const filePath = this.fs.join(this.drawingsDir, fileName);
+
+    if (this.fs.exists(filePath)) {
+      this.fs.deleteFile(filePath);
+      return true;
+    }
+
+    return false;
   }
 }

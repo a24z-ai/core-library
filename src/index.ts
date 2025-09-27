@@ -99,6 +99,7 @@ export {
 } from "./pure-core/stores/CodebaseViewsStore";
 export { DrawingStore } from "./pure-core/stores/DrawingStore";
 export type { DrawingMetadata } from "./pure-core/stores/DrawingStore";
+export type { ExcalidrawData, RoomDrawingMetadata } from "./pure-core/types/drawing";
 export { PalaceRoomStore } from "./pure-core/stores/PalaceRoomStore";
 
 // Utilities and rules

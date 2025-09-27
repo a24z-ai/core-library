@@ -161,7 +161,7 @@ const deleted = palace.deletePalaceRoom(roomId);
 ### Adding Content to Rooms
 
 ```typescript
-// Add a drawing to a room
+// Add a drawing to a room (legacy method)
 palace.addDrawingToPalaceRoom(roomId, "architecture-diagram");
 
 // Add a codebase view to a room
@@ -172,6 +172,33 @@ palace.addNoteToPalaceRoom(roomId, noteId);
 
 // Find which room contains specific content
 const room = palace.findPalaceRoomByDrawing("architecture-diagram");
+```
+
+### Room-Aware Drawing Management (NEW)
+
+The enhanced drawing API simplifies Excalidraw integration:
+
+```typescript
+// Save Excalidraw drawing directly to a room
+const drawingData = {
+  elements: [...],
+  appState: { name: "System Architecture" }
+};
+const drawingId = palace.saveRoomDrawing(roomId, "System Architecture", drawingData);
+
+// List room drawings with names auto-extracted from appState
+const drawings = palace.listRoomDrawings(roomId);
+// Returns: [{ id: "...", name: "System Architecture", ... }]
+
+// Update drawing name efficiently
+palace.updateDrawingName(drawingId, "Updated Architecture");
+
+// Copy/move drawings between rooms
+palace.copyDrawingsToRoom(sourceRoomId, targetRoomId, [drawingId]);
+palace.moveDrawingsToRoom(sourceRoomId, targetRoomId, [drawingId]);
+
+// Delete drawing from all rooms
+palace.deleteDrawingCompletely(drawingId);
 ```
 
 ## Palace Portals

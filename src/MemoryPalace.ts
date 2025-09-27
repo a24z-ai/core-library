@@ -13,6 +13,7 @@ import {
 import { CodebaseViewsStore } from "./pure-core/stores/CodebaseViewsStore";
 import { A24zConfigurationStore } from "./pure-core/stores/A24zConfigurationStore";
 import { DrawingStore, DrawingMetadata } from "./pure-core/stores/DrawingStore";
+import { ExcalidrawData, RoomDrawingMetadata } from "./pure-core/types/drawing";
 import { PalaceRoomStore } from "./pure-core/stores/PalaceRoomStore";
 import {
   generateFullGuidanceContent,
@@ -550,6 +551,206 @@ export class MemoryPalace {
    */
   drawingExists(name: string): boolean {
     return this.drawingStore.drawingExists(name);
+  }
+
+  // ============================================================================
+  // Room-Aware Drawing Management
+  // ============================================================================
+
+  /**
+   * Save an Excalidraw drawing and associate it with a room
+   */
+  saveRoomDrawing(
+    roomId: string,
+    drawingName: string,
+    drawingData: ExcalidrawData
+  ): string | null {
+    // Ensure the drawing has a name in appState
+    if (!drawingData.appState) {
+      drawingData.appState = { name: drawingName };
+    } else {
+      drawingData.appState.name = drawingName;
+    }
+
+    // Save the drawing and get its ID
+    const drawingId = this.drawingStore.saveExcalidrawDrawing(drawingData);
+
+    // Associate the drawing with the room
+    const success = this.palaceRoomStore.addDrawingToRoom(roomId, drawingId);
+
+    if (!success) {
+      // If we couldn't add to room, delete the drawing
+      this.drawingStore.deleteDrawingById(drawingId);
+      return null;
+    }
+
+    return drawingId;
+  }
+
+  /**
+   * Load a specific drawing for a room
+   */
+  loadRoomDrawing(
+    roomId: string,
+    drawingId: string
+  ): ExcalidrawData | null {
+    // Verify the drawing belongs to the room
+    const room = this.palaceRoomStore.getRoom(roomId);
+    if (!room || !room.drawingIds.includes(drawingId)) {
+      return null;
+    }
+
+    return this.drawingStore.loadExcalidrawDrawing(drawingId);
+  }
+
+  /**
+   * List all drawings for a room with metadata (names extracted from appState)
+   */
+  listRoomDrawings(roomId: string): RoomDrawingMetadata[] {
+    const room = this.palaceRoomStore.getRoom(roomId);
+    if (!room) {
+      return [];
+    }
+
+    const drawings: RoomDrawingMetadata[] = [];
+
+    for (const drawingId of room.drawingIds) {
+      const metadata = this.drawingStore.getDrawingMetadata(drawingId);
+      if (metadata) {
+        // Add the room association
+        metadata.roomIds = [roomId];
+        drawings.push(metadata);
+      }
+    }
+
+    return drawings;
+  }
+
+  /**
+   * Update drawing name without loading full content
+   */
+  updateDrawingName(drawingId: string, newName: string): boolean {
+    return this.drawingStore.updateDrawingName(drawingId, newName);
+  }
+
+  /**
+   * Remove drawing from room (but keep the file)
+   */
+  unlinkDrawingFromRoom(roomId: string, drawingId: string): boolean {
+    return this.palaceRoomStore.removeDrawingFromRoom(roomId, drawingId);
+  }
+
+  /**
+   * Delete drawing completely (remove from all rooms and delete file)
+   */
+  deleteDrawingCompletely(drawingId: string): boolean {
+    // Find all rooms that contain this drawing
+    const allRooms = this.palaceRoomStore.listRooms();
+
+    // Remove from all rooms
+    for (const room of allRooms) {
+      if (room.drawingIds.includes(drawingId)) {
+        this.palaceRoomStore.removeDrawingFromRoom(room.id, drawingId);
+      }
+    }
+
+    // Delete the file
+    return this.drawingStore.deleteDrawingById(drawingId);
+  }
+
+  /**
+   * Copy drawings between rooms
+   */
+  copyDrawingsToRoom(
+    sourceRoomId: string,
+    targetRoomId: string,
+    drawingIds: string[]
+  ): boolean {
+    const sourceRoom = this.palaceRoomStore.getRoom(sourceRoomId);
+    const targetRoom = this.palaceRoomStore.getRoom(targetRoomId);
+
+    if (!sourceRoom || !targetRoom) {
+      return false;
+    }
+
+    let allSuccessful = true;
+
+    for (const drawingId of drawingIds) {
+      // Verify drawing exists in source room
+      if (!sourceRoom.drawingIds.includes(drawingId)) {
+        allSuccessful = false;
+        continue;
+      }
+
+      // Add to target room (drawing file remains the same)
+      const success = this.palaceRoomStore.addDrawingToRoom(targetRoomId, drawingId);
+      if (!success) {
+        allSuccessful = false;
+      }
+    }
+
+    return allSuccessful;
+  }
+
+  /**
+   * Move drawings between rooms
+   */
+  moveDrawingsToRoom(
+    sourceRoomId: string,
+    targetRoomId: string,
+    drawingIds: string[]
+  ): boolean {
+    const sourceRoom = this.palaceRoomStore.getRoom(sourceRoomId);
+    const targetRoom = this.palaceRoomStore.getRoom(targetRoomId);
+
+    if (!sourceRoom || !targetRoom) {
+      return false;
+    }
+
+    let allSuccessful = true;
+
+    for (const drawingId of drawingIds) {
+      // Verify drawing exists in source room
+      if (!sourceRoom.drawingIds.includes(drawingId)) {
+        allSuccessful = false;
+        continue;
+      }
+
+      // Add to target room
+      const addSuccess = this.palaceRoomStore.addDrawingToRoom(targetRoomId, drawingId);
+
+      if (addSuccess) {
+        // Remove from source room
+        const removeSuccess = this.palaceRoomStore.removeDrawingFromRoom(sourceRoomId, drawingId);
+        if (!removeSuccess) {
+          allSuccessful = false;
+        }
+      } else {
+        allSuccessful = false;
+      }
+    }
+
+    return allSuccessful;
+  }
+
+  /**
+   * List all drawings across all rooms
+   */
+  listAllDrawings(): RoomDrawingMetadata[] {
+    const allDrawings = this.drawingStore.listDrawingsWithExtractedNames();
+    const allRooms = this.palaceRoomStore.listRooms();
+
+    // Populate room associations
+    for (const drawing of allDrawings) {
+      drawing.roomIds = [];
+      for (const room of allRooms) {
+        if (room.drawingIds.includes(drawing.id)) {
+          drawing.roomIds.push(room.id);
+        }
+      }
+    }
+
+    return allDrawings;
   }
 
   // ============================================================================

@@ -250,11 +250,22 @@ We implemented a standalone drawing storage system that keeps things simple whil
    - Auto-adds `.excalidraw` extension if not provided
 
 3. **MemoryPalace Integration** ✅
-   - Added 9 new methods for drawing management
+   - Added 9 basic methods for drawing management
    - Text operations: `saveDrawing()`, `loadDrawing()`
    - Binary operations: `saveBinaryDrawing()`, `loadBinaryDrawing()`
    - Management: `listDrawings()`, `deleteDrawing()`, `renameDrawing()`, `drawingExists()`
    - Metadata: `listDrawingsWithMetadata()`
+
+   **NEW Room-Aware Drawing API** ✅ (Added 2025-09-26)
+   - `saveRoomDrawing()` - Save and auto-associate with room in one operation
+   - `loadRoomDrawing()` - Load drawing with room verification
+   - `listRoomDrawings()` - List all drawings for a room with names from appState
+   - `updateDrawingName()` - Update name without loading full content
+   - `unlinkDrawingFromRoom()` - Remove from room but keep file
+   - `deleteDrawingCompletely()` - Remove from all rooms and delete
+   - `copyDrawingsToRoom()` - Copy drawings between rooms
+   - `moveDrawingsToRoom()` - Move drawings between rooms
+   - `listAllDrawings()` - List all drawings with room associations
 
 4. **Comprehensive Testing** ✅
    - Full test coverage in `tests/pure-core/stores/DrawingStore.test.ts`
@@ -368,4 +379,4 @@ Adding Excalidraw support requires extending the FileSystemAdapter to handle bin
 
 ---
 
-_Last reviewed: 2025-09-25 - Document remains accurate; PalaceRoom additions to MemoryPalace.ts don't affect drawing support design._
+_Last reviewed: 2025-09-26 - Updated with room-aware drawing API that simplifies Excalidraw integration by automatically extracting names from appState and providing direct room-drawing associations._
